@@ -8,13 +8,15 @@
     "test": "test"
   },
   "scripts": {
-    "test": "echo 'No tests specified' && exit 0",
-    "coverage": "echo 'No coverage tool specified' && exit 0",
-    "security-check": "echo 'No security check tool specified' && exit 0",
+    "compile": "hardhat compile",
+    "test": "hardhat test",
+    "coverage": "hardhat coverage",
+    "coverage:summary": "hardhat coverage --quiet | grep -A 20 '=================='",
+    "lint:javascript": "eslint .",
     "lint:solidity": "solhint 'contracts/**/*.sol'",
-    "format:solidity": "prettier --write 'contracts/**/*.sol'",
-    "lint:js": "eslint 'test/**/*.js' 'scripts/**/*.js'",
-    "format:js": "prettier --write 'test/**/*.js' 'scripts/**/*.js'"
+    "format:check": "prettier --check .",
+    "format:write": "prettier --write .",
+    "ci": "npm run lint:javascript && npm run lint:solidity && npm run format:check && npm run compile && npm run test"
   },
   "repository": {
     "type": "git",
@@ -28,10 +30,8 @@
   },
   "homepage": "https://github.com/JomarJunior/smart-crid#readme",
   "devDependencies": {
-    "@eslint/js": "^9.30.1",
     "@nomicfoundation/hardhat-toolbox": "^4.0.0",
-    "eslint": "^9.30.1",
-    "eslint-plugin-react": "^7.37.5",
+    "eslint": "^8.57.0",
     "globals": "^16.3.0",
     "hardhat": "^2.25.0",
     "prettier": "^3.6.2",
