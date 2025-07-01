@@ -1,6 +1,5 @@
 {
   "extends": "solhint:recommended",
-  "plugins": ["prettier"],
   "rules": {
     "avoid-suicide": "error",
     "avoid-sha3": "warn",
@@ -18,38 +17,26 @@
     "no-complex-fallback": "error",
     "payable-fallback": "error",
     "no-inline-assembly": "warn",
-    
-    "bracket-align": "error",
+
     "code-complexity": ["error", 8],
     "function-max-lines": ["error", 50],
     "max-line-length": ["error", 120],
-    "no-mix-tabs-and-spaces": "error",
-    "no-spaces-before-semicolon": "error",
     "quotes": ["error", "double"],
-    "semicolon": ["error", "always"],
-    "two-lines-top-level-separator": "error",
-    "separate-by-one-line-in-contract": "error",
-    "space-after-comma": "error",
-    "no-trailing-whitespace": "error",
-    
+
     "const-name-snakecase": "error",
-    "contract-name-camelcase": "error",
-    "event-name-camelcase": "error",
     "func-name-mixedcase": "error",
     "modifier-name-mixedcase": "error",
     "private-vars-leading-underscore": "error",
     "var-name-mixedcase": "error",
     "use-forbidden-name": "error",
-    
-    "gas-calldata-interface": "warn",
-    "gas-custom-errors": "error",
+
+    "gas-custom-errors": "warn",
     "gas-length-in-loops": "error",
     "gas-named-return-values": "warn",
     "gas-small-strings": "warn",
     "gas-struct-packing": "warn",
-    
-    "explicit-types": ["error", "always"],
-    "func-order": "error",
+
+    "explicit-types": ["error", "explicit"],
     "imports-on-top": "error",
     "multiple-sends": "error",
     "no-console": "warn",
@@ -59,8 +46,8 @@
     "no-unused-vars": "error",
     "ordering": "error",
     "reason-string": ["warn", { "maxLength": 64 }],
-    "comprehensive-interface": "warn",
-    
+    "comprehensive-interface": "off",
+
     "func-param-name-mixedcase": "error",
     "named-parameters-mapping": "warn"
   },
