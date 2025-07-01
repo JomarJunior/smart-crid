@@ -16,18 +16,18 @@ module.exports = [
         ethers: "readonly",
         network: "readonly",
         web3: "readonly",
-        hre: "readonly"
-      }
+        hre: "readonly",
+      },
     },
     rules: {
-      "semi": ["error", "always"],
-      "quotes": ["warn", "double"],
-      "indent": ["warn", 2],
-      "no-unused-vars": ["warn", { "argsIgnorePattern": "^_" }],
+      semi: ["error", "always"],
+      quotes: ["warn", "double"],
+      indent: ["warn", 2],
+      "no-unused-vars": ["warn", { argsIgnorePattern: "^_" }],
       "no-console": "warn",
       "prefer-const": "error",
-      "no-var": "error"
-    }
+      "no-var": "error",
+    },
   },
   {
     ignores: [
@@ -37,7 +37,7 @@ module.exports = [
       "coverage/",
       "typechain-types/",
       "dist/",
-      "build/"
-    ]
-  }
+      "build/",
+    ],
+  },
 ];
