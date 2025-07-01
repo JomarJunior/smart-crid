@@ -1,0 +1,57 @@
+# 📁 Node.js
+node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# 🏗️ Build artifacts
+dist/
+build/
+artifacts/
+cache/
+typechain-types/
+
+# 🧪 Test coverage
+coverage/
+.nyc_output/
+
+# 📊 Reports
+reports/
+*.log
+
+# 🔐 Environment and secrets
+.env
+.env.local
+.env.development.local
+.env.test.local
+.env.production.local
+*.pem
+*.key
+
+# 🗃️ IDE and editor files
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# 📱 macOS
+.DS_Store
+.AppleDouble
+.LSOverride
+
+# 🐧 Linux
+*~
+.fuse_hidden*
+.directory
+.Trash-*
+
+# 🪟 Windows
+Thumbs.db
+ehthumbs.db
+Desktop.ini
+
+# 📋 Git
+.git/
+.gitignore
+README.md

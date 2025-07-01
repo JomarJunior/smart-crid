@@ -1,0 +1,157 @@
+version: '3.8'
+
+services:
+  # Blockchain Development Network
+  hardhat-node:
+    build:
+      context: .
+      dockerfile: docker/hardhat-node.Dockerfile
+    container_name: crid-hardhat-node
+    working_dir: /app
+    volumes:
+      - .:/app
+      - node_modules:/app/node_modules
+    ports:
+      - "8545:8545"  # Hardhat JSON-RPC port
+      - "8546:8546"  # Hardhat WebSocket port
+    networks:
+      - crid-network
+    environment:
+      - NODE_ENV=development
+      - HARDHAT_NETWORK=hardhat
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8545"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+  
+  # Smart Contract Development Environment
+  smart-contracts:
+    build:
+      context: .
+      dockerfile: docker/smart-contracts.Dockerfile
+    container_name: crid-contracts
+    working_dir: /app
+    volumes:
+      - .:/app
+      - node_modules:/app/node_modules
+    networks:
+      - crid-network
+    environment:
+      - NODE_ENV=development
+      - HARDHAT_NETWORK=hardhat
+      - RPC_URL=http://hardhat-node:8545
+    depends_on:
+      - hardhat-node
+  
+  # Frontend Development Environment
+  # frontend:
+  #   build:
+  #     context: .
+  #     dockerfile: docker/frontend.Dockerfile
+  #   container_name: crid-frontend
+  #   working_dir: /app/frontend
+  #   volumes:
+  #     - ./frontend:/app/frontend
+  #     - frontend_node_modules:/app/frontend/node_modules
+  #   ports:
+  #     - "3000:3000"  # React development server port
+  #   networks:
+  #     - crid-network
+  #   environment:
+  #     - NODE_ENV=development
+  #     - REACT_APP_NETWORK=localhost
+  #     - REACT_APP_RPC_URL=http://hardhat-node:8545
+  #     - REACT_APP_CHAIN_ID=31337
+  #     - WATCHPACK_POLLING=true
+  #   depends_on:
+  #     - hardhat-node
+  #   healthcheck:
+  #     test: ["CMD", "curl", "-f", "http://localhost:3000"]
+  #     # test: ["CMD", "wget", "--quiet", "--tries=1", "--spider", "http://localhost:3000"]
+  #     interval: 30s
+  #     timeout: 10s
+  #     retries: 3
+
+  # The Graph Node for Blockchain Data Indexing
+  graph-node:
+    image: graphprotocol/graph-node:v0.39.0
+    container_name: crid-graph-node
+    ports:
+      - "8000:8000"  # GraphQL endpoint
+      - "8001:8001"  # IPFS proxy (opcional)
+      - "8020:8020"  # Ethereum read endpoint
+      - "8030:8030"  # Admin for subgraph deploy
+      - "8040:8040"  # Metrics
+    networks:
+      - crid-network
+    environment:
+      POSTGRES_HOST: postgres
+      POSTGRES_USER: graph-node
+      POSTGRES_PASSWORD: let-me-in
+      POSTGRES_DB: graph-node
+      IPFS: 'http://ipfs:5001'
+      ETHEREUM: 'crid:http://hardhat-node:8545'
+      GRAPH_LOG: info
+    depends_on:
+      - hardhat-node
+      - ipfs
+      - postgres
+  
+  # PostgreSQL Database for The Graph Node
+  postgres:
+    image: postgres:14
+    container_name: crid-postgres
+    ports:
+      - "5432:5432"  # PostgreSQL port
+    networks:
+      - crid-network
+    environment:
+      POSTGRES_USER: graph-node
+      POSTGRES_PASSWORD: let-me-in
+      POSTGRES_DB: graph-node
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U graph-node"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+  
+  # IPFS Node for Decentralized Storage
+  ipfs:
+    image: ipfs/go-ipfs:v0.8.0
+    container_name: crid-ipfs
+    ports:
+      - "4001:4001"  # IPFS API
+      - "5001:5001"  # IPFS Gateway
+      - "8080:8080"  # IPFS WebUI
+    networks:
+      - crid-network
+    volumes:
+      - ipfs_data:/data/ipfs
+    environment:
+      - IPFS_PROFILE=server
+    healthcheck:
+      test: ["CMD", "ipfs", "id"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+  
+volumes:
+  node_modules:
+    name: crid-node-modules
+  frontend_node_modules:
+    name: crid-frontend-node-modules
+  postgres_data:
+    name: crid-postgres-data
+  ipfs_data:
+    name: crid-ipfs-data
+
+networks:
+  crid-network:
+    name: crid-network
+    driver: bridge
+    ipam:
+      config:
+        - subnet: 172.20.0.0/16
