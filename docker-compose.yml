@@ -1,4 +1,4 @@
-version: '3.8'
+version: "3.8"
 
 services:
   # Blockchain Development Network
@@ -12,8 +12,8 @@ services:
       - .:/app
       - node_modules:/app/node_modules
     ports:
-      - "8545:8545"  # Hardhat JSON-RPC port
-      - "8546:8546"  # Hardhat WebSocket port
+      - "8545:8545" # Hardhat JSON-RPC port
+      - "8546:8546" # Hardhat WebSocket port
     networks:
       - crid-network
     environment:
@@ -24,7 +24,7 @@ services:
       interval: 30s
       timeout: 10s
       retries: 3
-  
+
   # Smart Contract Development Environment
   smart-contracts:
     build:
@@ -43,7 +43,7 @@ services:
       - RPC_URL=http://hardhat-node:8545
     depends_on:
       - hardhat-node
-  
+
   # Frontend Development Environment
   # frontend:
   #   build:
@@ -78,11 +78,11 @@ services:
     image: graphprotocol/graph-node:v0.39.0
     container_name: crid-graph-node
     ports:
-      - "8000:8000"  # GraphQL endpoint
-      - "8001:8001"  # IPFS proxy (opcional)
-      - "8020:8020"  # Ethereum read endpoint
-      - "8030:8030"  # Admin for subgraph deploy
-      - "8040:8040"  # Metrics
+      - "8000:8000" # GraphQL endpoint
+      - "8001:8001" # IPFS proxy (opcional)
+      - "8020:8020" # Ethereum read endpoint
+      - "8030:8030" # Admin for subgraph deploy
+      - "8040:8040" # Metrics
     networks:
       - crid-network
     environment:
@@ -90,20 +90,20 @@ services:
       POSTGRES_USER: graph-node
       POSTGRES_PASSWORD: let-me-in
       POSTGRES_DB: graph-node
-      IPFS: 'http://ipfs:5001'
-      ETHEREUM: 'crid:http://hardhat-node:8545'
+      IPFS: "http://ipfs:5001"
+      ETHEREUM: "crid:http://hardhat-node:8545"
       GRAPH_LOG: info
     depends_on:
       - hardhat-node
       - ipfs
       - postgres
-  
+
   # PostgreSQL Database for The Graph Node
   postgres:
     image: postgres:14
     container_name: crid-postgres
     ports:
-      - "5432:5432"  # PostgreSQL port
+      - "5432:5432" # PostgreSQL port
     networks:
       - crid-network
     environment:
@@ -117,15 +117,15 @@ services:
       interval: 30s
       timeout: 10s
       retries: 3
-  
+
   # IPFS Node for Decentralized Storage
   ipfs:
     image: ipfs/go-ipfs:v0.8.0
     container_name: crid-ipfs
     ports:
-      - "4001:4001"  # IPFS API
-      - "5001:5001"  # IPFS Gateway
-      - "8080:8080"  # IPFS WebUI
+      - "4001:4001" # IPFS API
+      - "5001:5001" # IPFS Gateway
+      - "8080:8080" # IPFS WebUI
     networks:
       - crid-network
     volumes:
@@ -137,7 +137,7 @@ services:
       interval: 30s
       timeout: 10s
       retries: 3
-  
+
 volumes:
   node_modules:
     name: crid-node-modules
