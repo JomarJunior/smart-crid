@@ -1,5 +1,7 @@
 # 📋 Technical Design Document (TDD)
+
 ## CRID - Certificate of Enrollment Request for Courses
+
 ### Smart Contract System for University Course Management
 
 ---
@@ -9,17 +11,20 @@
 **Date:** July 1, 2025  
 **Team Size:** Up to 3 students  
 **Course:** Advanced Programming - UFRJ  
-**Document Type:** Technical Design Document  
+**Document Type:** Technical Design Document
 
 ---
 
 ## 🔍 1. Project Overview
 
 ### 1.1 Executive Summary
+
 The **CRID (Certificate of Enrollment Request for Courses)** project is a blockchain-based smart contract system designed to digitize and automate the university course enrollment certification process. Built on the Ethereum blockchain using Solidity, this system provides a transparent, immutable, and efficient solution for managing student enrollment requests and academic coordination workflows.
 
 ### 1.2 Problem Statement
+
 Traditional university enrollment certification processes are often:
+
 - **Paper-based and inefficient** 📄
 - **Prone to fraud and manipulation** ⚠️
 - **Lack transparency** 🔍
@@ -27,7 +32,9 @@ Traditional university enrollment certification processes are often:
 - **Create bottlenecks in academic administration** 🚧
 
 ### 1.3 Solution Approach
+
 Our smart contract system addresses these challenges by:
+
 - **Immutable record keeping** on the blockchain 🔒
 - **Automated verification processes** through smart contract logic ⚡
 - **Role-based access control** ensuring proper authorization 🔐
@@ -41,6 +48,7 @@ Our smart contract system addresses these challenges by:
 ### 2.1 Functional Requirements
 
 #### 2.1.1 Core Features ✨
+
 - **Student Registration**: Enable students to register and create enrollment requests
 - **Course Management**: Allow coordination to define and manage available courses
 - **Request Processing**: Automated workflow for enrollment request approval/rejection
@@ -48,31 +56,36 @@ Our smart contract system addresses these challenges by:
 - **Status Tracking**: Real-time status updates for all stakeholders
 
 #### 2.1.2 User Stories 📖
-| **Actor** | **User Story** | **Acceptance Criteria** |
-|-----------|----------------|-------------------------|
-| Student | As a student, I want to submit an enrollment request for a course | Request is recorded on blockchain with timestamp |
-| Coordinator | As a coordinator, I want to approve/reject enrollment requests | Decision is immutably recorded with justification |
-| Administrator | As an admin, I want to manage system users and permissions | Role assignments are properly enforced |
-| Auditor | As an auditor, I want to verify the integrity of enrollment records | All transactions are transparently accessible |
+
+| **Actor**     | **User Story**                                                      | **Acceptance Criteria**                           |
+| ------------- | ------------------------------------------------------------------- | ------------------------------------------------- |
+| Student       | As a student, I want to submit an enrollment request for a course   | Request is recorded on blockchain with timestamp  |
+| Coordinator   | As a coordinator, I want to approve/reject enrollment requests      | Decision is immutably recorded with justification |
+| Administrator | As an admin, I want to manage system users and permissions          | Role assignments are properly enforced            |
+| Auditor       | As an auditor, I want to verify the integrity of enrollment records | All transactions are transparently accessible     |
 
 ### 2.2 Non-Functional Requirements
 
 #### 2.2.1 Performance 🚀
+
 - **Response Time**: Smart contract calls should execute within 15 seconds
 - **Throughput**: Support up to 100 concurrent enrollment requests
 - **Scalability**: Design to handle 10,000+ students per semester
 
 #### 2.2.2 Security 🛡️
+
 - **Access Control**: Role-based permissions with modifier enforcement
 - **Data Integrity**: All transactions cryptographically secured
 - **Audit Trail**: Complete immutable history of all operations
 
 #### 2.2.3 Reliability 🔧
+
 - **Availability**: 99.9% uptime (dependent on Ethereum network)
 - **Consistency**: State consistency guaranteed by blockchain consensus
 - **Recoverability**: Data persistence ensured by distributed ledger
 
 #### 2.2.4 Usability 💡
+
 - **Interface**: Clean, intuitive web interface for all user types
 - **Documentation**: Comprehensive API and user documentation
 - **Error Handling**: Clear error messages and graceful failure handling
@@ -84,15 +97,17 @@ Our smart contract system addresses these challenges by:
 ### 3.1 Threat Analysis
 
 #### 3.1.1 Primary Threats ⚠️
-| **Threat** | **Impact** | **Likelihood** | **Mitigation Strategy** |
-|------------|------------|----------------|-------------------------|
-| Unauthorized Access | High | Medium | Role-based access control with modifiers |
-| Data Manipulation | High | Low | Immutable blockchain storage |
-| Denial of Service | Medium | Medium | Gas optimization and rate limiting |
-| Private Key Compromise | High | Low | Multi-signature requirements for critical operations |
-| Smart Contract Bugs | High | Medium | Comprehensive testing and code audits |
+
+| **Threat**             | **Impact** | **Likelihood** | **Mitigation Strategy**                              |
+| ---------------------- | ---------- | -------------- | ---------------------------------------------------- |
+| Unauthorized Access    | High       | Medium         | Role-based access control with modifiers             |
+| Data Manipulation      | High       | Low            | Immutable blockchain storage                         |
+| Denial of Service      | Medium     | Medium         | Gas optimization and rate limiting                   |
+| Private Key Compromise | High       | Low            | Multi-signature requirements for critical operations |
+| Smart Contract Bugs    | High       | Medium         | Comprehensive testing and code audits                |
 
 #### 3.1.2 Attack Vectors 🎯
+
 - **Reentrancy Attacks**: Prevented through checks-effects-interactions pattern
 - **Integer Overflow/Underflow**: Mitigated using SafeMath library or Solidity 0.8+
 - **Front-running**: Minimized through commit-reveal schemes where applicable
@@ -101,6 +116,7 @@ Our smart contract system addresses these challenges by:
 ### 3.2 Security Controls
 
 #### 3.2.1 Access Control Mechanisms 🔑
+
 ```
 Roles Hierarchy:
 ├── Admin (Contract Owner)
@@ -118,6 +134,7 @@ Roles Hierarchy:
 ```
 
 #### 3.2.2 Smart Contract Security Features 🛡️
+
 - **Modifier-based Access Control**: `onlyAdmin`, `onlyCoordinator`, `onlyStudent`
 - **State Machine Implementation**: Proper state transitions for requests
 - **Input Validation**: Comprehensive parameter checking
@@ -125,6 +142,7 @@ Roles Hierarchy:
 - **Upgradeability**: Proxy pattern for secure contract evolution
 
 ### 3.3 Compliance and Standards 📋
+
 - **ERC Standards**: Adherence to relevant Ethereum standards
 - **Academic Privacy**: FERPA compliance considerations
 - **Data Protection**: GDPR-aligned data handling practices
@@ -137,6 +155,7 @@ Roles Hierarchy:
 ### 4.1 Core Domain Concepts
 
 #### 4.1.1 Entities 🏗️
+
 - **Student**: Individual seeking course enrollment
 - **Coordinator**: Academic staff responsible for course management
 - **Course**: Academic subject offering with specific requirements
@@ -145,6 +164,7 @@ Roles Hierarchy:
 - **Academic Period**: Semester or term during which courses are offered
 
 #### 4.1.2 Value Objects 💎
+
 - **Student ID**: Unique identifier for students
 - **Course Code**: Standardized course identification
 - **Request Status**: Enumerated state of enrollment request
@@ -153,18 +173,19 @@ Roles Hierarchy:
 
 ### 4.2 Ubiquitous Language Glossary 📖
 
-| **Term** | **Definition** | **Context** |
-|----------|---------------|-------------|
-| **CRID** | Certificate of Enrollment Request for Courses | System Name |
-| **Enrollment Request** | A formal application submitted by a student to enroll in a specific course | Core Process |
-| **Coordinator** | Academic staff member authorized to approve/reject enrollment requests | User Role |
-| **Gas Fee** | Transaction cost required to execute smart contract functions | Blockchain |
-| **Modifier** | Solidity function that restricts access to certain contract functions | Security |
-| **State Machine** | Design pattern ensuring proper sequence of request status transitions | Architecture |
-| **Immutable** | Data that cannot be changed once written to the blockchain | Blockchain Property |
-| **Consensus** | Agreement mechanism ensuring blockchain network integrity | Blockchain Concept |
+| **Term**               | **Definition**                                                             | **Context**         |
+| ---------------------- | -------------------------------------------------------------------------- | ------------------- |
+| **CRID**               | Certificate of Enrollment Request for Courses                              | System Name         |
+| **Enrollment Request** | A formal application submitted by a student to enroll in a specific course | Core Process        |
+| **Coordinator**        | Academic staff member authorized to approve/reject enrollment requests     | User Role           |
+| **Gas Fee**            | Transaction cost required to execute smart contract functions              | Blockchain          |
+| **Modifier**           | Solidity function that restricts access to certain contract functions      | Security            |
+| **State Machine**      | Design pattern ensuring proper sequence of request status transitions      | Architecture        |
+| **Immutable**          | Data that cannot be changed once written to the blockchain                 | Blockchain Property |
+| **Consensus**          | Agreement mechanism ensuring blockchain network integrity                  | Blockchain Concept  |
 
 ### 4.3 Business Rules 📐
+
 - Students can only submit one enrollment request per course per academic period
 - Coordinators can only approve requests for courses under their jurisdiction
 - Certificates are automatically generated upon successful enrollment approval
@@ -178,6 +199,7 @@ Roles Hierarchy:
 ### 5.1 System Architecture Overview
 
 #### 5.1.1 High-Level Architecture 🏛️
+
 ```
 ┌─────────────────────────────────────────────────────────────┐
 │                    CRID System Architecture                 │
@@ -203,31 +225,41 @@ Roles Hierarchy:
 ### 5.2 Bounded Contexts
 
 #### 5.2.1 Student Context 🎓
+
 **Responsibility**: Managing student-related operations and data
+
 - **Entities**: Student Profile, Personal Academic History
 - **Operations**: Registration, Request Submission, Status Inquiry
 - **Invariants**: One active request per course per period
 
 #### 5.2.2 Coordination Context 👥
+
 **Responsibility**: Academic staff operations and course management
+
 - **Entities**: Coordinator Profile, Course Catalog, Approval Workflow
 - **Operations**: Request Review, Approval/Rejection, Course Setup
 - **Invariants**: Coordinators only manage assigned courses
 
 #### 5.2.3 Blockchain Context ⛓️
+
 **Responsibility**: Immutable data storage and transaction processing
+
 - **Entities**: Transaction Records, Block Information, Gas Management
 - **Operations**: Transaction Validation, State Updates, Event Emission
 - **Invariants**: All state changes are cryptographically verified
 
 #### 5.2.4 Security Context 🔐
+
 **Responsibility**: Access control and permission management
+
 - **Entities**: User Roles, Permission Sets, Security Policies
 - **Operations**: Authentication, Authorization, Audit Logging
 - **Invariants**: Role-based access strictly enforced
 
 #### 5.2.5 Interface Context 🖥️
+
 **Responsibility**: User interaction and system integration
+
 - **Entities**: UI Components, API Endpoints, External Integrations
 - **Operations**: User Input Processing, Data Presentation, System Communication
 - **Invariants**: All user actions properly validated before blockchain submission
@@ -235,15 +267,17 @@ Roles Hierarchy:
 ### 5.3 Integration Patterns 🔄
 
 #### 5.3.1 Contract Interaction Patterns
+
 - **Factory Pattern**: For creating new enrollment requests
 - **State Machine Pattern**: For managing request lifecycle
 - **Observer Pattern**: For event-driven notifications
 - **Proxy Pattern**: For contract upgradeability
 
 #### 5.3.2 Data Flow Architecture
+
 ```
-Student Request → Input Validation → Smart Contract → 
-State Update → Event Emission → UI Notification → 
+Student Request → Input Validation → Smart Contract →
+State Update → Event Emission → UI Notification →
 Coordinator Review → Approval Decision → Certificate Generation
 ```
 
@@ -254,6 +288,7 @@ Coordinator Review → Approval Decision → Certificate Generation
 ### 6.1 Blockchain Development Stack
 
 #### 6.1.1 Core Technologies 🌟
+
 - **Solidity 0.8.x**: Primary smart contract programming language
 - **Ethereum**: Target blockchain platform for deployment
 - **Hardhat**: Development environment and testing framework
@@ -261,17 +296,19 @@ Coordinator Review → Approval Decision → Certificate Generation
 - **Web3.js/Ethers.js**: JavaScript libraries for blockchain interaction
 
 #### 6.1.2 Development Tools 🔧
-| **Category** | **Tool** | **Purpose** | **Version** |
-|--------------|----------|-------------|-------------|
-| IDE | Visual Studio Code | Primary development environment | Latest |
-| Extensions | Solidity Extension | Syntax highlighting and IntelliSense | Latest |
-| Package Manager | npm/yarn | Dependency management | Latest |
-| Version Control | Git | Source code management | Latest |
-| Container | Docker | Consistent development environment | Latest |
+
+| **Category**    | **Tool**           | **Purpose**                          | **Version** |
+| --------------- | ------------------ | ------------------------------------ | ----------- |
+| IDE             | Visual Studio Code | Primary development environment      | Latest      |
+| Extensions      | Solidity Extension | Syntax highlighting and IntelliSense | Latest      |
+| Package Manager | npm/yarn           | Dependency management                | Latest      |
+| Version Control | Git                | Source code management               | Latest      |
+| Container       | Docker             | Consistent development environment   | Latest      |
 
 ### 6.2 Testing and Quality Assurance
 
 #### 6.2.1 Testing Framework 🧪
+
 - **Mocha**: JavaScript testing framework for smart contracts
 - **Chai**: Assertion library for readable test cases
 - **Waffle**: Ethereum-specific testing utilities
@@ -279,6 +316,7 @@ Coordinator Review → Approval Decision → Certificate Generation
 - **Mythril**: Security analysis tool for smart contract vulnerabilities
 
 #### 6.2.2 Code Quality Tools 📊
+
 - **Solhint**: Solidity linting for code style and security
 - **Prettier**: Code formatting for consistent style
 - **ESLint**: JavaScript linting for frontend code
@@ -288,6 +326,7 @@ Coordinator Review → Approval Decision → Certificate Generation
 ### 6.3 CI/CD Pipeline
 
 #### 6.3.1 GitHub Actions Workflow 🚀
+
 ```yaml
 Pipeline Stages:
 ├── Code Quality Checks
@@ -309,6 +348,7 @@ Pipeline Stages:
 ```
 
 #### 6.3.2 Deployment Strategy 🎯
+
 - **Local Development**: Hardhat Network for rapid iteration
 - **Testing**: Goerli/Sepolia testnet for integration testing
 - **Staging**: Polygon Mumbai for pre-production validation
@@ -317,6 +357,7 @@ Pipeline Stages:
 ### 6.4 Frontend and Integration
 
 #### 6.4.1 User Interface Technologies 💻
+
 - **React.js**: Modern frontend framework for responsive UI
 - **Web3Modal**: Wallet connection management
 - **Material-UI**: Professional component library
@@ -324,6 +365,7 @@ Pipeline Stages:
 - **Redux**: State management for complex application state
 
 #### 6.4.2 Backend and Infrastructure 🏗️
+
 - **Node.js**: Backend API development
 - **Express.js**: Web application framework
 - **IPFS**: Decentralized storage for large documents
@@ -455,6 +497,7 @@ smart-crid/
 ### 7.2 Configuration Files
 
 #### 7.2.1 Development Configuration 🔧
+
 - **hardhat.config.js**: Network settings, compiler options, plugin configuration
 - **.env**: Environment variables for sensitive data (API keys, private keys)
 - **package.json**: Dependencies, scripts, and project metadata
@@ -462,6 +505,7 @@ smart-crid/
 - **tsconfig.json**: TypeScript configuration for frontend development
 
 #### 7.2.2 CI/CD Configuration 🚀
+
 - **.github/workflows/**: GitHub Actions workflow definitions
 - **Dockerfile**: Container configuration for consistent environments
 - **docker-compose.yml**: Multi-service development environment
@@ -474,7 +518,9 @@ smart-crid/
 ### 8.1 Development Roadmap
 
 #### 8.1.1 Phase 1: Foundation (Weeks 1-2) 🏗️
+
 **Milestone: Basic Smart Contract Structure**
+
 - [ ] Project setup and repository initialization
 - [ ] Basic smart contract skeleton with access control
 - [ ] Initial test suite setup with Hardhat and Mocha
@@ -482,13 +528,16 @@ smart-crid/
 - [ ] Code quality tools integration (Solhint, Prettier)
 
 **Deliverables:**
+
 - Functional development environment
 - Basic smart contract with role management
 - Automated testing pipeline
 - Code quality enforcement
 
 #### 8.1.2 Phase 2: Core Functionality (Weeks 3-4) ⚙️
+
 **Milestone: Complete Enrollment Request System**
+
 - [ ] Implement enrollment request submission logic
 - [ ] Build course management functionality
 - [ ] Develop approval/rejection workflow
@@ -496,13 +545,16 @@ smart-crid/
 - [ ] Security analysis and vulnerability assessment
 
 **Deliverables:**
+
 - Feature-complete smart contract
 - Comprehensive test suite
 - Security audit report
 - API documentation
 
 #### 8.1.3 Phase 3: User Interface (Weeks 5-6) 🖥️
+
 **Milestone: Functional Web Interface**
+
 - [ ] Design and implement React frontend
 - [ ] Integrate Web3 wallet connectivity
 - [ ] Build user dashboards for all roles
@@ -510,13 +562,16 @@ smart-crid/
 - [ ] User acceptance testing with stakeholders
 
 **Deliverables:**
+
 - Responsive web application
 - Multi-role user interface
 - Integration with smart contracts
 - User documentation
 
 #### 8.1.4 Phase 4: Deployment and Optimization (Weeks 7-8) 🚀
+
 **Milestone: Production-Ready System**
+
 - [ ] Testnet deployment and integration testing
 - [ ] Gas optimization and performance tuning
 - [ ] Final security audit and penetration testing
@@ -524,6 +579,7 @@ smart-crid/
 - [ ] Monitoring and alerting system setup
 
 **Deliverables:**
+
 - Deployed smart contract on mainnet
 - Production monitoring dashboard
 - Final security assessment
@@ -532,14 +588,16 @@ smart-crid/
 ### 8.2 Risk Management and Contingencies
 
 #### 8.2.1 Technical Risks ⚠️
-| **Risk** | **Probability** | **Impact** | **Mitigation Strategy** |
-|----------|----------------|------------|-------------------------|
-| Smart Contract Bugs | Medium | High | Extensive testing, code reviews, external audits |
-| Gas Price Volatility | High | Medium | Layer 2 solutions, gas optimization |
-| Network Congestion | Medium | Medium | Alternative networks, batching transactions |
-| Wallet Integration Issues | Low | Medium | Multiple wallet support, fallback options |
+
+| **Risk**                  | **Probability** | **Impact** | **Mitigation Strategy**                          |
+| ------------------------- | --------------- | ---------- | ------------------------------------------------ |
+| Smart Contract Bugs       | Medium          | High       | Extensive testing, code reviews, external audits |
+| Gas Price Volatility      | High            | Medium     | Layer 2 solutions, gas optimization              |
+| Network Congestion        | Medium          | Medium     | Alternative networks, batching transactions      |
+| Wallet Integration Issues | Low             | Medium     | Multiple wallet support, fallback options        |
 
 #### 8.2.2 Project Risks 📊
+
 - **Timeline Delays**: Agile development with regular milestones
 - **Team Coordination**: Daily standups and clear role definitions
 - **Scope Creep**: Defined MVP with clear acceptance criteria
@@ -548,12 +606,14 @@ smart-crid/
 ### 8.3 Success Criteria and KPIs
 
 #### 8.3.1 Technical Metrics 📈
+
 - **Test Coverage**: >90% for smart contracts
 - **Gas Efficiency**: <200k gas per enrollment request
 - **Response Time**: <15 seconds for all operations
 - **Security Score**: Zero critical vulnerabilities
 
 #### 8.3.2 Business Metrics 🎯
+
 - **User Adoption**: 100% of target user groups onboarded
 - **Transaction Success Rate**: >99%
 - **System Availability**: >99.9%
@@ -566,12 +626,14 @@ smart-crid/
 ### 9.1 Reference Documents
 
 #### 9.1.1 Academic Requirements 📚
+
 - **Course Syllabus**: Advanced Programming course requirements
 - **Assignment Specification**: "Example 3 of Solidity" implementation guidelines
 - **Academic Standards**: University coding and documentation standards
 - **IEEE Format Guide**: Formatting requirements for final PDF report
 
 #### 9.1.2 Technical References 🔧
+
 - **Solidity Documentation**: Official language reference and best practices
 - **OpenZeppelin Contracts**: Security-audited contract implementations
 - **Hardhat Documentation**: Development environment and testing framework
@@ -580,12 +642,14 @@ smart-crid/
 ### 9.2 Security Documentation
 
 #### 9.2.1 Security Assessment Framework 🛡️
+
 - **OWASP Smart Contract Top 10**: Common vulnerability checklist
 - **ConsenSys Security Best Practices**: Industry-standard security guidelines
 - **Smart Contract Weakness Classification**: Systematic vulnerability taxonomy
 - **Mythril Analysis Reports**: Automated security assessment results
 
 #### 9.2.2 Compliance Requirements 📋
+
 - **FERPA Guidelines**: Student privacy protection requirements
 - **GDPR Considerations**: Data protection and user rights
 - **University IT Policies**: Institutional technology use guidelines
@@ -594,12 +658,14 @@ smart-crid/
 ### 9.3 Architecture Diagrams
 
 #### 9.3.1 System Architecture Diagrams 🏗️
+
 - **High-Level System Architecture**: Overall system component relationships
 - **Smart Contract Architecture**: Contract interaction and inheritance hierarchy
 - **Data Flow Diagrams**: Information flow through system components
 - **Security Architecture**: Access control and permission flow
 
 #### 9.3.2 UML Diagrams 📊
+
 - **Class Diagrams**: Smart contract structure and relationships
 - **Sequence Diagrams**: User interaction flows and system responses
 - **State Diagrams**: Enrollment request lifecycle and transitions
@@ -608,12 +674,14 @@ smart-crid/
 ### 9.4 Testing Documentation
 
 #### 9.4.1 Test Strategy 🧪
+
 - **Unit Test Plan**: Individual contract function testing approach
 - **Integration Test Plan**: Multi-contract interaction testing
 - **Security Test Plan**: Vulnerability and attack simulation testing
 - **User Acceptance Test Plan**: End-to-end functionality validation
 
 #### 9.4.2 Test Results and Reports 📈
+
 - **Coverage Reports**: Detailed code coverage analysis
 - **Performance Benchmarks**: Gas usage and execution time metrics
 - **Security Audit Results**: Vulnerability assessment findings
@@ -632,4 +700,4 @@ smart-crid/
 
 ---
 
-*This Technical Design Document serves as the foundational blueprint for the CRID smart contract system development. It will be iteratively updated as the project progresses and requirements evolve.*
+_This Technical Design Document serves as the foundational blueprint for the CRID smart contract system development. It will be iteratively updated as the project progresses and requirements evolve._
