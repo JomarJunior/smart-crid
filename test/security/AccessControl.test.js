@@ -126,10 +126,10 @@ describe("🔐 Security Context - Access Control", function () {
 
   describe("User Validation", function () {
     it("Should correctly identify valid users", async function () {
-        expect(await accessControl.isValidUser(accounts.admin.address)).to.be.true;
-        expect(await accessControl.isValidUser(accounts.coordinator1.address)).to.be.true;
-        expect(await accessControl.isValidUser(accounts.student1.address)).to.be.true;
-        expect(await accessControl.isValidUser(accounts.other.address)).to.be.false;
+      expect(await accessControl.isValidUser(accounts.admin.address)).to.be.true;
+      expect(await accessControl.isValidUser(accounts.coordinator1.address)).to.be.true;
+      expect(await accessControl.isValidUser(accounts.student1.address)).to.be.true;
+      expect(await accessControl.isValidUser(accounts.other.address)).to.be.false;
     });
   });
 });

@@ -14,13 +14,13 @@ contract CRIDAccessControl is AccessControl {
     bytes32 public constant COORDINATOR_ROLE = keccak256("COORDINATOR_ROLE");
     bytes32 public constant STUDENT_ROLE = keccak256("STUDENT_ROLE");
 
-    // Events
-    event SystemInitialized(address indexed admin, uint256 timestamp);
-    event EmergencyPause(bool paused, address indexed admin);
-
     // State variables
     bool public paused;
     address public systemAdmin;
+
+    // Events
+    event SystemInitialized(address indexed admin, uint256 timestamp);
+    event EmergencyPause(bool paused, address indexed admin);
 
     // Modifiers
     modifier whenNotPaused() {
@@ -52,10 +52,7 @@ contract CRIDAccessControl is AccessControl {
     }
 
     modifier onlyValidUser() {
-        require(
-            this.isValidUser(_msgSender()),
-            "CRIDAccessControl: caller does not have a valid role"
-        );
+        require(this.isValidUser(_msgSender()), "CRIDAccessControl: caller does not have a valid role");
         _;
     }
 
@@ -82,7 +79,7 @@ contract CRIDAccessControl is AccessControl {
     }
 
     /**
-     * @dev Add a mew student (only admin or coordinator)
+     * @dev Add a new student (only admin or coordinator)
      */
     function addStudent(address student) external whenNotPaused onlyAdminOrCoordinator {
         require(student != address(0), "CRIDAccessControl: invalid student address");
