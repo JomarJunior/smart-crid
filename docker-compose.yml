@@ -39,7 +39,6 @@ services:
       - crid-network
     environment:
       - NODE_ENV=development
-      - HARDHAT_NETWORK=hardhat
       - RPC_URL=http://hardhat-node:8545
     depends_on:
       - hardhat-node
