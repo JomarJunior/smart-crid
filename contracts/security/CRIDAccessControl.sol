@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.28;
 
-import "@openzeppelin/contracts/access/AccessControl.sol";
+import {AccessControl} from "@openzeppelin/contracts/access/AccessControl.sol";
 
 /**
  * @title CRIDAccessControl
@@ -19,40 +19,45 @@ contract CRIDAccessControl is AccessControl {
     address public systemAdmin;
 
     // Events
-    event SystemInitialized(address indexed admin, uint256 timestamp);
+    event SystemInitialized(address indexed admin);
     event EmergencyPause(bool paused, address indexed admin);
+
+    // Custom Errors
+    error SystemIsPaused();
+    error InsufficientPermissions();
+    error InvalidUserRole();
+    error InvalidAddress();
 
     // Modifiers
     modifier whenNotPaused() {
-        require(!paused, "CRIDAccessControl: system is paused");
+        if (paused) revert SystemIsPaused();
         _;
     }
 
     modifier onlyAdmin() {
-        require(hasRole(ADMIN_ROLE, _msgSender()), "CRIDAccessControl: insufficient permissions");
+        if (!hasRole(ADMIN_ROLE, _msgSender())) revert InsufficientPermissions();
         _;
     }
 
     modifier onlyCoordinator() {
-        require(hasRole(COORDINATOR_ROLE, _msgSender()), "CRIDAccessControl: insufficient permissions");
+        if (!hasRole(COORDINATOR_ROLE, _msgSender())) revert InsufficientPermissions();
         _;
     }
 
     modifier onlyAdminOrCoordinator() {
-        require(
-            hasRole(ADMIN_ROLE, _msgSender()) || hasRole(COORDINATOR_ROLE, _msgSender()),
-            "CRIDAccessControl: insufficient permissions"
-        );
+        if (!hasRole(ADMIN_ROLE, _msgSender()) && !hasRole(COORDINATOR_ROLE, _msgSender())) {
+            revert InsufficientPermissions();
+        }
         _;
     }
 
     modifier onlyStudent() {
-        require(hasRole(STUDENT_ROLE, _msgSender()), "CRIDAccessControl: insufficient permissions");
+        if (!hasRole(STUDENT_ROLE, _msgSender())) revert InsufficientPermissions();
         _;
     }
 
     modifier onlyValidUser() {
-        require(this.isValidUser(_msgSender()), "CRIDAccessControl: caller does not have a valid role");
+        if (!this.isValidUser(_msgSender())) revert InvalidUserRole();
         _;
     }
 
@@ -67,14 +72,14 @@ contract CRIDAccessControl is AccessControl {
         _setRoleAdmin(COORDINATOR_ROLE, ADMIN_ROLE);
         _setRoleAdmin(STUDENT_ROLE, ADMIN_ROLE);
 
-        emit SystemInitialized(systemAdmin, block.timestamp);
+        emit SystemInitialized(systemAdmin);
     }
 
     /**
      * @dev Add a new coordinator (only admin)
      */
     function addCoordinator(address coordinator) external onlyAdmin whenNotPaused {
-        require(coordinator != address(0), "CRIDAccessControl: invalid coordinator address");
+        if (coordinator == address(0)) revert InvalidAddress();
         _grantRole(COORDINATOR_ROLE, coordinator);
     }
 
@@ -82,7 +87,7 @@ contract CRIDAccessControl is AccessControl {
      * @dev Add a new student (only admin or coordinator)
      */
     function addStudent(address student) external whenNotPaused onlyAdminOrCoordinator {
-        require(student != address(0), "CRIDAccessControl: invalid student address");
+        if (student == address(0)) revert InvalidAddress();
         _grantRole(STUDENT_ROLE, student);
     }
 
@@ -105,7 +110,7 @@ contract CRIDAccessControl is AccessControl {
     /**
      * @dev Check if user has any valid role
      */
-    function isValidUser(address user) external view returns (bool) {
+    function isValidUser(address user) external view returns (bool isValid) {
         return hasRole(ADMIN_ROLE, user) || hasRole(COORDINATOR_ROLE, user) || hasRole(STUDENT_ROLE, user);
     }
 }

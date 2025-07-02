@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.28;
 
-import "./CRIDAccessControl.sol";
+import {CRIDAccessControl} from "./CRIDAccessControl.sol";
 
 /**
  * @title SecurityModifiers
@@ -9,52 +9,53 @@ import "./CRIDAccessControl.sol";
  * Security Context - Common security patterns
  */
 abstract contract SecurityModifiers {
-    CRIDAccessControl public accessControl;
-
     // State variables for reentrancy protection
     uint256 private constant _NOT_ENTERED = 1;
     uint256 private constant _ENTERED = 2;
     uint256 private _status;
 
-    constructor(address _accessControl) {
-        require(_accessControl != address(0), "SecurityModifiers: invalid access control address");
-        accessControl = CRIDAccessControl(_accessControl);
-        _status = _NOT_ENTERED;
-    }
+    CRIDAccessControl public accessControl;
+
+    // Custom errors
+    error NotAdmin();
+    error NotCoordinator();
+    error NotStudent();
+    error InvalidUser();
+    error SystemPaused();
+    error ReentrantCall();
+    error InvalidAddress();
+    error InvalidAccessControlAddress();
 
     // Role-based modifiers
     modifier onlyAdmin() {
-        require(accessControl.hasRole(accessControl.ADMIN_ROLE(), msg.sender), "SecurityModifiers: not admin");
+        if (!accessControl.hasRole(accessControl.ADMIN_ROLE(), msg.sender)) revert NotAdmin();
         _;
     }
 
     modifier onlyCoordinator() {
-        require(
-            accessControl.hasRole(accessControl.COORDINATOR_ROLE(), msg.sender),
-            "SecurityModifiers: not coordinator"
-        );
+        if (!accessControl.hasRole(accessControl.COORDINATOR_ROLE(), msg.sender)) revert NotCoordinator();
         _;
     }
 
     modifier onlyStudent() {
-        require(accessControl.hasRole(accessControl.STUDENT_ROLE(), msg.sender), "SecurityModifiers: not student");
+        if (!accessControl.hasRole(accessControl.STUDENT_ROLE(), msg.sender)) revert NotStudent();
         _;
     }
 
     modifier onlyValidUser() {
-        require(accessControl.isValidUser(msg.sender), "SecurityModifiers: invalid user");
+        if (!accessControl.isValidUser(msg.sender)) revert InvalidUser();
         _;
     }
 
     // System state modifiers
     modifier whenNotPaused() {
-        require(!accessControl.paused(), "SecurityModifiers: system paused");
+        if (accessControl.paused()) revert SystemPaused();
         _;
     }
 
     // Reentrancy protection
     modifier nonReentrant() {
-        require(_status != _ENTERED, "SecurityModifiers: reentrant call");
+        if (_status == _ENTERED) revert ReentrantCall();
         _status = _ENTERED;
         _;
         _status = _NOT_ENTERED;
@@ -62,7 +63,13 @@ abstract contract SecurityModifiers {
 
     // Input validation
     modifier validAddress(address addr) {
-        require(addr != address(0), "SecurityModifiers: invalid address");
+        if (addr == address(0)) revert InvalidAddress();
         _;
+    }
+
+    constructor(address _accessControl) {
+        if (_accessControl == address(0)) revert InvalidAccessControlAddress();
+        accessControl = CRIDAccessControl(_accessControl);
+        _status = _NOT_ENTERED;
     }
 }
