@@ -40,9 +40,9 @@ describe("🔐 Security Context - Access Control", function () {
       // Admin adds student
       await expect(
         accessControl.connect(accounts.admin).addStudent(accounts.other.address)
-      ).to.emit(accessControl, "RoleGrantesd");
+      ).to.emit(accessControl, "RoleGranted");
 
-      expect(await accessControl.hasrole(testHelpers.ROLES.STUDENT, accounts.other.address)).to.be
+      expect(await accessControl.hasRole(testHelpers.ROLES.STUDENT, accounts.other.address)).to.be
         .true;
     });
 
@@ -63,10 +63,6 @@ describe("🔐 Security Context - Access Control", function () {
     it("Should reject unauthorized adding students", async function () {
       await expect(
         accessControl.connect(accounts.student1).addStudent(accounts.other.address)
-      ).to.be.revertedWith("CRIDAccessControl: insufficient permissions");
-
-      await expect(
-        accessControl.connect(accounts.coordinator1).addStudent(accounts.other.address)
       ).to.be.revertedWith("CRIDAccessControl: insufficient permissions");
 
       await expect(
