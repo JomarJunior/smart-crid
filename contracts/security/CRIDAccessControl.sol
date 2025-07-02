@@ -84,11 +84,27 @@ contract CRIDAccessControl is AccessControl {
     }
 
     /**
+     * @dev Remove a coordinator (only admin)
+     */
+    function removeCoordinator(address coordinator) external onlyAdmin whenNotPaused {
+        if (coordinator == address(0)) revert InvalidAddress();
+        _revokeRole(COORDINATOR_ROLE, coordinator);
+    }
+
+    /**
      * @dev Add a new student (only admin or coordinator)
      */
     function addStudent(address student) external whenNotPaused onlyAdminOrCoordinator {
         if (student == address(0)) revert InvalidAddress();
         _grantRole(STUDENT_ROLE, student);
+    }
+
+    /**
+     * @dev Remove a student (only admin or coordinator)
+     */
+    function removeStudent(address student) external whenNotPaused onlyAdminOrCoordinator {
+        if (student == address(0)) revert InvalidAddress();
+        _revokeRole(STUDENT_ROLE, student);
     }
 
     /**

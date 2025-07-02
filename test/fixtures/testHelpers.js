@@ -1,5 +1,5 @@
 const { ethers } = require("hardhat");
-const { expects } = require("chai");
+const { expect } = require("chai");
 
 // Common test utilities
 const testHelpers = {
@@ -9,6 +9,14 @@ const testHelpers = {
     const accessControl = await AccessControl.deploy();
     await accessControl.waitForDeployment();
     return accessControl;
+  },
+
+  // Deploy student registry contract
+  async deployStudentRegistry(accessControlAddress) {
+    const StudentRegistry = await ethers.getContractFactory("StudentRegistry");
+    const studentRegistry = await StudentRegistry.deploy(accessControlAddress);
+    await studentRegistry.waitForDeployment();
+    return studentRegistry;
   },
 
   // Get test accounts with roles
@@ -27,7 +35,7 @@ const testHelpers = {
     };
   },
 
-  // Setup basic system with roles
+  // Setup basic system with roles (AccessControl only)
   async setupBasicSystem() {
     const accounts = await this.getTestAccounts();
     const accessControl = await this.deployAccessControl();
@@ -42,6 +50,127 @@ const testHelpers = {
     await accessControl.connect(accounts.admin).addStudent(accounts.student3.address);
 
     return { accessControl, accounts };
+  },
+
+  // Setup complete system with StudentRegistry
+  async setupStudentRegistrySystem() {
+    const accounts = await this.getTestAccounts();
+    const accessControl = await this.deployAccessControl();
+    const studentRegistry = await this.deployStudentRegistry(accessControl.target);
+
+    // Add coordinators
+    await accessControl.connect(accounts.admin).addCoordinator(accounts.coordinator1.address);
+    await accessControl.connect(accounts.admin).addCoordinator(accounts.coordinator2.address);
+
+    // Add students
+    await accessControl.connect(accounts.admin).addStudent(accounts.student1.address);
+    await accessControl.connect(accounts.admin).addStudent(accounts.student2.address);
+    await accessControl.connect(accounts.admin).addStudent(accounts.student3.address);
+
+    return { accessControl, studentRegistry, accounts };
+  },
+
+  // Setup StudentRegistry with test data
+  async setupStudentRegistryWithData() {
+    const setup = await this.setupStudentRegistrySystem();
+    const { accessControl, studentRegistry, accounts } = setup;
+
+    // Register some test students
+    await studentRegistry.connect(accounts.student1).registerStudent(
+      "118210898",
+      "Pablo Vegetti",
+      "pablo.vegetti@poli.ufrj.br",
+      "Goal Engineering",
+      2018
+    );
+
+    await studentRegistry.connect(accounts.student2).registerStudent(
+      "119980821",
+      "Leo Jardim",
+      "leo.jardim@poli.ufrj.br",
+      "Goal Reverse-engineering", 
+      2019
+    );
+
+    return { accessControl, studentRegistry, accounts };
+  },
+
+  // Test student data helpers
+  getValidStudentData() {
+    return {
+      student1: {
+        id: "118210898",
+        name: "Pablo Vegetti",
+        email: "pablo.vegetti@poli.ufrj.br",
+        program: "Goal Engineering",
+        year: 2018,
+      },
+      student2: {
+        id: "119980821", 
+        name: "Leo Jardim",
+        email: "leo.jardim@poli.ufrj.br",
+        program: "Goal Reverse-engineering",
+        year: 2019,
+      },
+      student3: {
+        id: "120055443",
+        name: "Filipe Luis",
+        email: "filipe.luis@poli.ufrj.br", 
+        program: "Defensive Engineering",
+        year: 2020,
+      },
+    };
+  },
+
+  getInvalidStudentData() {
+    return {
+      emptyId: {
+        id: "",
+        name: "Test Student",
+        email: "test@poli.ufrj.br",
+        program: "Test Program",
+        year: 2024,
+      },
+      emptyName: {
+        id: "999999999",
+        name: "",
+        email: "test@poli.ufrj.br", 
+        program: "Test Program",
+        year: 2024,
+      },
+      emptyEmail: {
+        id: "999999999",
+        name: "Test Student",
+        email: "",
+        program: "Test Program", 
+        year: 2024,
+      },
+      emptyProgram: {
+        id: "999999999",
+        name: "Test Student",
+        email: "test@poli.ufrj.br",
+        program: "",
+        year: 2024,
+      },
+      invalidYear: {
+        id: "999999999",
+        name: "Test Student",
+        email: "test@poli.ufrj.br",
+        program: "Test Program",
+        year: 1900, // Too old
+      },
+    };
+  },
+
+  // Helper to register a student with given data
+  async registerStudentWithData(studentRegistry, signer, data) {
+    return await studentRegistry.connect(signer).registerStudent(
+      data.id,
+      data.name,
+      data.email,
+      data.program,
+      data.year
+    );
   },
 
   // Constants for roles

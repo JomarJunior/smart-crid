@@ -49,25 +49,25 @@ describe("🔐 Security Context - Access Control", function () {
     it("Should reject unauthorized adding coordinators", async function () {
       await expect(
         accessControl.connect(accounts.student1).addCoordinator(accounts.other.address)
-      ).to.be.revertedWith("CRIDAccessControl: insufficient permissions");
+      ).to.be.revertedWithCustomError(accessControl, "InsufficientPermissions");
 
       await expect(
         accessControl.connect(accounts.coordinator1).addCoordinator(accounts.other.address)
-      ).to.be.revertedWith("CRIDAccessControl: insufficient permissions");
+      ).to.be.revertedWithCustomError(accessControl, "InsufficientPermissions");
 
       await expect(
         accessControl.connect(accounts.other).addCoordinator(accounts.other.address)
-      ).to.be.revertedWith("CRIDAccessControl: insufficient permissions");
+      ).to.be.revertedWithCustomError(accessControl, "InsufficientPermissions");
     });
 
     it("Should reject unauthorized adding students", async function () {
       await expect(
         accessControl.connect(accounts.student1).addStudent(accounts.other.address)
-      ).to.be.revertedWith("CRIDAccessControl: insufficient permissions");
+      ).to.be.revertedWithCustomError(accessControl, "InsufficientPermissions");
 
       await expect(
         accessControl.connect(accounts.other).addStudent(accounts.other.address)
-      ).to.be.revertedWith("CRIDAccessControl: insufficient permissions");
+      ).to.be.revertedWithCustomError(accessControl, "InsufficientPermissions");
     });
   });
 
@@ -85,7 +85,7 @@ describe("🔐 Security Context - Access Control", function () {
 
       await expect(
         accessControl.connect(accounts.admin).addCoordinator(accounts.other.address)
-      ).to.be.revertedWith("CRIDAccessControl: system is paused");
+      ).to.be.revertedWithCustomError(accessControl, "SystemIsPaused");
     });
 
     it("Should allow admin to unpause", async function () {
@@ -96,30 +96,30 @@ describe("🔐 Security Context - Access Control", function () {
     });
 
     it("Should reject non-admin from pausing", async function () {
-      await expect(accessControl.connect(accounts.coordinator1).pause()).to.be.revertedWith(
-        "CRIDAccessControl: insufficient permissions"
+      await expect(accessControl.connect(accounts.coordinator1).pause()).to.be.revertedWithCustomError(
+        accessControl, "InsufficientPermissions"
       );
 
-      await expect(accessControl.connect(accounts.student1).pause()).to.be.revertedWith(
-        "CRIDAccessControl: insufficient permissions"
+      await expect(accessControl.connect(accounts.student1).pause()).to.be.revertedWithCustomError(
+        accessControl, "InsufficientPermissions"
       );
 
-      await expect(accessControl.connect(accounts.other).pause()).to.be.revertedWith(
-        "CRIDAccessControl: insufficient permissions"
+      await expect(accessControl.connect(accounts.other).pause()).to.be.revertedWithCustomError(
+        accessControl, "InsufficientPermissions"
       );
     });
 
     it("Should reject non-admin from unpausing", async function () {
-      await expect(accessControl.connect(accounts.coordinator1).unpause()).to.be.revertedWith(
-        "CRIDAccessControl: insufficient permissions"
+      await expect(accessControl.connect(accounts.coordinator1).unpause()).to.be.revertedWithCustomError(
+        accessControl, "InsufficientPermissions"
       );
 
-      await expect(accessControl.connect(accounts.student1).unpause()).to.be.revertedWith(
-        "CRIDAccessControl: insufficient permissions"
+      await expect(accessControl.connect(accounts.student1).unpause()).to.be.revertedWithCustomError(
+        accessControl, "InsufficientPermissions"
       );
 
-      await expect(accessControl.connect(accounts.other).unpause()).to.be.revertedWith(
-        "CRIDAccessControl: insufficient permissions"
+      await expect(accessControl.connect(accounts.other).unpause()).to.be.revertedWithCustomError(
+        accessControl, "InsufficientPermissions"
       );
     });
   });
