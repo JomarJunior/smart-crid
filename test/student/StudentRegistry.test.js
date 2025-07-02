@@ -23,7 +23,7 @@ describe("🎓 Student Context - StudentRegistry", function () {
     });
 
     it("Should start with zero registered students", async function () {
-      expect(await studentRegistry.getTotalRegisteredStudents()).to.equal(0);
+      expect(await studentRegistry.totalRegisteredStudents()).to.equal(0);
     });
 
     it("Should not be paused initially", async function () {
@@ -49,7 +49,7 @@ describe("🎓 Student Context - StudentRegistry", function () {
       expect(await studentRegistry.isRegistered(accounts.student1.address)).to.be.true;
       
       const studentData = await studentRegistry.getStudentByAddress(accounts.student1.address);
-      expect(studentData.studentId).to.equal(data.id);
+      expect(studentData.id).to.equal(data.id);
       expect(studentData.fullName).to.equal(data.name);
       expect(studentData.email).to.equal(data.email);
       expect(studentData.program).to.equal(data.program);
@@ -57,7 +57,7 @@ describe("🎓 Student Context - StudentRegistry", function () {
       expect(studentData.isActive).to.be.true;
 
       // Check total count
-      expect(await studentRegistry.getTotalRegisteredStudents()).to.equal(1);
+      expect(await studentRegistry.totalRegisteredStudents()).to.equal(1);
     });
 
     it("Should reject registration with empty student ID", async function () {
@@ -161,9 +161,8 @@ describe("🎓 Student Context - StudentRegistry", function () {
       const data = validData.student1;
       const studentData = await studentRegistry.getStudentById(data.id);
       
-      expect(studentData.studentId).to.equal(data.id);
+      expect(studentData.id).to.equal(data.id);
       expect(studentData.fullName).to.equal(data.name);
-      expect(studentData.walletAddress).to.equal(accounts.student1.address);
       expect(studentData.program).to.equal(data.program);
       expect(studentData.enrollmentYear).to.equal(data.year);
       expect(studentData.isActive).to.be.true;
@@ -173,9 +172,8 @@ describe("🎓 Student Context - StudentRegistry", function () {
       const data = validData.student2;
       const studentData = await studentRegistry.getStudentByAddress(accounts.student2.address);
       
-      expect(studentData.studentId).to.equal(data.id);
+      expect(studentData.id).to.equal(data.id);
       expect(studentData.fullName).to.equal(data.name);
-      expect(studentData.walletAddress).to.equal(accounts.student2.address);
       expect(studentData.program).to.equal(data.program);
       expect(studentData.enrollmentYear).to.equal(data.year);
       expect(studentData.isActive).to.be.true;
@@ -201,7 +199,7 @@ describe("🎓 Student Context - StudentRegistry", function () {
     });
 
     it("Should return correct total count", async function () {
-      expect(await studentRegistry.getTotalRegisteredStudents()).to.equal(2);
+      expect(await studentRegistry.totalRegisteredStudents()).to.equal(2);
     });
 
     it("Should return correct student address by ID", async function () {
@@ -351,7 +349,7 @@ describe("🎓 Student Context - StudentRegistry", function () {
         testHelpers.registerStudentWithData(studentRegistry, accounts.student3, data3),
       ]);
 
-      expect(await studentRegistry.getTotalRegisteredStudents()).to.equal(3);
+      expect(await studentRegistry.totalRegisteredStudents()).to.equal(3);
       expect(await studentRegistry.isRegistered(accounts.student1.address)).to.be.true;
       expect(await studentRegistry.isRegistered(accounts.student2.address)).to.be.true;
       expect(await studentRegistry.isRegistered(accounts.student3.address)).to.be.true;

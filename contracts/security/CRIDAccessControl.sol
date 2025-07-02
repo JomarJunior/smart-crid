@@ -1,6 +1,7 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.28;
 
+import {ICRIDAccessControl} from "../interfaces/ICRIDAccessControl.sol";
 import {AccessControl} from "@openzeppelin/contracts/access/AccessControl.sol";
 
 /**
@@ -8,16 +9,7 @@ import {AccessControl} from "@openzeppelin/contracts/access/AccessControl.sol";
  * @dev Core access control contract for CRID system
  * Security Context - Role-based access control implementation
  */
-contract CRIDAccessControl is AccessControl {
-    // Role definitions based on TDD
-    bytes32 public constant ADMIN_ROLE = keccak256("ADMIN_ROLE");
-    bytes32 public constant COORDINATOR_ROLE = keccak256("COORDINATOR_ROLE");
-    bytes32 public constant STUDENT_ROLE = keccak256("STUDENT_ROLE");
-
-    // State variables
-    bool public paused;
-    address public systemAdmin;
-
+contract CRIDAccessControl is ICRIDAccessControl, AccessControl {
     // Events
     event SystemInitialized(address indexed admin);
     event EmergencyPause(bool paused, address indexed admin);
