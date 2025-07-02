@@ -96,30 +96,33 @@ describe("🔐 Security Context - Access Control", function () {
     });
 
     it("Should reject non-admin from pausing", async function () {
-      await expect(accessControl.connect(accounts.coordinator1).pause()).to.be.revertedWithCustomError(
-        accessControl, "InsufficientPermissions"
-      );
+      await expect(
+        accessControl.connect(accounts.coordinator1).pause()
+      ).to.be.revertedWithCustomError(accessControl, "InsufficientPermissions");
 
       await expect(accessControl.connect(accounts.student1).pause()).to.be.revertedWithCustomError(
-        accessControl, "InsufficientPermissions"
+        accessControl,
+        "InsufficientPermissions"
       );
 
       await expect(accessControl.connect(accounts.other).pause()).to.be.revertedWithCustomError(
-        accessControl, "InsufficientPermissions"
+        accessControl,
+        "InsufficientPermissions"
       );
     });
 
     it("Should reject non-admin from unpausing", async function () {
-      await expect(accessControl.connect(accounts.coordinator1).unpause()).to.be.revertedWithCustomError(
-        accessControl, "InsufficientPermissions"
-      );
+      await expect(
+        accessControl.connect(accounts.coordinator1).unpause()
+      ).to.be.revertedWithCustomError(accessControl, "InsufficientPermissions");
 
-      await expect(accessControl.connect(accounts.student1).unpause()).to.be.revertedWithCustomError(
-        accessControl, "InsufficientPermissions"
-      );
+      await expect(
+        accessControl.connect(accounts.student1).unpause()
+      ).to.be.revertedWithCustomError(accessControl, "InsufficientPermissions");
 
       await expect(accessControl.connect(accounts.other).unpause()).to.be.revertedWithCustomError(
-        accessControl, "InsufficientPermissions"
+        accessControl,
+        "InsufficientPermissions"
       );
     });
   });

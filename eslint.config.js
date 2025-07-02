@@ -38,6 +38,7 @@ module.exports = [
       "typechain-types/",
       "dist/",
       "build/",
+      "scripts/",
     ],
   },
 ];

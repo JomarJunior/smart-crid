@@ -1,5 +1,4 @@
 const { ethers } = require("hardhat");
-const { expect } = require("chai");
 
 // Common test utilities
 const testHelpers = {
@@ -76,21 +75,25 @@ const testHelpers = {
     const { accessControl, studentRegistry, accounts } = setup;
 
     // Register some test students
-    await studentRegistry.connect(accounts.student1).registerStudent(
-      "118210898",
-      "Pablo Vegetti",
-      "pablo.vegetti@poli.ufrj.br",
-      "Goal Engineering",
-      2018
-    );
+    await studentRegistry
+      .connect(accounts.student1)
+      .registerStudent(
+        "118210898",
+        "Pablo Vegetti",
+        "pablo.vegetti@poli.ufrj.br",
+        "Goal Engineering",
+        2018
+      );
 
-    await studentRegistry.connect(accounts.student2).registerStudent(
-      "119980821",
-      "Leo Jardim",
-      "leo.jardim@poli.ufrj.br",
-      "Goal Reverse-engineering", 
-      2019
-    );
+    await studentRegistry
+      .connect(accounts.student2)
+      .registerStudent(
+        "119980821",
+        "Leo Jardim",
+        "leo.jardim@poli.ufrj.br",
+        "Goal Reverse-engineering",
+        2019
+      );
 
     return { accessControl, studentRegistry, accounts };
   },
@@ -106,7 +109,7 @@ const testHelpers = {
         year: 2018,
       },
       student2: {
-        id: "119980821", 
+        id: "119980821",
         name: "Leo Jardim",
         email: "leo.jardim@poli.ufrj.br",
         program: "Goal Reverse-engineering",
@@ -115,7 +118,7 @@ const testHelpers = {
       student3: {
         id: "120055443",
         name: "Filipe Luis",
-        email: "filipe.luis@poli.ufrj.br", 
+        email: "filipe.luis@poli.ufrj.br",
         program: "Defensive Engineering",
         year: 2020,
       },
@@ -134,7 +137,7 @@ const testHelpers = {
       emptyName: {
         id: "999999999",
         name: "",
-        email: "test@poli.ufrj.br", 
+        email: "test@poli.ufrj.br",
         program: "Test Program",
         year: 2024,
       },
@@ -142,7 +145,7 @@ const testHelpers = {
         id: "999999999",
         name: "Test Student",
         email: "",
-        program: "Test Program", 
+        program: "Test Program",
         year: 2024,
       },
       emptyProgram: {
@@ -164,13 +167,9 @@ const testHelpers = {
 
   // Helper to register a student with given data
   async registerStudentWithData(studentRegistry, signer, data) {
-    return await studentRegistry.connect(signer).registerStudent(
-      data.id,
-      data.name,
-      data.email,
-      data.program,
-      data.year
-    );
+    return await studentRegistry
+      .connect(signer)
+      .registerStudent(data.id, data.name, data.email, data.program, data.year);
   },
 
   // Constants for roles
