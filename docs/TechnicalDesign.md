@@ -521,11 +521,11 @@ smart-crid/
 
 **Milestone: Basic Smart Contract Structure**
 
-- [ ] Project setup and repository initialization
+- [X] Project setup and repository initialization
 - [ ] Basic smart contract skeleton with access control
 - [ ] Initial test suite setup with Hardhat and Mocha
-- [ ] CI/CD pipeline configuration with GitHub Actions
-- [ ] Code quality tools integration (Solhint, Prettier)
+- [X] CI/CD pipeline configuration with GitHub Actions
+- [X] Code quality tools integration (Solhint, Prettier)
 
 **Deliverables:**
 
