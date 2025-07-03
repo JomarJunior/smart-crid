@@ -18,6 +18,22 @@ const testHelpers = {
     return studentRegistry;
   },
 
+  // Deploy mock course manager contract
+  async deployMockCourseManager() {
+    const MockCourseManager = await ethers.getContractFactory("MockCourseManager");
+    const courseManager = await MockCourseManager.deploy();
+    await courseManager.waitForDeployment();
+    return courseManager;
+  },
+
+  // Deploy enrollment request contract
+  async deployEnrollmentRequest(accessControlAddress, studentRegistryAddress, courseManagerAddress) {
+    const EnrollmentRequest = await ethers.getContractFactory("EnrollmentRequest");
+    const enrollmentRequest = await EnrollmentRequest.deploy(accessControlAddress, studentRegistryAddress, courseManagerAddress);
+    await enrollmentRequest.waitForDeployment();
+    return enrollmentRequest;
+  },
+
   // Get test accounts with roles
   async getTestAccounts() {
     const [admin, coordinator1, coordinator2, student1, student2, student3, other] =
@@ -165,6 +181,101 @@ const testHelpers = {
     };
   },
 
+  // Course test data helpers
+  getValidCourseData() {
+    return {
+      course1: {
+        id: "ENG101",
+        name: "Introduction to Engineering",
+        description: "Fundamental concepts of engineering design and methodology",
+        credits: 4,
+        maxStudents: 30,
+        isActive: true,
+      },
+      course2: {
+        id: "MAT201", 
+        name: "Advanced Mathematics",
+        description: "Advanced calculus and linear algebra for engineers",
+        credits: 6,
+        maxStudents: 25,
+        isActive: true,
+      },
+      course3: {
+        id: "PHY301",
+        name: "Physics Laboratory",
+        description: "Hands-on experiments in classical and modern physics",
+        credits: 3,
+        maxStudents: 20,
+        isActive: true,
+      },
+    };
+  },
+
+  getInvalidCourseData() {
+    return {
+      emptyCourseId: {
+        id: "",
+        name: "Valid Course",
+        description: "A valid course with empty ID",
+        maxStudents: 30,
+        isActive: true,
+      },
+      emptyCourseName: {
+        id: "TST999",
+        name: "",
+        description: "A course with empty name",
+        credits: 3,
+        maxStudents: 30,
+        isActive: true,
+      },
+      invalidCredits: {
+        id: "TST999",
+        name: "Valid Course",
+        description: "A course with invalid credits",
+        credits: 0,
+        maxStudents: 30,
+        isActive: true,
+      },
+    };
+  },
+
+  // Setup complete EnrollmentRequest system
+  async setupEnrollmentRequestSystem() {
+    const accounts = await this.getTestAccounts();
+    const accessControl = await this.deployAccessControl();
+    const studentRegistry = await this.deployStudentRegistry(accessControl.target);
+    const courseManager = await this.deployMockCourseManager();
+    const enrollmentRequest = await this.deployEnrollmentRequest(
+      accessControl.target,
+      studentRegistry.target,
+      courseManager.target
+    );
+
+    // Add coordinators
+    await accessControl.connect(accounts.admin).addCoordinator(accounts.coordinator1.address);
+    await accessControl.connect(accounts.admin).addCoordinator(accounts.coordinator2.address);
+
+    // Add students
+    await accessControl.connect(accounts.admin).addStudent(accounts.student1.address);
+    await accessControl.connect(accounts.admin).addStudent(accounts.student2.address);
+    await accessControl.connect(accounts.admin).addStudent(accounts.student3.address);
+
+    return {
+      accessControl,
+      studentRegistry,
+      courseManager,
+      enrollmentRequest,
+      accounts,
+    };
+  },
+
+  // Helper to add a course to mock course manager
+  async addCourseToManager(courseManager, signer, courseData) {
+    return await courseManager
+      .connect(signer)
+      .addCourse(courseData.id, courseData.name, courseData.description, courseData.credits, courseData.maxStudents);
+  },
+
   // Helper to register a student with given data
   async registerStudentWithData(studentRegistry, signer, data) {
     return await studentRegistry
@@ -177,6 +288,14 @@ const testHelpers = {
     ADMIN: ethers.keccak256(ethers.toUtf8Bytes("ADMIN_ROLE")),
     COORDINATOR: ethers.keccak256(ethers.toUtf8Bytes("COORDINATOR_ROLE")),
     STUDENT: ethers.keccak256(ethers.toUtf8Bytes("STUDENT_ROLE")),
+  },
+
+  // Enrollment request status constants
+  ENROLLMENT_STATUS: {
+    PENDING: 0,
+    APPROVED: 1,
+    REJECTED: 2,
+    CANCELLED: 3,
   },
 };
 
