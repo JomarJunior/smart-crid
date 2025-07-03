@@ -119,20 +119,31 @@ services:
       timeout: 10s
       retries: 3
 
-  # IPFS Node for Decentralized Storage
+  # IPFS Node for Decentralized Storage (PRIVATE MODE)
   ipfs:
     image: ipfs/go-ipfs:v0.8.0
     container_name: crid-ipfs
     ports:
-      - "4001:4001" # IPFS API
-      - "5001:5001" # IPFS Gateway
-      - "8080:8080" # IPFS WebUI
+      - "127.0.0.1:5001:5001" # IPFS API (localhost only)
+      - "127.0.0.1:8080:8080" # IPFS Gateway (localhost only)
+      # NO port 4001 - completely disabled P2P networking
     networks:
       - crid-network
     volumes:
       - ipfs_data:/data/ipfs
     environment:
       - IPFS_PROFILE=server
+    entrypoint: |
+      sh -c '
+        if [ ! -f /data/ipfs/config ]; then
+          ipfs init --profile=server
+        fi
+        ipfs config Addresses.API "/ip4/0.0.0.0/tcp/5001"
+        ipfs config Addresses.Gateway "/ip4/0.0.0.0/tcp/8080"
+        ipfs config --json API.HTTPHeaders.Access-Control-Allow-Origin "[\"http://127.0.0.1:5001\", \"http://localhost:3000\", \"https://webui.ipfs.io\"]"
+        ipfs config --json API.HTTPHeaders.Access-Control-Allow-Methods "[\"PUT\", \"POST\", \"GET\"]"
+        exec ipfs daemon --offline
+      '
     healthcheck:
       test: ["CMD", "ipfs", "id"]
       interval: 30s
