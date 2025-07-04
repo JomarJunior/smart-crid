@@ -356,6 +356,31 @@ const testHelpers = {
     };
   },
   // ==============================
+  // Course Manager Helpers
+  // ==============================
+  async deployCourseManager() {
+    const [admin] = await ethers.getSigners();
+
+    const CourseManager = await ethers.getContractFactory("CourseManager");
+    const courseManager = await CourseManager.connect(admin).deploy(admin.address);
+    await courseManager.waitForDeployment();
+    return courseManager;
+  },
+
+  async setupCourseManager() {
+    const courseManager = await this.deployCourseManager();
+    const [admin, other] = await ethers.getSigners();
+
+    return {
+      courseManager,
+      accounts: {
+        admin,
+        other,
+      },
+    };
+  },
+
+  // ==============================
   // General Constants
   // ==============================
   ADDRESS_ZERO: ethers.ZeroAddress,

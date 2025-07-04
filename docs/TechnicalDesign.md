@@ -551,9 +551,9 @@ smart-crid/
 **Milestone: Complete Enrollment Request System**
 
 - [X] Implement enrollment request submission logic
-- [ ] Build course management functionality
-- [ ] Develop approval/rejection workflow
-- [ ] Create comprehensive test coverage (>90%)
+- [X] Build course management functionality
+- [X] Develop approval/rejection workflow
+- [X] Create comprehensive test coverage (>90%)
 - [ ] Security analysis and vulnerability assessment
 
 **Deliverables:**

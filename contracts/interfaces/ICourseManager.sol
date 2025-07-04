@@ -19,6 +19,7 @@ interface ICourseManager {
 
     // Events
     event CourseAdded(Course course, address indexed agent);
+    event CourseUpdated(Course oldCourse, Course newCourse, address indexed agent);
     event CourseActivated(uint256 indexed courseId, address indexed agent);
     event CourseDeactivated(uint256 indexed courseId, address indexed agent);
 
@@ -26,9 +27,21 @@ interface ICourseManager {
     error CourseNotFound(uint256 courseId);
     error CourseAlreadyExists(uint256 courseId);
     error UnauthorizedCaller();
+    error InvalidInput(string message);
+    error CourseInactive(uint256 courseId);
+    error CourseAlreadyActive(uint256 courseId);
 
     // Course management functions (only callable by CRID)
     function addCourse(
+        uint256 id,
+        string calldata name,
+        string calldata description,
+        uint8 credits,
+        uint16 maxStudents,
+        address agent
+    ) external;
+
+    function updateCourse(
         uint256 id,
         string calldata name,
         string calldata description,

@@ -19,6 +19,14 @@ contract MockCourseManager is ICourseManager {
         uint16 maxStudents,
         address agent
     );
+    event UpdateCourseCalled(
+        uint256 courseId,
+        string courseName,
+        string courseDescription,
+        uint256 credits,
+        uint16 maxStudents,
+        address agent
+    );
     event ActivateCourseCalled(uint256 courseId, address agent);
     event DeactivateCourseCalled(uint256 courseId, address agent);
 
@@ -31,6 +39,17 @@ contract MockCourseManager is ICourseManager {
         address agent
     ) external override {
         emit AddCourseCalled(id, name, description, credits, maxStudents, agent);
+    }
+
+    function updateCourse(
+        uint256 id,
+        string calldata name,
+        string calldata description,
+        uint8 credits,
+        uint16 maxStudents,
+        address agent
+    ) external override {
+        emit UpdateCourseCalled(id, name, description, credits, maxStudents, agent);
     }
 
     function activateCourse(uint256 courseId, address agent) external override {
