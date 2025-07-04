@@ -163,7 +163,20 @@ contract CRID is SecurityModifiers, ICRID {
     ) external onlyCoordinatorOrAdmin whenNotPaused systemMustBeInitialized {
         courseManager.addCourse(id, name, description, credits, maxStudents, msg.sender);
     }
-    
+
+    /**
+     * @dev Update an existing course (coordinators and admins only)
+     */
+    function updateCourse(
+        uint256 id,
+        string calldata name,
+        string calldata description,
+        uint8 credits,
+        uint16 maxStudents
+    ) external onlyCoordinatorOrAdmin whenNotPaused systemMustBeInitialized {
+        courseManager.updateCourse(id, name, description, credits, maxStudents, msg.sender);
+    }
+
     /**
      * @dev Get course information (public view)
      */

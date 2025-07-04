@@ -388,6 +388,118 @@ describe("🏗️ Core Context - CRID Orchestrator", function () {
       });
     });
 
+    describe("Course Update", function () {
+      beforeEach(async function () {
+        // Add a test course to be updated
+        const courseData = await testHelpers.validCourseData();
+        await crid
+          .connect(accounts.coordinator1)
+          .addCourse(
+            courseData.course1.id,
+            courseData.course1.name,
+            courseData.course1.description,
+            courseData.course1.credits,
+            courseData.course1.maxStudents
+          );
+      });
+
+      it("should allow coordinators to update courses", async function () {
+        const courseData = await testHelpers.validCourseData();
+        const updatedCourse = {
+          ...courseData.course1,
+          name: "Updated Course Name",
+          description: "Updated course description.",
+        };
+
+        await expect(
+          crid
+            .connect(accounts.coordinator1)
+            .updateCourse(
+              updatedCourse.id,
+              updatedCourse.name,
+              updatedCourse.description,
+              updatedCourse.credits,
+              updatedCourse.maxStudents
+            )
+        )
+          .to.emit(courseManager, "UpdateCourseCalled")
+          .withArgs(
+            updatedCourse.id,
+            updatedCourse.name,
+            updatedCourse.description,
+            updatedCourse.credits,
+            updatedCourse.maxStudents,
+            accounts.coordinator1.address
+          );
+      });
+
+      it("should allow admins to update courses", async function () {
+        const courseData = await testHelpers.validCourseData();
+        const updatedCourse = {
+          ...courseData.course1,
+          name: "Admin Updated Name",
+          description: "Admin updated description.",
+        };
+
+        await expect(
+          crid
+            .connect(accounts.admin)
+            .updateCourse(
+              updatedCourse.id,
+              updatedCourse.name,
+              updatedCourse.description,
+              updatedCourse.credits,
+              updatedCourse.maxStudents
+            )
+        )
+          .to.emit(courseManager, "UpdateCourseCalled")
+          .withArgs(
+            updatedCourse.id,
+            updatedCourse.name,
+            updatedCourse.description,
+            updatedCourse.credits,
+            updatedCourse.maxStudents,
+            accounts.admin.address
+          );
+      });
+
+      it("should not allow students to update courses", async function () {
+        const courseData = await testHelpers.validCourseData();
+        const updatedCourse = { ...courseData.course1 };
+
+        await expect(
+          crid
+            .connect(accounts.student1)
+            .updateCourse(
+              updatedCourse.id,
+              updatedCourse.name,
+              updatedCourse.description,
+              updatedCourse.credits,
+              updatedCourse.maxStudents
+            )
+        ).to.be.reverted; // Reverted by onlyCoordinatorOrAdmin
+      });
+
+      it("should not allow updating courses when paused", async function () {
+        const courseData = await testHelpers.validCourseData();
+        const updatedCourse = { ...courseData.course1 };
+
+        await accessControl.connect(accounts.admin).pause();
+
+        await expect(
+          crid
+            .connect(accounts.coordinator1)
+            .updateCourse(
+              updatedCourse.id,
+              updatedCourse.name,
+              updatedCourse.description,
+              updatedCourse.credits,
+              updatedCourse.maxStudents
+            )
+        ).to.be.reverted; // Reverted by whenNotPaused
+      });
+    });
+
     describe("Course Status Management", function () {
       beforeEach(async function () {
         // Add a test course
