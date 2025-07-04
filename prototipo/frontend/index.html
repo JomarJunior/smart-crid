@@ -1,0 +1,400 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Portal CRID</title>
+    <style>
+        /* CSS Simples e Moderno */
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;700&display=swap');
+
+        :root {
+            --bg-color: #121212;
+            --surface-color: #1e1e1e;
+            --primary-color: #bb86fc;
+            --primary-variant: #3700b3;
+            --text-color: #e1e1e1;
+            --text-secondary: #a0a0a0;
+            --error-color: #cf6679;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            display: flex;
+            justify-content: center;
+            align-items: flex-start;
+            min-height: 100vh;
+            padding-top: 40px;
+        }
+
+        .container {
+            width: 100%;
+            max-width: 800px;
+            padding: 20px;
+        }
+
+        header {
+            text-align: center;
+            margin-bottom: 40px;
+        }
+
+        h1 {
+            color: var(--primary-color);
+            font-weight: 700;
+        }
+
+        h2 {
+            border-bottom: 2px solid var(--primary-color);
+            padding-bottom: 10px;
+            margin-bottom: 20px;
+            color: var(--text-color);
+        }
+
+        .panel {
+            background-color: var(--surface-color);
+            padding: 25px;
+            border-radius: 12px;
+            margin-top: 25px;
+            border: 1px solid #2a2a2a;
+        }
+
+        button {
+            background-color: var(--primary-color);
+            color: var(--bg-color);
+            border: none;
+            padding: 12px 20px;
+            font-size: 16px;
+            font-weight: 500;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: background-color 0.3s ease, transform 0.1s ease;
+            display: block;
+            width: 100%;
+            margin-top: 15px;
+        }
+
+        button:hover {
+            background-color: var(--primary-variant);
+            color: var(--text-color);
+        }
+        
+        button:active {
+            transform: scale(0.98);
+        }
+
+        .connect-view {
+            text-align: center;
+        }
+
+        .info-box {
+            background-color: rgba(187, 134, 252, 0.1);
+            padding: 15px;
+            border-radius: 8px;
+            margin-bottom: 30px;
+            border-left: 4px solid var(--primary-color);
+        }
+
+        .info-box p {
+            margin: 0;
+            font-size: 14px;
+            word-wrap: break-word;
+        }
+        
+        .info-box strong {
+            color: var(--primary-color);
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 500;
+            color: var(--text-secondary);
+        }
+
+        input[type="text"], input[type="number"] {
+            width: 100%;
+            padding: 12px;
+            background-color: #2c2c2c;
+            border: 1px solid #444;
+            border-radius: 8px;
+            color: var(--text-color);
+            font-size: 16px;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+        }
+
+        th, td {
+            padding: 12px;
+            text-align: left;
+            border-bottom: 1px solid #333;
+        }
+
+        th {
+            background-color: #2c2c2c;
+        }
+
+        td .address {
+            font-size: 12px;
+            color: var(--text-secondary);
+        }
+
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        <header>
+            <h1>Portal Acadêmico CRID</h1>
+        </header>
+
+        <div id="connect-view">
+            <button onclick="connectWallet()">Conectar Carteira MetaMask</button>
+        </div>
+
+        <div id="app-view" style="display: none;">
+            
+            <div class="info-box">
+                <p><strong>Carteira Conectada:</strong> <span id="account-address"></span></p>
+                <p><strong>Seu Papel:</strong> <span id="user-role"></span></p>
+            </div>
+
+            <div id="admin-panel" class="panel" style="display: none;">
+                <h2>Painel Administrativo</h2>
+                <div class="form-group">
+                    <label for="prof-address">Endereço do Novo Professor</label>
+                    <input type="text" id="prof-address" placeholder="0x...">
+                </div>
+                <button onclick="adicionarProfessor()">Adicionar Professor</button>
+            </div>
+
+            <div id="professor-panel" class="panel" style="display: none;">
+                <h2>Painel do Professor</h2>
+                <div class="form-group">
+                    <label for="materia-nome">Nome da Nova Matéria</label>
+                    <input type="text" id="materia-nome" placeholder="Ex: Cálculo I">
+                    <button onclick="criarMateria()">Criar Matéria</button>
+                </div>
+                <hr style="border-color: #333; margin: 30px 0;">
+                <div class="form-group">
+                    <label for="aluno-address">Endereço do Aluno</label>
+                    <input type="text" id="aluno-address" placeholder="0x...">
+                    <label for="materia-id-inscricao">ID da Matéria para Inscrição</label>
+                    <input type="number" id="materia-id-inscricao" placeholder="Ex: 1">
+                    <button onclick="inscreverAluno()">Inscrever Aluno</button>
+                </div>
+                <hr style="border-color: #333; margin: 30px 0;">
+                <div class="form-group">
+                    <label for="aluno-address-nota">Endereço do Aluno</label>
+                    <input type="text" id="aluno-address-nota" placeholder="0x...">
+                    <label for="materia-id-nota">ID da Matéria</label>
+                    <input type="number" id="materia-id-nota" placeholder="Ex: 1">
+                    <label for="nota-aluno">Nota (0 a 100)</label>
+                    <input type="number" id="nota-aluno" placeholder="Ex: 85">
+                    <button onclick="lancarNota()">Lançar Nota</button>
+                </div>
+            </div>
+
+            <div id="aluno-panel" class="panel" style="display: none;">
+                <h2>Minhas Matérias</h2>
+                <button onclick="carregarMinhasMaterias()">Recarregar Matérias</button>
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Matéria</th>
+                            <th>Professor</th>
+                            <th>Nota</th>
+                        </tr>
+                    </thead>
+                    <tbody id="materias-table-body">
+                        </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/ethers/6.7.0/ethers.umd.min.js"></script>
+    <script>
+        // --- 1. CONFIGURAÇÃO ---
+        const contractAddress = "0xe7f1725E7734CE288F8367e1Bb143E90bb3F0512";
+        const contractABI = [ { "inputs": [], "stateMutability": "nonpayable", "type": "constructor" }, { "anonymous": false, "inputs": [ { "indexed": true, "internalType": "address", "name": "aluno", "type": "address" }, { "indexed": true, "internalType": "uint256", "name": "idMateria", "type": "uint256" } ], "name": "AlunoInscrito", "type": "event" }, { "anonymous": false, "inputs": [ { "indexed": true, "internalType": "uint256", "name": "id", "type": "uint256" }, { "indexed": false, "internalType": "string", "name": "nome", "type": "string" }, { "indexed": true, "internalType": "address", "name": "professor", "type": "address" } ], "name": "MateriaCriada", "type": "event" }, { "anonymous": false, "inputs": [ { "indexed": true, "internalType": "address", "name": "aluno", "type": "address" }, { "indexed": true, "internalType": "uint256", "name": "idMateria", "type": "uint256" }, { "indexed": false, "internalType": "uint256", "name": "nota", "type": "uint256" } ], "name": "NotaLancada", "type": "event" }, { "anonymous": false, "inputs": [ { "indexed": true, "internalType": "address", "name": "professor", "type": "address" } ], "name": "ProfessorAdicionado", "type": "event" }, { "anonymous": false, "inputs": [ { "indexed": true, "internalType": "address", "name": "professor", "type": "address" } ], "name": "ProfessorRemovido", "type": "event" }, { "inputs": [ { "internalType": "address", "name": "_novoProfessor", "type": "address" } ], "name": "adicionarProfessor", "outputs": [], "stateMutability": "nonpayable", "type": "function" }, { "inputs": [ { "internalType": "string", "name": "_nome", "type": "string" } ], "name": "criarMateria", "outputs": [], "stateMutability": "nonpayable", "type": "function" }, { "inputs": [ { "internalType": "address", "name": "", "type": "address" } ], "name": "ehProfessor", "outputs": [ { "internalType": "bool", "name": "", "type": "bool" } ], "stateMutability": "view", "type": "function" }, { "inputs": [ { "internalType": "address", "name": "", "type": "address" }, { "internalType": "uint256", "name": "", "type": "uint256" } ], "name": "estaInscrito", "outputs": [ { "internalType": "bool", "name": "", "type": "bool" } ], "stateMutability": "view", "type": "function" }, { "inputs": [], "name": "getContagemMinhasMaterias", "outputs": [ { "internalType": "uint256", "name": "", "type": "uint256" } ], "stateMutability": "view", "type": "function" }, { "inputs": [], "name": "getMinhasMaterias", "outputs": [ { "components": [ { "internalType": "string", "name": "nomeMateria", "type": "string" }, { "internalType": "address", "name": "professor", "type": "address" }, { "internalType": "string", "name": "nomeProfessor", "type": "string" }, { "internalType": "uint256", "name": "nota", "type": "uint256" }, { "internalType": "bool", "name": "notaLancada", "type": "bool" } ], "internalType": "struct Crid.DetalhesInscricao[]", "name": "", "type": "tuple[]" } ], "stateMutability": "view", "type": "function" }, { "inputs": [ { "internalType": "address", "name": "_aluno", "type": "address" }, { "internalType": "uint256", "name": "_idMateria", "type": "uint256" } ], "name": "inclusaoAluno", "outputs": [], "stateMutability": "nonpayable", "type": "function" }, { "inputs": [ { "internalType": "address", "name": "", "type": "address" }, { "internalType": "uint256", "name": "", "type": "uint256" } ], "name": "inscricoes", "outputs": [ { "internalType": "uint256", "name": "nota", "type": "uint256" }, { "internalType": "bool", "name": "notaLancada", "type": "bool" } ], "stateMutability": "view", "type": "function" }, { "inputs": [ { "internalType": "address", "name": "_aluno", "type": "address" }, { "internalType": "uint256", "name": "_idMateria", "type": "uint256" }, { "internalType": "uint256", "name": "_nota", "type": "uint256" } ], "name": "lancarNota", "outputs": [], "stateMutability": "nonpayable", "type": "function" }, { "inputs": [ { "internalType": "uint256", "name": "", "type": "uint256" } ], "name": "materias", "outputs": [ { "internalType": "uint256", "name": "id", "type": "uint256" }, { "internalType": "string", "name": "nome", "type": "string" }, { "internalType": "address", "name": "professor", "type": "address" } ], "stateMutability": "view", "type": "function" }, { "inputs": [], "name": "owner", "outputs": [ { "internalType": "address", "name": "", "type": "address" } ], "stateMutability": "view", "type": "function" }, { "inputs": [], "name": "proximoIdMateria", "outputs": [ { "internalType": "uint256", "name": "", "type": "uint256" } ], "stateMutability": "view", "type": "function" }, { "inputs": [ { "internalType": "address", "name": "_professor", "type": "address" } ], "name": "removerProfessor", "outputs": [], "stateMutability": "nonpayable", "type": "function" } ];
+
+        // --- 2. VARIÁVEIS GLOBAIS ---
+        let provider, signer, contract;
+
+        // --- 3. LÓGICA DE INTERAÇÃO ---
+
+        async function connectWallet() {
+            if (typeof window.ethereum === "undefined") {
+                alert("Por favor, instale a MetaMask para usar esta aplicação.");
+                return;
+            }
+
+            try {
+                provider = new ethers.BrowserProvider(window.ethereum);
+                signer = await provider.getSigner();
+                contract = new ethers.Contract(contractAddress, contractABI, signer);
+
+                await updateUI();
+            } catch (error) {
+                console.error("Erro ao conectar:", error);
+                alert("Falha ao conectar a carteira. Verifique o console para mais detalhes.");
+            }
+        }
+
+        async function updateUI() {
+            const account = await signer.getAddress();
+            
+            // Esconde a view de conexão e mostra a view da aplicação
+            document.getElementById('connect-view').style.display = 'none';
+            document.getElementById('app-view').style.display = 'block';
+            document.getElementById('account-address').innerText = account;
+
+            // Verifica os papéis do usuário
+            const isOwner = (await contract.owner()).toLowerCase() === account.toLowerCase();
+            const isProfessor = await contract.ehProfessor(account);
+
+            // Reseta a visibilidade de todos os painéis
+            document.getElementById('admin-panel').style.display = 'none';
+            document.getElementById('professor-panel').style.display = 'none';
+            document.getElementById('aluno-panel').style.display = 'none';
+
+            let roleText = "Aluno";
+            if (isOwner) {
+                document.getElementById('admin-panel').style.display = 'block';
+                roleText = "Administrador";
+            }
+            if (isProfessor) {
+                document.getElementById('professor-panel').style.display = 'block';
+                roleText = isOwner ? "Admin e Professor" : "Professor";
+            }
+            if (!isProfessor) {
+                document.getElementById('aluno-panel').style.display = 'block';
+                await carregarMinhasMaterias(); // Carrega as matérias do aluno automaticamente
+            }
+            
+            document.getElementById('user-role').innerText = roleText;
+        }
+
+        async function adicionarProfessor() {
+            const profAddress = document.getElementById('prof-address').value;
+            if (!ethers.isAddress(profAddress)) {
+                alert("Endereço de professor inválido.");
+                return;
+            }
+            try {
+                const tx = await contract.adicionarProfessor(profAddress);
+                alert("Adicionando professor... aguarde a confirmação da transação.");
+                await tx.wait();
+                alert("Professor adicionado com sucesso!");
+            } catch (error) {
+                console.error(error);
+                alert("Erro ao adicionar professor.");
+            }
+        }
+
+        async function criarMateria() {
+            const nomeMateria = document.getElementById('materia-nome').value;
+            if (!nomeMateria) {
+                alert("O nome da matéria não pode ser vazio.");
+                return;
+            }
+            try {
+                const tx = await contract.criarMateria(nomeMateria);
+                alert("Criando matéria... aguarde a confirmação.");
+                await tx.wait();
+                alert(`Matéria "${nomeMateria}" criada com sucesso!`);
+            } catch(error) {
+                console.error(error);
+                alert("Erro ao criar matéria.");
+            }
+        }
+
+        async function inscreverAluno() {
+            const alunoAddr = document.getElementById('aluno-address').value;
+            const materiaId = document.getElementById('materia-id-inscricao').value;
+
+            if (!ethers.isAddress(alunoAddr) || !materiaId) {
+                alert("Preencha todos os campos corretamente.");
+                return;
+            }
+
+            try {
+                const tx = await contract.inclusaoAluno(alunoAddr, materiaId);
+                alert("Inscrevendo aluno... aguarde a confirmação.");
+                await tx.wait();
+                alert("Aluno inscrito com sucesso!");
+            } catch(error) {
+                console.error(error);
+                alert("Erro ao inscrever aluno.");
+            }
+        }
+
+        async function lancarNota() {
+            const alunoAddr = document.getElementById('aluno-address-nota').value;
+            const materiaId = document.getElementById('materia-id-nota').value;
+            const nota = document.getElementById('nota-aluno').value;
+
+            if (!ethers.isAddress(alunoAddr) || !materiaId || nota === '') {
+                alert("Preencha todos os campos corretamente.");
+                return;
+            }
+
+            try {
+                const tx = await contract.lancarNota(alunoAddr, materiaId, nota);
+                alert("Lançando nota... aguarde a confirmação.");
+                await tx.wait();
+                alert("Nota lançada com sucesso!");
+            } catch(error) {
+                console.error(error);
+                alert("Erro ao lançar nota.");
+            }
+        }
+
+        async function carregarMinhasMaterias() {
+            try {
+                const materias = await contract.getMinhasMaterias();
+                const tableBody = document.getElementById('materias-table-body');
+                tableBody.innerHTML = ''; // Limpa a tabela antes de preencher
+
+                if (materias.length === 0) {
+                    tableBody.innerHTML = `<tr><td colspan="3">Você não está inscrito em nenhuma matéria.</td></tr>`;
+                    return;
+                }
+
+                materias.forEach(materia => {
+                    const notaDisplay = materia.notaLancada ? materia.nota.toString() : '-';
+                    const truncatedProfAddress = `${materia.professor.substring(0, 6)}...${materia.professor.substring(materia.professor.length - 4)}`;
+
+                    const row = `
+                        <tr>
+                            <td>${materia.nomeMateria}</td>
+                            <td><span class="address" title="${materia.professor}">${truncatedProfAddress}</span></td>
+                            <td>${notaDisplay}</td>
+                        </tr>
+                    `;
+                    tableBody.innerHTML += row;
+                });
+            } catch (error) {
+                console.error(error);
+                alert("Erro ao carregar suas matérias.");
+            }
+        }
+    </script>
+</body>
+</html>
