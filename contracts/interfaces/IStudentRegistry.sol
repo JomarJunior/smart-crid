@@ -1,8 +1,6 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.28;
 
-import {ICRIDAccessControl} from "./ICRIDAccessControl.sol";
-
 /**
  * @title IStudentRegistry
  * @dev Interface for student registry contract
