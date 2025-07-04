@@ -1,0 +1,427 @@
+@startuml ClassDiagram
+!define RECTANGLE class
+
+title CRID Smart Contract System - Class Diagram
+
+package "Security Context" as SecurityContext {
+    interface ICRIDAccessControl {
+        +ADMIN_ROLE(): bytes32
+        +COORDINATOR_ROLE(): bytes32
+        +STUDENT_ROLE(): bytes32
+        +hasRole(role: bytes32, account: address): bool
+        +addCoordinator(coordinator: address): void
+        +addStudent(student: address): void
+        +removeCoordinator(coordinator: address): void
+        +removeStudent(student: address): void
+        +pause(): void
+        +unpause(): void
+        +paused(): bool
+    }
+
+    class CRIDAccessControl {
+        -_admin: address
+        -_coordinators: mapping(address => bool)
+        -_students: mapping(address => bool)
+        -_paused: bool
+        +constructor()
+        +addCoordinator(coordinator: address)
+        +addStudent(student: address)
+        +removeCoordinator(coordinator: address)
+        +removeStudent(student: address)
+        +pause()
+        +unpause()
+        +hasRole(role: bytes32, account: address): bool
+        +paused(): bool
+    }
+
+    class RoleManager {
+        -accessControl: ICRIDAccessControl
+        -roleAssignments: mapping(address => bytes32[])
+        -roleMembers: mapping(bytes32 => address[])
+        +grantRole(role: bytes32, account: address)
+        +revokeRole(role: bytes32, account: address)
+        +hasRole(role: bytes32, account: address): bool
+        +getRoleMembers(role: bytes32): address[]
+        +getUserRoles(account: address): bytes32[]
+        +transferRole(from: address, to: address, role: bytes32)
+    }
+
+    class SecurityModifiers {
+        +onlyAdmin()
+        +onlyCoordinator()
+        +onlyStudent()
+        +onlyValidUser()
+        +whenNotPaused()
+        +nonReentrant()
+        +validAddress(address)
+    }
+
+    class AuditLogger {
+        -auditLogs: mapping(uint256 => AuditLog)
+        -logCount: uint256
+        +logAction(actor: address, action: string, target: string, timestamp: uint256)
+        +getAuditLog(logId: uint256): AuditLog
+        +getAuditLogsByActor(actor: address): uint256[]
+        +getAuditLogsByAction(action: string): uint256[]
+    }
+
+    class AuditLog {
+        +id: uint256
+        +actor: address
+        +action: string
+        +target: string
+        +timestamp: uint256
+        +blockNumber: uint256
+        +transactionHash: bytes32
+    }
+}
+
+package "Student Context" as StudentContext {
+    interface IStudentRegistry {
+        +struct Student
+        +registerStudent(id: string, fullName: string, email: string, program: string, enrollmentYear: uint16)
+        +isRegistered(studentAddress: address): bool
+        +isStudentActive(studentAddress: address): bool
+        +getStudentId(studentAddress: address): string
+        +getStudentByAddress(studentAddress: address): Student
+        +getStudentById(studentId: string): Student
+        +getStudentAddress(studentId: string): address
+        +getAccessControl(): ICRIDAccessControl
+    }
+
+    class StudentRegistry {
+        -accessControl: ICRIDAccessControl
+        -students: mapping(string => Student)
+        -studentsByAddress: mapping(address => string)
+        -studentAddresses: mapping(string => address)
+        -registeredStudentsCount: uint256
+        +constructor(accessControlAddress: address)
+        +registerStudent(id: string, fullName: string, email: string, program: string, enrollmentYear: uint16)
+        +isRegistered(studentAddress: address): bool
+        +isStudentActive(studentAddress: address): bool
+        +getStudentId(studentAddress: address): string
+        +getStudentByAddress(studentAddress: address): Student
+        +getStudentById(studentId: string): Student
+        +getStudentAddress(studentId: string): address
+        +activateStudent(studentId: string)
+        +deactivateStudent(studentId: string)
+    }
+
+    class StudentCertificate {
+        -certificates: mapping(string => Certificate)
+        -studentCertificates: mapping(address => string[])
+        +generateCertificate(studentId: string, courseId: string, enrollmentDate: uint256)
+        +getCertificate(certificateId: string): Certificate
+        +getStudentCertificates(studentAddress: address): string[]
+        +verifyCertificate(certificateId: string): bool
+        +revokeCertificate(certificateId: string)
+    }
+
+    class Student {
+        +id: string
+        +fullName: string
+        +email: string
+        +program: string
+        +enrollmentYear: uint16
+        +isActive: bool
+    }
+
+    class Certificate {
+        +id: string
+        +studentId: string
+        +courseId: string
+        +issueDate: uint256
+        +isValid: bool
+        +digitalSignature: bytes32
+    }
+
+    class AcademicHistory {
+        +studentId: string
+        +enrollments: string[]
+        +completedCourses: string[]
+        +gpa: uint256
+        +totalCredits: uint256
+        +getTranscript(): Course[]
+        +addEnrollment(courseId: string)
+        +completeCourse(courseId: string, grade: uint8)
+    }
+}
+
+package "Coordination Context" as CoordinationContext {
+    interface ICourseManager {
+        +struct Course
+        +addCourse(id: string, name: string, description: string, credits: uint8, maxStudents: uint16)
+        +getCourse(courseId: string): Course
+        +courseExists(courseId: string): bool
+        +isCourseActive(courseId: string): bool
+        +activateCourse(courseId: string)
+        +deactivateCourse(courseId: string)
+    }
+
+    class CourseManager {
+        -courses: mapping(string => Course)
+        -coordinatorCourses: mapping(address => string[])
+        -accessControl: ICRIDAccessControl
+        +addCourse(id: string, name: string, description: string, credits: uint8, maxStudents: uint16)
+        +updateCourse(courseId: string, name: string, description: string)
+        +getCourse(courseId: string): Course
+        +courseExists(courseId: string): bool
+        +isCourseActive(courseId: string): bool
+        +activateCourse(courseId: string)
+        +deactivateCourse(courseId: string)
+        +assignCoordinator(courseId: string, coordinator: address)
+        +getCoordinatorCourses(coordinator: address): string[]
+    }
+
+    class MockCourseManager {
+        -courses: mapping(string => Course)
+        +addCourse(id: string, name: string, description: string, credits: uint8, maxStudents: uint16)
+        +getCourse(courseId: string): Course
+        +courseExists(courseId: string): bool
+        +isCourseActive(courseId: string): bool
+        +activateCourse(courseId: string)
+        +deactivateCourse(courseId: string)
+    }
+
+    class CoordinatorRegistry {
+        -coordinators: mapping(address => Coordinator)
+        -accessControl: ICRIDAccessControl
+        +registerCoordinator(coordinatorAddress: address, name: string, department: string)
+        +getCoordinator(coordinatorAddress: address): Coordinator
+        +isActiveCoordinator(coordinatorAddress: address): bool
+        +assignCourse(coordinatorAddress: address, courseId: string)
+        +getAssignedCourses(coordinatorAddress: address): string[]
+    }
+
+    class Course {
+        +id: string
+        +name: string
+        +description: string
+        +credits: uint8
+        +maxStudents: uint16
+        +currentEnrollment: uint16
+        +semester: string
+        +year: uint16
+        +coordinator: address
+        +prerequisites: string[]
+        +isActive: bool
+    }
+
+    class Coordinator {
+        +coordinatorAddress: address
+        +name: string
+        +department: string
+        +assignedCourses: string[]
+        +isActive: bool
+    }
+
+    class AcademicPeriod {
+        +id: string
+        +name: string
+        +startDate: uint256
+        +endDate: uint256
+        +enrollmentDeadline: uint256
+        +isActive: bool
+        +availableCourses: string[]
+    }
+}
+
+package "Enrollment Context" as EnrollmentContext {
+    class EnrollmentRequest {
+        +enum RequestStatus
+        +struct Request
+        -studentRegistry: IStudentRegistry
+        -courseManager: ICourseManager
+        -requests: mapping(string => Request)
+        -studentRequests: mapping(address => string[])
+        -courseRequests: mapping(string => string[])
+        -studentIdRequests: mapping(string => string[])
+        -enrollmentRequestsCount: uint256
+        +constructor(studentRegistryAddress: address, courseManagerAddress: address)
+        +requestEnrollment(courseId: string)
+        +cancelEnrollmentRequest(requestId: string)
+        +approveEnrollment(requestId: string)
+        +rejectEnrollment(requestId: string)
+        +getEnrollmentRequest(requestId: string): Request
+        +getEnrollmentRequestsByStudent(studentAddress: address): string[]
+        +getEnrollmentRequestsCount(): uint256
+    }
+
+    class EnrollmentStateMachine {
+        +enum State
+        +validateTransition(from: State, to: State): bool
+        +getNextStates(current: State): State[]
+        +processStateChange(requestId: string, newState: State)
+        +getStateHistory(requestId: string): StateTransition[]
+    }
+
+    class EnrollmentProcessor {
+        -enrollmentRequest: EnrollmentRequest
+        -studentRegistry: IStudentRegistry
+        -courseManager: ICourseManager
+        -certificateGenerator: StudentCertificate
+        +processApproval(requestId: string)
+        +processRejection(requestId: string, reason: string)
+        +processCancellation(requestId: string)
+        +validateEnrollmentRequirements(studentId: string, courseId: string): bool
+        +checkPrerequisites(studentId: string, courseId: string): bool
+    }
+
+    class Request {
+        +student: address
+        +requestDate: uint256
+        +status: RequestStatus
+        +id: string
+        +studentId: string
+        +courseId: string
+        +rejectionReason: string
+        +processedBy: address
+        +processedDate: uint256
+    }
+
+    class StateTransition {
+        +requestId: string
+        +fromState: RequestStatus
+        +toState: RequestStatus
+        +timestamp: uint256
+        +actor: address
+        +reason: string
+    }
+
+    enum RequestStatus {
+        Pending
+        Approved
+        Rejected
+        Cancelled
+    }
+}
+
+package "Core Context" as CoreContext {
+    class CRID {
+        -studentRegistry: IStudentRegistry
+        -courseManager: ICourseManager
+        -enrollmentRequest: EnrollmentRequest
+        -accessControl: ICRIDAccessControl
+        -eventEmitter: EventEmitter
+        +constructor()
+        +initializeSystem()
+        +upgradeContracts()
+        +getSystemStatus(): SystemStatus
+        +emergencyShutdown()
+    }
+
+    class EventEmitter {
+        +emit StudentRegistered(string studentId, address studentAddress)
+        +emit EnrollmentRequested(string studentId, string courseId, string requestId)
+        +emit EnrollmentApproved(string requestId)
+        +emit EnrollmentRejected(string requestId, string reason)
+        +emit CertificateGenerated(string certificateId, string studentId, string courseId)
+        +emit SystemPaused()
+        +emit SystemUnpaused()
+    }
+
+    class StateManager {
+        -globalState: mapping(string => bytes)
+        -stateVersion: uint256
+        +getState(key: string): bytes
+        +setState(key: string, value: bytes)
+        +getStateVersion(): uint256
+        +createSnapshot(): uint256
+        +restoreSnapshot(snapshotId: uint256)
+    }
+
+    class SystemStatus {
+        +isActive: bool
+        +isPaused: bool
+        +totalStudents: uint256
+        +totalCourses: uint256
+        +totalRequests: uint256
+        +lastUpdated: uint256
+    }
+}
+
+package "Interface Context" as InterfaceContext {
+    class Web3Integration {
+        -contractAddresses: mapping(string => address)
+        -contractABIs: mapping(string => string)
+        +connectWallet(): address
+        +callContract(contractName: string, method: string, params: bytes): bytes
+        +listenToEvents(contractName: string, eventName: string)
+        +getTransactionStatus(txHash: bytes32): TxStatus
+    }
+
+    class APIGateway {
+        +submitEnrollmentRequest(studentId: string, courseId: string): TxResult
+        +getStudentProfile(studentId: string): StudentProfile
+        +getCourseInfo(courseId: string): CourseInfo
+        +getEnrollmentStatus(requestId: string): RequestStatus
+        +downloadCertificate(certificateId: string): bytes
+    }
+
+    class UserInterface {
+        +renderStudentDashboard(studentAddress: address)
+        +renderCoordinatorPanel(coordinatorAddress: address)
+        +renderAdminConsole(adminAddress: address)
+        +showNotification(message: string, type: string)
+        +handleUserAction(action: string, params: string[])
+    }
+
+    class NotificationService {
+        -subscribers: mapping(address => string[])
+        +subscribe(userAddress: address, eventType: string)
+        +unsubscribe(userAddress: address, eventType: string)
+        +notify(eventType: string, message: string, targetUsers: address[])
+        +sendEmail(recipient: string, subject: string, body: string)
+    }
+}
+
+' Relationships
+ICRIDAccessControl <|-- CRIDAccessControl
+IStudentRegistry <|-- StudentRegistry
+ICourseManager <|-- CourseManager
+ICourseManager <|-- MockCourseManager
+
+' Security Context relationships
+RoleManager --> ICRIDAccessControl : uses
+SecurityModifiers --> ICRIDAccessControl : uses
+AuditLogger --> AuditLog : creates
+
+' Student Context relationships
+StudentRegistry --> ICRIDAccessControl : uses
+StudentRegistry --> Student : manages
+StudentCertificate --> Certificate : manages
+AcademicHistory --> Student : tracks
+
+' Coordination Context relationships
+CourseManager --> ICRIDAccessControl : uses
+CourseManager --> Course : manages
+CoordinatorRegistry --> ICRIDAccessControl : uses
+CoordinatorRegistry --> Coordinator : manages
+Course --> AcademicPeriod : belongs_to
+
+' Enrollment Context relationships
+EnrollmentRequest --> IStudentRegistry : uses
+EnrollmentRequest --> ICourseManager : uses
+EnrollmentRequest --> RequestStatus : contains
+EnrollmentRequest --> Request : contains
+EnrollmentStateMachine --> RequestStatus : manages
+EnrollmentStateMachine --> StateTransition : creates
+EnrollmentProcessor --> EnrollmentRequest : processes
+EnrollmentProcessor --> StudentCertificate : triggers
+
+' Core Context relationships
+CRID --> IStudentRegistry : orchestrates
+CRID --> ICourseManager : orchestrates
+CRID --> EnrollmentRequest : orchestrates
+CRID --> ICRIDAccessControl : orchestrates
+CRID --> EventEmitter : uses
+CRID --> StateManager : uses
+EventEmitter --> SystemStatus : emits
+
+' Interface Context relationships
+Web3Integration --> CRID : interacts
+APIGateway --> Web3Integration : uses
+UserInterface --> APIGateway : calls
+NotificationService --> EventEmitter : listens
+
+@enduml

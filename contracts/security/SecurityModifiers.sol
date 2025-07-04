@@ -43,7 +43,11 @@ abstract contract SecurityModifiers {
     }
 
     modifier onlyValidUser() {
-        if (!accessControl.isValidUser(msg.sender)) revert InvalidUser();
+        if (!accessControl.hasRole(accessControl.ADMIN_ROLE(), msg.sender) &&
+            !accessControl.hasRole(accessControl.COORDINATOR_ROLE(), msg.sender) &&
+            !accessControl.hasRole(accessControl.STUDENT_ROLE(), msg.sender)) {
+            revert InvalidUser();
+        }
         _;
     }
 

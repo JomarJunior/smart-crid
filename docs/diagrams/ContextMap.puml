@@ -1,0 +1,139 @@
+@startuml ContextMap
+!theme plain
+
+title CRID System - Bounded Context Map
+
+package "CRID Smart Contract System" {
+    
+    rectangle "Student Context" as StudentCtx {
+        component "StudentRegistry" as SR
+        component "Student Profile Management" as SPM
+        note top of StudentCtx
+            Manages student registration,
+            profiles, and academic records
+        end note
+    }
+    
+    rectangle "Enrollment Context" as EnrollmentCtx {
+        component "EnrollmentRequest" as ER
+        component "EnrollmentStateMachine" as ESM
+        component "Request Processing" as RP
+        note top of EnrollmentCtx
+            Handles enrollment requests,
+            approvals, and rejections
+        end note
+    }
+    
+    rectangle "Coordination Context" as CoordinationCtx {
+        component "CourseManager" as CM
+        component "Course Catalog" as CC
+        component "Academic Coordination" as AC_Coord
+        note top of CoordinationCtx
+            Manages courses and
+            academic coordination
+        end note
+    }
+    
+    rectangle "Security Context" as SecurityCtx {
+        component "CRIDAccessControl" as CAC
+        component "Role Management" as RM
+        component "Security Modifiers" as SM
+        note top of SecurityCtx
+            Provides access control,
+            authentication, and authorization
+        end note
+    }
+    
+    rectangle "Blockchain Context" as BlockchainCtx {
+        component "Transaction Processing" as TP
+        component "State Management" as StateMgmt
+        component "Event Emission" as EE
+        note top of BlockchainCtx
+            Handles blockchain operations,
+            immutable storage, and events
+        end note
+    }
+    
+    rectangle "Interface Context" as InterfaceCtx {
+        component "Web3 Integration" as W3I
+        component "User Interface" as UI
+        component "API Gateway" as AG
+        note top of InterfaceCtx
+            Manages user interactions
+            and external integrations
+        end note
+    }
+}
+
+' Context relationships with specific integration patterns
+
+' Enrollment Context depends on Student Context (Customer-Supplier)
+EnrollmentCtx -down-> StudentCtx : Customer-Supplier\n[validates student status]
+ER --> SR : uses IStudentRegistry
+
+' Enrollment Context depends on Coordination Context (Customer-Supplier)
+EnrollmentCtx -right-> CoordinationCtx : Customer-Supplier\n[validates course availability]
+ER --> CM : uses ICourseManager
+
+' All contexts depend on Security Context (Shared Kernel)
+StudentCtx -down-> SecurityCtx : Shared Kernel\n[access control integration]
+EnrollmentCtx -down-> SecurityCtx : Shared Kernel\n[role-based permissions]
+CoordinationCtx -down-> SecurityCtx : Shared Kernel\n[coordinator authorization]
+
+SR --> CAC : uses ICRIDAccessControl
+ER --> CAC : uses (via StudentRegistry)
+CM --> CAC : uses ICRIDAccessControl
+
+' All contexts use Blockchain Context (Shared Kernel)
+StudentCtx -down-> BlockchainCtx : Shared Kernel\n[storage & events]
+EnrollmentCtx -down-> BlockchainCtx : Shared Kernel\n[transaction processing]
+CoordinationCtx -down-> BlockchainCtx : Shared Kernel\n[immutable records]
+SecurityCtx -down-> BlockchainCtx : Shared Kernel\n[role persistence]
+
+' Interface Context integrates with all (Anti-Corruption Layer)
+InterfaceCtx -up-> StudentCtx : Anti-Corruption Layer\n[student UI operations]
+InterfaceCtx -up-> EnrollmentCtx : Anti-Corruption Layer\n[enrollment workflows]
+InterfaceCtx -up-> CoordinationCtx : Anti-Corruption Layer\n[course management UI]
+InterfaceCtx -up-> SecurityCtx : Anti-Corruption Layer\n[authentication UI]
+
+' Integration patterns legend
+legend top right
+    |Pattern|Description|
+    |Customer-Supplier|Downstream context depends on upstream|
+    |Shared Kernel|Contexts share common model/code|
+    |Anti-Corruption Layer|Translation layer for external integration|
+    |Conformist|Downstream conforms to upstream model|
+endlegend
+
+' Domain model flow
+note bottom of StudentCtx
+    Domain Events:
+    - StudentRegistered
+    - StudentActivated
+    - StudentDeactivated
+end note
+
+note bottom of EnrollmentCtx
+    Domain Events:
+    - EnrollmentRequested
+    - EnrollmentApproved
+    - EnrollmentRejected
+    - EnrollmentCancelled
+end note
+
+note bottom of CoordinationCtx
+    Domain Events:
+    - CourseCreated
+    - CourseActivated
+    - CourseDeactivated
+end note
+
+note bottom of SecurityCtx
+    Domain Events:
+    - RoleGranted
+    - RoleRevoked
+    - SystemPaused
+    - SystemUnpaused
+end note
+
+@enduml

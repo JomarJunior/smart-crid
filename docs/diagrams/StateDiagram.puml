@@ -1,0 +1,199 @@
+@startuml StateDiagram
+!theme plain
+
+title CRID System - Enhanced Enrollment Request State Machine
+
+[*] --> Draft : Student initiates\nenrollment request
+
+state Draft {
+    Draft : Entry: Create request draft
+    Draft : Entry: Validate student eligibility
+    Draft : Do: Allow editing of request
+    Draft : Do: Check prerequisites
+    Draft : Exit: Lock request data
+}
+
+state Pending {
+    Pending : Entry: Submit formal request
+    Pending : Entry: Assign unique requestId
+    Pending : Entry: Set submission timestamp
+    Pending : Entry: Reserve course slot (if available)
+    Pending : Do: Notify coordinator
+    Pending : Do: Wait for coordinator review
+    Pending : Do: Allow student cancellation
+    Pending : Exit: Remove from pending queue
+}
+
+state UnderReview {
+    UnderReview : Entry: Coordinator starts review
+    UnderReview : Entry: Mark request as being processed
+    UnderReview : Do: Validate student prerequisites
+    UnderReview : Do: Check course capacity
+    UnderReview : Do: Review academic standing
+    UnderReview : Exit: Make approval decision
+}
+
+state Approved {
+    Approved : Entry: Update status to APPROVED
+    Approved : Entry: Confirm course enrollment
+    Approved : Entry: Trigger certificate generation
+    Approved : Entry: Update course enrollment count
+    Approved : Entry: Emit EnrollmentRequestApproved event
+    Approved : Do: Generate enrollment certificate
+    Approved : Do: Update student academic record
+    Approved : Do: Send confirmation notifications
+    Approved : Exit: Archive processed request
+}
+
+state Rejected {
+    Rejected : Entry: Update status to REJECTED
+    Rejected : Entry: Record rejection reason
+    Rejected : Entry: Release reserved course slot
+    Rejected : Entry: Emit EnrollmentRequestRejected event
+    Rejected : Do: Notify student with reason
+    Rejected : Do: Log rejection for audit
+    Rejected : Do: Update coordinator statistics
+    Rejected : Exit: Archive processed request
+}
+
+state Cancelled {
+    Cancelled : Entry: Update status to CANCELLED
+    Cancelled : Entry: Release reserved course slot
+    Cancelled : Entry: Emit EnrollmentRequestCancelled event
+    Cancelled : Do: Notify coordinator of cancellation
+    Cancelled : Do: Update availability metrics
+    Cancelled : Do: Log cancellation for audit
+    Cancelled : Exit: Archive processed request
+}
+
+state Expired {
+    Expired : Entry: Automatic expiration after deadline
+    Expired : Entry: Release reserved course slot
+    Expired : Entry: Emit EnrollmentRequestExpired event
+    Expired : Do: Notify student of expiration
+    Expired : Do: Update system statistics
+    Expired : Exit: Archive expired request
+}
+
+state CertificateGenerated {
+    CertificateGenerated : Entry: Create digital certificate
+    CertificateGenerated : Entry: Assign certificate ID
+    CertificateGenerated : Entry: Set certificate validity
+    CertificateGenerated : Do: Store certificate on blockchain
+    CertificateGenerated : Do: Generate downloadable document
+    CertificateGenerated : Do: Send certificate to student
+    CertificateGenerated : Exit: Mark enrollment complete
+}
+
+state Appealed {
+    Appealed : Entry: Student submits appeal
+    Appealed : Entry: Create appeal record
+    Appealed : Do: Schedule appeal review
+    Appealed : Do: Notify appeal committee
+    Appealed : Do: Gather additional documentation
+    Appealed : Exit: Make final appeal decision
+}
+
+' Primary state transitions
+Draft --> Pending : Student submits request\n[validateStudentEligibility() && checkCourseAvailability()]
+
+Pending --> UnderReview : Coordinator starts review\n[hasRole(COORDINATOR_ROLE) || hasRole(ADMIN_ROLE)]
+Pending --> Cancelled : Student cancels request\n[msg.sender == request.student && isPending()]
+Pending --> Expired : Deadline passes\n[block.timestamp > enrollmentDeadline]
+
+UnderReview --> Approved : Coordinator approves\n[validatePrerequisites() && hasCapacity()]
+UnderReview --> Rejected : Coordinator rejects\n[!validatePrerequisites() || !hasCapacity() || other_reason]
+UnderReview --> Pending : Return for more info\n[needsAdditionalDocumentation()]
+
+Approved --> CertificateGenerated : Automatic trigger\n[approvalProcessComplete()]
+
+Rejected --> Appealed : Student appeals decision\n[withinAppealPeriod() && hasValidGrounds()]
+
+Appealed --> Approved : Appeal successful\n[appealCommitteeApproves()]
+Appealed --> Rejected : Appeal denied\n[appealCommitteeDenies()]
+
+' Terminal states
+CertificateGenerated --> [*] : Enrollment complete
+Rejected --> [*] : Process complete (if no appeal)
+Cancelled --> [*] : Process complete
+Expired --> [*] : Process complete
+
+' Invalid transitions (prevented by smart contract)
+Approved --> Pending : ❌ Not allowed
+Approved --> Rejected : ❌ Not allowed (use appeal process)
+Approved --> Cancelled : ❌ Not allowed
+Approved --> Expired : ❌ Not allowed
+
+CertificateGenerated --> Pending : ❌ Not allowed
+CertificateGenerated --> Rejected : ❌ Not allowed
+CertificateGenerated --> Cancelled : ❌ Not allowed
+
+Expired --> Approved : ❌ Not allowed
+Expired --> Rejected : ❌ Not allowed
+Expired --> Cancelled : ❌ Not allowed
+
+' State guards and conditions
+note top of Draft
+    Initial state allows student to
+    prepare and validate request
+    before formal submission.
+    Prerequisites are checked here.
+end note
+
+note right of Pending
+    Formal request awaiting
+    coordinator review.
+    Course slot may be
+    temporarily reserved.
+end note
+
+note right of UnderReview
+    Active review process by
+    authorized coordinator.
+    Detailed validation of
+    student and course requirements.
+end note
+
+note right of Approved
+    Successful enrollment approval.
+    Automatically triggers certificate
+    generation and course enrollment
+    confirmation processes.
+end note
+
+note bottom of Rejected
+    Enrollment denied with recorded
+    reason. Student may appeal
+    within specified timeframe
+    if grounds exist.
+end note
+
+note bottom of Cancelled
+    Student-initiated withdrawal
+    before coordinator decision.
+    Releases resources for
+    other students.
+end note
+
+note left of Expired
+    Automatic state for requests
+    that exceed enrollment
+    deadline without action.
+    System cleanup process.
+end note
+
+note left of CertificateGenerated
+    Final confirmation state.
+    Digital certificate created
+    and stored immutably on
+    blockchain for verification.
+end note
+
+note top of Appealed
+    Appeal process for rejected
+    requests. Independent review
+    by appeal committee with
+    final decision authority.
+end note
+
+@enduml

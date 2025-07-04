@@ -1,0 +1,301 @@
+@startuml UseCaseDiagram
+!theme plain
+
+title CRID System - Complete Use Case Diagram
+
+left to right direction
+
+' Actors
+actor Student as S
+actor Coordinator as C
+actor Administrator as A
+actor "External Auditor" as EA
+actor "Appeal Committee" as APP
+actor "System Integrator" as SI
+
+' System boundary
+rectangle "CRID Smart Contract System" {
+    
+    ' Student Context Use Cases
+    package "Student Management" {
+        usecase "Register as Student" as UC1
+        usecase "Update Profile" as UC2
+        usecase "View Profile" as UC3
+        usecase "Activate/Deactivate Student" as UC4
+        usecase "View Academic History" as UC5
+        usecase "Download Transcript" as UC6
+        usecase "Update Contact Information" as UC7
+        usecase "View Graduation Progress" as UC8
+    }
+    
+    ' Enrollment Context Use Cases
+    package "Enrollment Management" {
+        usecase "Create Draft Request" as UC9
+        usecase "Submit Enrollment Request" as UC10
+        usecase "Cancel Enrollment Request" as UC11
+        usecase "View Request Status" as UC12
+        usecase "View Request History" as UC13
+        usecase "Appeal Rejection" as UC14
+        usecase "Approve Enrollment Request" as UC15
+        usecase "Reject Enrollment Request" as UC16
+        usecase "View All Requests" as UC17
+        usecase "Batch Process Requests" as UC18
+        usecase "Set Processing Priority" as UC19
+        usecase "Generate Enrollment Report" as UC20
+    }
+    
+    ' Certificate Management Use Cases
+    package "Certificate Management" {
+        usecase "Generate Digital Certificate" as UC21
+        usecase "Download Certificate" as UC22
+        usecase "Verify Certificate" as UC23
+        usecase "Revoke Certificate" as UC24
+        usecase "View Certificate History" as UC25
+        usecase "Share Certificate Link" as UC26
+        usecase "Print Physical Certificate" as UC27
+    }
+    
+    ' Coordination Context Use Cases
+    package "Course Management" {
+        usecase "Create Course" as UC28
+        usecase "Update Course Details" as UC29
+        usecase "Activate/Deactivate Course" as UC30
+        usecase "View Course Details" as UC31
+        usecase "Manage Course Capacity" as UC32
+        usecase "Set Prerequisites" as UC33
+        usecase "Assign Coordinator" as UC34
+        usecase "View Enrollment Statistics" as UC35
+        usecase "Export Course Data" as UC36
+        usecase "Schedule Course Offering" as UC37
+    }
+    
+    ' Academic Period Management
+    package "Academic Period Management" {
+        usecase "Create Academic Period" as UC38
+        usecase "Set Enrollment Deadlines" as UC39
+        usecase "Manage Period Calendar" as UC40
+        usecase "Close Enrollment Period" as UC41
+        usecase "Generate Period Report" as UC42
+    }
+    
+    ' Security Context Use Cases
+    package "Access Control & Security" {
+        usecase "Manage User Roles" as UC43
+        usecase "Add Coordinator" as UC44
+        usecase "Remove Coordinator" as UC45
+        usecase "Add Student Role" as UC46
+        usecase "Remove Student Role" as UC47
+        usecase "Pause System" as UC48
+        usecase "Unpause System" as UC49
+        usecase "Grant Emergency Access" as UC50
+        usecase "Revoke Emergency Access" as UC51
+        usecase "Multi-Signature Operations" as UC52
+    }
+    
+    ' Audit & Reporting Use Cases
+    package "Audit & Transparency" {
+        usecase "View Transaction History" as UC53
+        usecase "Generate Audit Reports" as UC54
+        usecase "Export Compliance Data" as UC55
+        usecase "Monitor System Activity" as UC56
+        usecase "Track User Actions" as UC57
+        usecase "Investigate Anomalies" as UC58
+        usecase "Backup System Data" as UC59
+    }
+    
+    ' Appeal Process Use Cases
+    package "Appeal Management" {
+        usecase "Submit Appeal Request" as UC60
+        usecase "Review Appeal" as UC61
+        usecase "Schedule Appeal Hearing" as UC62
+        usecase "Make Appeal Decision" as UC63
+        usecase "Notify Appeal Outcome" as UC64
+    }
+    
+    ' System Integration Use Cases
+    package "System Integration" {
+        usecase "Connect External Systems" as UC65
+        usecase "Sync Student Data" as UC66
+        usecase "Export to LMS" as UC67
+        usecase "Import Course Catalog" as UC68
+        usecase "API Access Management" as UC69
+        usecase "Webhook Configuration" as UC70
+    }
+    
+    ' Notification & Communication
+    package "Notifications & Communication" {
+        usecase "Send Email Notifications" as UC71
+        usecase "Push Mobile Notifications" as UC72
+        usecase "SMS Alerts" as UC73
+        usecase "In-App Messaging" as UC74
+        usecase "Configure Notification Preferences" as UC75
+    }
+}
+
+' Student relationships
+S --> UC1 : registers
+S --> UC2 : updates own profile
+S --> UC3 : views own profile
+S --> UC5 : views own history
+S --> UC6 : downloads own transcript
+S --> UC7 : updates contact info
+S --> UC8 : tracks progress
+
+S --> UC9 : creates draft
+S --> UC10 : submits
+S --> UC11 : cancels own
+S --> UC12 : checks own status
+S --> UC13 : views own history
+S --> UC14 : submits appeal
+
+S --> UC22 : downloads own certificates
+S --> UC25 : views own certificates
+S --> UC26 : shares certificates
+
+S --> UC31 : views available courses
+S --> UC75 : configures preferences
+
+' Coordinator relationships
+C --> UC15 : approves requests
+C --> UC16 : rejects requests
+C --> UC17 : manages assigned courses
+C --> UC18 : batch processes
+C --> UC19 : sets priorities
+C --> UC20 : generates reports
+
+C --> UC21 : triggers generation
+C --> UC24 : revokes if needed
+
+C --> UC28 : creates courses
+C --> UC29 : updates course details
+C --> UC30 : manages course status
+C --> UC32 : manages capacity
+C --> UC33 : sets prerequisites
+C --> UC35 : views statistics
+C --> UC36 : exports data
+C --> UC37 : schedules offerings
+
+C --> UC3 : views student profiles
+C --> UC53 : views for oversight
+C --> UC71 : sends notifications
+
+' Administrator relationships
+A --> UC43 : manages all roles
+A --> UC44 : adds coordinators
+A --> UC45 : removes coordinators
+A --> UC46 : grants student roles
+A --> UC47 : revokes student roles
+A --> UC48 : emergency pause
+A --> UC49 : emergency unpause
+A --> UC50 : grants emergency access
+A --> UC51 : revokes emergency access
+A --> UC52 : performs multi-sig ops
+
+A --> UC4 : manages student status
+A --> UC15 : approves (escalation)
+A --> UC16 : rejects (escalation)
+A --> UC24 : revokes certificates
+
+A --> UC38 : creates periods
+A --> UC39 : sets deadlines
+A --> UC40 : manages calendar
+A --> UC41 : closes periods
+A --> UC42 : generates period reports
+
+A --> UC53 : full access
+A --> UC54 : generates reports
+A --> UC55 : exports compliance data
+A --> UC56 : monitors activity
+A --> UC57 : tracks actions
+A --> UC58 : investigates issues
+A --> UC59 : performs backups
+
+A --> UC69 : manages API access
+A --> UC70 : configures webhooks
+
+' External Auditor relationships
+EA --> UC53 : audits transactions
+EA --> UC54 : reviews audit reports
+EA --> UC55 : accesses compliance data
+EA --> UC56 : monitors for compliance
+EA --> UC23 : verifies certificates
+EA --> UC58 : investigates anomalies
+
+' Appeal Committee relationships
+APP --> UC61 : reviews appeals
+APP --> UC62 : schedules hearings
+APP --> UC63 : makes decisions
+APP --> UC64 : notifies outcomes
+
+' System Integrator relationships
+SI --> UC65 : connects systems
+SI --> UC66 : syncs data
+SI --> UC67 : exports to LMS
+SI --> UC68 : imports catalogs
+SI --> UC69 : manages API access
+SI --> UC70 : configures webhooks
+
+' Include relationships
+UC10 ..> UC1 : <<include>>\n(must be registered)
+UC15 ..> UC12 : <<include>>\n(updates status)
+UC16 ..> UC12 : <<include>>\n(updates status)
+UC21 ..> UC15 : <<include>>\n(requires approval)
+UC14 ..> UC16 : <<include>>\n(requires rejection)
+UC63 ..> UC64 : <<include>>\n(triggers notification)
+
+' Extend relationships
+UC11 ..> UC12 : <<extend>>\n(if pending)
+UC2 ..> UC3 : <<extend>>\n(after update)
+UC30 ..> UC32 : <<extend>>\n(affects capacity)
+UC24 ..> UC25 : <<extend>>\n(updates history)
+UC18 ..> UC17 : <<extend>>\n(bulk operations)
+
+' Generalization relationships
+UC15 --|> UC17 : specializes
+UC16 --|> UC17 : specializes
+UC44 --|> UC43 : specializes
+UC45 --|> UC43 : specializes
+
+' System integration relationships
+UC67 ..> UC36 : <<uses>>\n(course data)
+UC66 ..> UC54 : <<uses>>\n(audit trail)
+
+note top of UC48
+    Emergency function to halt
+    all system operations in
+    case of security issues
+end note
+
+note right of UC23
+    Blockchain immutability
+    provides built-in
+    certificate verification
+end note
+
+note bottom of UC21
+    Automatically triggered
+    upon enrollment approval
+    for permanent record
+end note
+
+note left of UC14
+    Student right to appeal
+    rejected enrollment
+    decisions through
+    formal process
+end note
+
+note top of UC52
+    Critical operations require
+    multiple administrator
+    signatures for enhanced
+    security
+end note
+
+note bottom of UC65
+    Integration with university
+    information systems like
+    LMS, SIS, and HR systems
+end note
+
+@enduml

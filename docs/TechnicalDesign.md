@@ -159,7 +159,7 @@ Roles Hierarchy:
 - **Student**: Individual seeking course enrollment
 - **Coordinator**: Academic staff responsible for course management
 - **Course**: Academic subject offering with specific requirements
-- **Enrollment Request**: Formal application for course participation
+- **Enrollment Request**: Formal application for course participation (handled by Enrollment Context)
 - **Certificate**: Digital proof of successful enrollment
 - **Academic Period**: Semester or term during which courses are offered
 
@@ -176,20 +176,21 @@ Roles Hierarchy:
 | **Term**               | **Definition**                                                             | **Context**         |
 | ---------------------- | -------------------------------------------------------------------------- | ------------------- |
 | **CRID**               | Certificate of Enrollment Request for Courses                              | System Name         |
-| **Enrollment Request** | A formal application submitted by a student to enroll in a specific course | Core Process        |
+| **Enrollment Request** | A formal application submitted by a student to enroll in a specific course | Enrollment Context  |
+| **Enrollment Context** | Bounded context handling all enrollment request, approval, and rejection   | Architecture        |
 | **Coordinator**        | Academic staff member authorized to approve/reject enrollment requests     | User Role           |
 | **Gas Fee**            | Transaction cost required to execute smart contract functions              | Blockchain          |
 | **Modifier**           | Solidity function that restricts access to certain contract functions      | Security            |
-| **State Machine**      | Design pattern ensuring proper sequence of request status transitions      | Architecture        |
+| **State Machine**      | Design pattern ensuring proper sequence of request status transitions      | Enrollment Context  |
 | **Immutable**          | Data that cannot be changed once written to the blockchain                 | Blockchain Property |
 | **Consensus**          | Agreement mechanism ensuring blockchain network integrity                  | Blockchain Concept  |
 
 ### 4.3 Business Rules 📐
 
-- Students can only submit one enrollment request per course per academic period
-- Coordinators can only approve requests for courses under their jurisdiction
+- Students can only submit one enrollment request per course per academic period (enforced by Enrollment Context)
+- Coordinators can only approve/reject requests for courses under their jurisdiction (enforced by Enrollment Context)
 - Certificates are automatically generated upon successful enrollment approval
-- Request status must follow the defined state machine transitions
+- Request status must follow the defined state machine transitions (managed by Enrollment Context)
 - All critical operations require appropriate role-based authorization
 
 ---
@@ -224,21 +225,30 @@ Roles Hierarchy:
 
 ### 5.2 Bounded Contexts
 
+
 #### 5.2.1 Student Context 🎓
 
 **Responsibility**: Managing student-related operations and data
 
 - **Entities**: Student Profile, Personal Academic History
-- **Operations**: Registration, Request Submission, Status Inquiry
+- **Operations**: Registration, Status Inquiry
 - **Invariants**: One active request per course per period
 
 #### 5.2.2 Coordination Context 👥
 
 **Responsibility**: Academic staff operations and course management
 
-- **Entities**: Coordinator Profile, Course Catalog, Approval Workflow
-- **Operations**: Request Review, Approval/Rejection, Course Setup
+- **Entities**: Coordinator Profile, Course Catalog
+- **Operations**: Course Setup
 - **Invariants**: Coordinators only manage assigned courses
+
+#### 5.2.3 Enrollment Context 📝
+
+**Responsibility**: Handles all enrollment request, approval, and rejection logic
+
+- **Entities**: Enrollment Request, Enrollment State Machine
+- **Operations**: Request Submission, Approval, Rejection, Status Tracking
+- **Invariants**: One active request per course per period; Only assigned coordinators can approve/reject
 
 #### 5.2.3 Blockchain Context ⛓️
 
@@ -383,12 +393,13 @@ smart-crid/
 ├── 📁 contracts/                    # Smart contract source code (Blockchain Context)
 │   ├── 📁 student/                 # Student Context - Student-related contracts
 │   │   ├── 📄 StudentRegistry.sol  # Student registration and profile management
-│   │   ├── 📄 EnrollmentRequest.sol # Enrollment request logic
 │   │   └── 📄 StudentCertificate.sol # Student certificate management
 │   ├── 📁 coordination/            # Coordination Context - Academic staff contracts
 │   │   ├── 📄 CoordinatorRegistry.sol # Coordinator management
 │   │   ├── 📄 CourseManager.sol    # Course catalog and management
-│   │   └── 📄 RequestApproval.sol  # Approval workflow logic
+│   ├── � enrollment/              # Enrollment Context - Request, approval, rejection
+│   │   ├── 📄 EnrollmentRequest.sol # Enrollment request, approval, and rejection logic
+│   │   └── 📄 EnrollmentStateMachine.sol # (Optional) State machine for enrollment
 │   ├── 📁 security/                # Security Context - Access control contracts
 │   │   ├── 📄 AccessControl.sol    # Role-based access control
 │   │   ├── 📄 RoleManager.sol      # Role assignment and management
@@ -408,12 +419,13 @@ smart-crid/
 ├── 📁 test/                        # Test suite organized by bounded context
 │   ├── 📁 student/                 # Student Context tests
 │   │   ├── 📄StudentRegistry.test.js
-│   │   ├── 📄 EnrollmentRequest.test.js
 │   │   └── 📄 StudentCertificate.test.js
 │   ├── 📁 coordination/            # Coordination Context tests
 │   │   ├── 📄 CoordinatorRegistry.test.js
 │   │   ├── 📄 CourseManager.test.js
-│   │   └── 📄 RequestApproval.test.js
+│   ├── 📁 enrollment/              # Enrollment Context tests
+│   │   ├── 📄 EnrollmentRequest.test.js
+│   │   └── 📄 EnrollmentStateMachine.test.js
 │   ├── 📁 security/                # Security Context tests
 │   │   ├── 📄 AccessControl.test.js
 │   │   ├── 📄 RoleManager.test.js
@@ -538,7 +550,7 @@ smart-crid/
 
 **Milestone: Complete Enrollment Request System**
 
-- [ ] Implement enrollment request submission logic
+- [X] Implement enrollment request submission logic
 - [ ] Build course management functionality
 - [ ] Develop approval/rejection workflow
 - [ ] Create comprehensive test coverage (>90%)

@@ -1,0 +1,215 @@
+@startuml SequenceDiagram
+!theme plain
+
+title CRID System - Complete User Interaction Flow Sequence Diagram
+
+actor Student as S
+actor Coordinator as C
+actor Administrator as A
+participant "Web Interface" as WI
+participant "API Gateway" as AG
+participant "StudentRegistry" as SR
+participant "EnrollmentRequest" as ER
+participant "EnrollmentProcessor" as EP
+participant "CourseManager" as CM
+participant "AccessControl" as AC
+participant "CertificateGenerator" as CG
+participant "NotificationService" as NS
+participant "AuditLogger" as AL
+database "Blockchain" as BC
+
+== System Initialization ==
+A -> AC: deployAccessControl()
+activate AC
+AC -> BC: Deploy contract
+BC --> AC: Contract address
+AC --> A: System deployed
+deactivate AC
+
+A -> SR: deployStudentRegistry(accessControlAddress)
+A -> CM: deployCourseManager(accessControlAddress)
+A -> ER: deployEnrollmentRequest(studentRegistry, courseManager)
+
+== Student Registration Flow ==
+S -> WI: Access registration page
+activate WI
+WI -> AG: requestRegistration(studentData)
+activate AG
+AG -> SR: registerStudent(id, name, email, program, year)
+activate SR
+
+SR -> AC: hasRole(STUDENT_ROLE, msg.sender)
+activate AC
+AC --> SR: true
+deactivate AC
+
+SR -> SR: Validate student data
+SR -> SR: Check for duplicates
+SR -> BC: Store student profile
+activate BC
+BC --> SR: Transaction confirmed
+deactivate BC
+
+SR -> AL: logAction(student, "REGISTER", studentId, timestamp)
+activate AL
+AL -> BC: Store audit log
+BC --> AL: Log recorded
+deactivate AL
+
+SR --> AG: StudentRegistered event
+deactivate SR
+AG --> WI: Registration successful
+deactivate AG
+WI --> S: Welcome dashboard
+deactivate WI
+
+== Course Setup (Coordinator) ==
+C -> WI: Access coordinator panel
+WI -> CM: createCourse(courseData)
+activate CM
+CM -> AC: hasRole(COORDINATOR_ROLE, msg.sender)
+AC --> CM: true
+CM -> BC: Store course data
+CM --> C: CourseCreated event
+deactivate CM
+
+== Enhanced Enrollment Request Flow ==
+S -> WI: Browse available courses
+WI -> CM: getActiveCourses()
+CM --> WI: Course list
+
+S -> WI: Select course and submit request
+WI -> AG: submitEnrollmentRequest(courseId)
+AG -> ER: requestEnrollment(courseId)
+activate ER
+
+ER -> SR: isStudentActive(msg.sender)
+activate SR
+SR --> ER: true
+deactivate SR
+
+ER -> CM: getCourse(courseId)
+activate CM
+CM --> ER: Course{id, name, isActive: true, maxStudents, currentEnrollment}
+deactivate CM
+
+ER -> ER: Validate course capacity
+ER -> ER: Check prerequisites
+ER -> ER: Check for duplicate requests
+ER -> ER: Generate unique requestId
+
+ER -> BC: Store enrollment request
+activate BC
+BC --> ER: Transaction confirmed
+deactivate BC
+
+ER -> NS: notifyCoordinator(courseId, requestId)
+activate NS
+NS -> NS: Get course coordinator
+NS -> NS: Send notification
+deactivate NS
+
+ER --> S: EnrollmentRequested event
+deactivate ER
+
+== Coordinator Review and Processing ==
+C -> WI: View pending requests
+WI -> ER: getRequestsByCourse(courseId)
+ER --> WI: Request list
+
+C -> WI: Review request details
+WI -> SR: getStudentById(studentId)
+SR --> WI: Student profile
+WI -> CM: checkPrerequisites(studentId, courseId)
+CM --> WI: Prerequisites status
+
+C -> WI: Approve request
+WI -> AG: approveEnrollment(requestId)
+AG -> EP: processApproval(requestId)
+activate EP
+
+EP -> ER: getEnrollmentRequest(requestId)
+ER --> EP: Request details
+
+EP -> AC: hasRole(COORDINATOR_ROLE, msg.sender)
+AC --> EP: true
+
+EP -> ER: validateRequestPending(requestId)
+ER --> EP: Valid
+
+EP -> ER: updateRequestStatus(requestId, APPROVED)
+ER -> BC: Update request state
+BC --> ER: State updated
+
+EP -> CG: generateCertificate(studentId, courseId, approvalDate)
+activate CG
+CG -> BC: Store certificate
+BC --> CG: Certificate created
+CG --> EP: Certificate ID
+deactivate CG
+
+EP -> CM: incrementEnrollment(courseId)
+CM -> BC: Update course enrollment count
+BC --> CM: Count updated
+
+EP -> NS: notifyApproval(studentId, courseId, certificateId)
+NS -> NS: Send confirmation to student
+NS -> NS: Update coordinator
+
+EP -> AL: logAction(coordinator, "APPROVE", requestId, timestamp)
+AL -> BC: Store audit log
+
+EP --> C: EnrollmentRequestApproved event
+deactivate EP
+
+== Certificate Generation and Delivery ==
+CG -> NS: certificateReady(studentId, certificateId)
+NS -> S: Email notification with download link
+S -> WI: Download certificate
+WI -> CG: getCertificate(certificateId)
+CG --> WI: Certificate data (PDF/Digital)
+
+== Alternative Flow: Request Rejection ==
+alt Rejection Flow
+    C -> AG: rejectEnrollment(requestId, reason)
+    AG -> EP: processRejection(requestId, reason)
+    EP -> ER: updateRequestStatus(requestId, REJECTED)
+    EP -> NS: notifyRejection(studentId, reason)
+    EP -> AL: logAction(coordinator, "REJECT", requestId, timestamp)
+    EP --> C: EnrollmentRequestRejected event
+end
+
+== Alternative Flow: Student Cancellation ==
+alt Cancellation Flow
+    S -> AG: cancelRequest(requestId)
+    AG -> ER: cancelEnrollmentRequest(requestId)
+    ER -> ER: validateRequestOwner(requestId, msg.sender)
+    ER -> ER: updateRequestStatus(requestId, CANCELLED)
+    ER -> CM: decrementReservedSlot(courseId)
+    ER -> NS: notifyCancellation(coordinatorId, requestId)
+    ER -> AL: logAction(student, "CANCEL", requestId, timestamp)
+    ER --> S: EnrollmentRequestCancelled event
+end
+
+== Admin Oversight and System Management ==
+A -> WI: Access admin console
+WI -> ER: getSystemStatistics()
+ER --> WI: Total requests, approval rates, etc.
+
+A -> AL: generateAuditReport(dateRange)
+AL --> A: Comprehensive audit trail
+
+A -> AC: pauseSystem() [Emergency]
+AC -> BC: Set system to paused state
+AC --> A: SystemPaused event
+
+== External Verification ==
+participant "External Verifier" as EV
+EV -> WI: Verify certificate
+WI -> CG: verifyCertificate(certificateId)
+CG -> BC: Check certificate validity
+BC --> CG: Certificate status
+CG --> WI: Verification result
+WI --> EV: Certificate authentic/invalid
+
+@enduml

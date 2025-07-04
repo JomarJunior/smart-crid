@@ -18,23 +18,24 @@ interface IStudentRegistry {
         bool isActive;
     }
 
-    // Events
-    event StudentRegistered(string studentId, address studentAddress);
-
     // Functions
     function registerStudent(
+        address studentAddress,
         string calldata id,
         string calldata fullName,
         string calldata email,
         string calldata program,
-        uint16 enrollmentYear
+        uint16 enrollmentYear,
+        address agent
     ) external;
 
+    function activateStudentById(string calldata studentId, address agent) external;
+    function deactivateStudentById(string calldata studentId, address agent) external;
     function isRegistered(address studentAddress) external view returns (bool isStudentRegistered);
     function isStudentActive(address studentAddress) external view returns (bool isActive);
     function getStudentId(address studentAddress) external view returns (string memory studentId);
     function getStudentByAddress(address studentAddress) external view returns (Student memory student);
     function getStudentById(string calldata studentId) external view returns (Student memory student);
-    function getStudentAddress(string calldata studentId) external view returns (address studentAddress);
-    function getAccessControl() external view returns (ICRIDAccessControl accessControl);
+    function getStudentAddressById(string calldata studentId) external view returns (address studentAddress);
+    function getRegisteredStudentsCount() external view returns (uint256 count);
 }

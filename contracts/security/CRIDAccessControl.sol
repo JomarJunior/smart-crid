@@ -10,6 +10,11 @@ import {AccessControl} from "@openzeppelin/contracts/access/AccessControl.sol";
  * Security Context - Role-based access control implementation
  */
 contract CRIDAccessControl is ICRIDAccessControl, AccessControl {
+    // State variables
+    bool public override paused; // Emergency pause state
+    address public systemAdmin; // The admin of the system
+    address public immutable CRID_ADDRESS;
+
     // Events
     event SystemInitialized(address indexed admin);
     event EmergencyPause(bool paused, address indexed admin);
@@ -26,35 +31,14 @@ contract CRIDAccessControl is ICRIDAccessControl, AccessControl {
         _;
     }
 
-    modifier onlyAdmin() {
-        if (!hasRole(ADMIN_ROLE, _msgSender())) revert InsufficientPermissions();
+    modifier onlyCRID() {
+        if (msg.sender != CRID_ADDRESS) revert InsufficientPermissions();
         _;
     }
 
-    modifier onlyCoordinator() {
-        if (!hasRole(COORDINATOR_ROLE, _msgSender())) revert InsufficientPermissions();
-        _;
-    }
-
-    modifier onlyAdminOrCoordinator() {
-        if (!hasRole(ADMIN_ROLE, _msgSender()) && !hasRole(COORDINATOR_ROLE, _msgSender())) {
-            revert InsufficientPermissions();
-        }
-        _;
-    }
-
-    modifier onlyStudent() {
-        if (!hasRole(STUDENT_ROLE, _msgSender())) revert InsufficientPermissions();
-        _;
-    }
-
-    modifier onlyValidUser() {
-        if (!this.isValidUser(_msgSender())) revert InvalidUserRole();
-        _;
-    }
-
-    constructor() {
+    constructor(address cridAddress) {
         systemAdmin = _msgSender(); // The caller of the constructor will be the default admin
+        CRID_ADDRESS = cridAddress;
 
         // Set up role hierarchy
         _grantRole(DEFAULT_ADMIN_ROLE, systemAdmin);
@@ -70,7 +54,7 @@ contract CRIDAccessControl is ICRIDAccessControl, AccessControl {
     /**
      * @dev Add a new coordinator (only admin)
      */
-    function addCoordinator(address coordinator) external onlyAdmin whenNotPaused {
+    function addCoordinator(address coordinator) external override whenNotPaused onlyCRID {
         if (coordinator == address(0)) revert InvalidAddress();
         _grantRole(COORDINATOR_ROLE, coordinator);
     }
@@ -78,7 +62,7 @@ contract CRIDAccessControl is ICRIDAccessControl, AccessControl {
     /**
      * @dev Remove a coordinator (only admin)
      */
-    function removeCoordinator(address coordinator) external onlyAdmin whenNotPaused {
+    function removeCoordinator(address coordinator) external override whenNotPaused onlyCRID {
         if (coordinator == address(0)) revert InvalidAddress();
         _revokeRole(COORDINATOR_ROLE, coordinator);
     }
@@ -86,7 +70,7 @@ contract CRIDAccessControl is ICRIDAccessControl, AccessControl {
     /**
      * @dev Add a new student (only admin or coordinator)
      */
-    function addStudent(address student) external whenNotPaused onlyAdminOrCoordinator {
+    function addStudent(address student) external override whenNotPaused onlyCRID {
         if (student == address(0)) revert InvalidAddress();
         _grantRole(STUDENT_ROLE, student);
     }
@@ -94,7 +78,7 @@ contract CRIDAccessControl is ICRIDAccessControl, AccessControl {
     /**
      * @dev Remove a student (only admin or coordinator)
      */
-    function removeStudent(address student) external whenNotPaused onlyAdminOrCoordinator {
+    function removeStudent(address student) external override whenNotPaused onlyCRID {
         if (student == address(0)) revert InvalidAddress();
         _revokeRole(STUDENT_ROLE, student);
     }
@@ -102,7 +86,7 @@ contract CRIDAccessControl is ICRIDAccessControl, AccessControl {
     /**
      * @dev Emergency pause function (only admin)
      */
-    function pause() external onlyAdmin {
+    function pause() external override whenNotPaused onlyCRID {
         paused = true;
         emit EmergencyPause(true, _msgSender());
     }
@@ -110,15 +94,18 @@ contract CRIDAccessControl is ICRIDAccessControl, AccessControl {
     /**
      * @dev Resume system (only admin)
      */
-    function unpause() external onlyAdmin {
+    function unpause() external override onlyCRID {
         paused = false;
         emit EmergencyPause(false, _msgSender());
     }
 
     /**
-     * @dev Check if user has any valid role
+     * @dev Check if user has a given role
      */
-    function isValidUser(address user) external view returns (bool isValid) {
-        return hasRole(ADMIN_ROLE, user) || hasRole(COORDINATOR_ROLE, user) || hasRole(STUDENT_ROLE, user);
+    function hasRole(
+        bytes32 role,
+        address account
+    ) public view override(AccessControl, ICRIDAccessControl) returns (bool doesHasRole) {
+        doesHasRole = AccessControl.hasRole(role, account);
     }
 }

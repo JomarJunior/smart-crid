@@ -1,343 +1,364 @@
-const { ethers } = require("hardhat");
+const hre = require("hardhat");
+const { ethers } = hre;
 
-// Common test utilities
 const testHelpers = {
-  // Deploy access control contract
+  // ==============================
+  // Access Control Helpers
+  // ==============================
   async deployAccessControl() {
+    const [admin] = await ethers.getSigners();
+
     const AccessControl = await ethers.getContractFactory("CRIDAccessControl");
-    const accessControl = await AccessControl.deploy();
+    const accessControl = await AccessControl.connect(admin).deploy(admin.address);
     await accessControl.waitForDeployment();
     return accessControl;
   },
 
-  // Deploy student registry contract
-  async deployStudentRegistry(accessControlAddress) {
+  async setupAccessControl() {
+    const accessControl = await this.deployAccessControl();
+    const [admin, coordinator1, coordinator2, coordinator3, student1, student2, student3, guest] =
+      await ethers.getSigners();
+
+    // Set up roles
+    await accessControl.connect(admin).addCoordinator(coordinator1.address);
+    await accessControl.connect(admin).addCoordinator(coordinator2.address);
+    await accessControl.connect(admin).addCoordinator(coordinator3.address);
+    await accessControl.connect(admin).addStudent(student1.address);
+    await accessControl.connect(admin).addStudent(student2.address);
+    await accessControl.connect(admin).addStudent(student3.address);
+
+    return {
+      accessControl,
+      accounts: {
+        admin,
+        coordinator1,
+        coordinator2,
+        coordinator3,
+        student1,
+        student2,
+        student3,
+        guest,
+      },
+    };
+  },
+  // ==============================
+  // Student Registry Helpers
+  // ==============================
+  async deployStudentRegistry() {
+    const [admin] = await ethers.getSigners();
+
     const StudentRegistry = await ethers.getContractFactory("StudentRegistry");
-    const studentRegistry = await StudentRegistry.deploy(accessControlAddress);
+    const studentRegistry = await StudentRegistry.connect(admin).deploy(admin.address);
     await studentRegistry.waitForDeployment();
     return studentRegistry;
   },
 
-  // Deploy mock course manager contract
+  async deployStudentRegistryWithCRID(cridAddress) {
+    const [admin] = await ethers.getSigners();
+
+    const StudentRegistry = await ethers.getContractFactory("StudentRegistry");
+    const studentRegistry = await StudentRegistry.connect(admin).deploy(cridAddress);
+    await studentRegistry.waitForDeployment();
+    return studentRegistry;
+  },
+  async setupStudentRegistry() {
+    const studentRegistry = await this.deployStudentRegistry();
+    const [admin, student1, student2, student3, other] = await ethers.getSigners();
+
+    return {
+      studentRegistry,
+      accounts: {
+        admin,
+        student1,
+        student2,
+        student3,
+        other,
+      },
+    };
+  },
+  async validStudentData() {
+    const [admin, student1, student2, student3] = await ethers.getSigners();
+    return {
+      student1: {
+        studentAddress: student1.address,
+        id: "118210898",
+        fullName: "Pablo Vegetti",
+        email: "pablo.vegetti@poli.ufrj.br",
+        program: "Goal Engineering",
+        enrollmentYear: 2018,
+      },
+      student2: {
+        studentAddress: student2.address,
+        id: "119210899",
+        fullName: "Leo Jardim",
+        email: "leo.jardim@poli.ufrj.br",
+        program: "Goal Reverse-engineering",
+        enrollmentYear: 2019,
+      },
+      student3: {
+        studentAddress: student3.address,
+        id: "117210900",
+        fullName: "Fhilipe Couthinh",
+        email: "phelipe.coutinho@poli.ufrj.br",
+        program: "Goal Architecture",
+        enrollmentYear: 2017,
+      },
+    };
+  },
+  async invalidStudentData() {
+    const [admin, invalidStudent1] = await ethers.getSigners();
+    return {
+      emptyAddress: {
+        studentAddress: "",
+        id: "106456789",
+        fullName: "Alex Teixeira",
+        email: "alex.teixeira@poli.ufrj.br",
+        program: "Goal Engineering",
+        enrollmentYear: 2006,
+      },
+      zeroAddress: {
+        studentAddress: this.ADDRESS_ZERO,
+        id: "106456790",
+        fullName: "Josef de Souza",
+        email: "josef.de.souza@poli.ufrj.br",
+        program: "Goal Reverse-engineering",
+        enrollmentYear: 2006,
+      },
+      emptyId: {
+        studentAddress: invalidStudent1.address,
+        id: "",
+        fullName: "Emerson Rodrigues",
+        email: "emerson.rodrigues@poli.ufrj.br",
+        program: "Goal Engineering",
+        enrollmentYear: 2023,
+      },
+      emptyFullName: {
+        studentAddress: invalidStudent1.address,
+        id: "106456791",
+        fullName: "",
+        email: "clayton.silva@poli.ufrj.br",
+        program: "Goal Engineering",
+        enrollmentYear: 2023,
+      },
+      emptyEmail: {
+        studentAddress: invalidStudent1.address,
+        id: "106456792",
+        fullName: "Rossicley Pereira",
+        email: "",
+        program: "Goal Engineering",
+        enrollmentYear: 2023,
+      },
+      emptyProgram: {
+        studentAddress: invalidStudent1.address,
+        id: "106456793",
+        fullName: "Toko Filipe",
+        email: "toko.filipe@poli.ufrj.br",
+        program: "",
+        enrollmentYear: 2023,
+      },
+    };
+  },
+  async edgeCasesStudentData() {
+    const [admin, student1] = await ethers.getSigners();
+    return {
+      accentedFullName: {
+        studentAddress: student1.address,
+        id: "106456794",
+        fullName: "Léo Pelé",
+        email: "leo.pele@poli.ufrj.br",
+        program: "Goal Reverse-engineering",
+        enrollmentYear: 2023,
+      },
+      accentedProgram: {
+        studentAddress: student1.address,
+        id: "106456795",
+        fullName: "Dimitri Payet",
+        email: "dimitri.payet@poli.ufrj.br",
+        program: "But Ingénierie",
+        enrollmentYear: 2023,
+      },
+    };
+  },
+  // ==============================
+  // CRID Helpers
+  // ==============================
+  async deployCRID(accessControlAddress) {
+    const [admin] = await ethers.getSigners();
+
+    const CRID = await ethers.getContractFactory("CRID");
+    const crid = await CRID.connect(admin).deploy(accessControlAddress);
+    await crid.waitForDeployment();
+    return crid;
+  },
+
   async deployMockCourseManager() {
+    const [admin] = await ethers.getSigners();
+
     const MockCourseManager = await ethers.getContractFactory("MockCourseManager");
-    const courseManager = await MockCourseManager.deploy();
+    const courseManager = await MockCourseManager.connect(admin).deploy();
     await courseManager.waitForDeployment();
     return courseManager;
   },
 
-  // Deploy enrollment request contract
-  async deployEnrollmentRequest(studentRegistryAddress, courseManagerAddress) {
-    const EnrollmentRequest = await ethers.getContractFactory("EnrollmentRequest");
-    const enrollmentRequest = await EnrollmentRequest.deploy(studentRegistryAddress, courseManagerAddress);
+  async deployMockStudentRegistry() {
+    const [admin] = await ethers.getSigners();
+    const MockStudentRegistry = await ethers.getContractFactory("MockStudentRegistry");
+    const studentRegistry = await MockStudentRegistry.connect(admin).deploy();
+    await studentRegistry.waitForDeployment();
+    return studentRegistry;
+  },
+
+  async deployMockEnrollmentRequest() {
+    const [admin] = await ethers.getSigners();
+    const MockEnrollmentRequest = await ethers.getContractFactory("MockEnrollmentRequest");
+    const enrollmentRequest = await MockEnrollmentRequest.connect(admin).deploy();
     await enrollmentRequest.waitForDeployment();
     return enrollmentRequest;
   },
 
-  // Get test accounts with roles
-  async getTestAccounts() {
-    const [admin, coordinator1, coordinator2, student1, student2, student3, other] =
+  async deployMockAccessControl() {
+    const [admin] = await ethers.getSigners();
+    const MockAccessControl = await ethers.getContractFactory("MockCRIDAccessControl");
+    const accessControl = await MockAccessControl.connect(admin).deploy();
+    await accessControl.waitForDeployment();
+    return accessControl;
+  },
+
+  async setupCRID() {
+    const accessControl = await this.deployMockAccessControl();
+    const crid = await this.deployCRID(accessControl.target);
+    
+    // Deploy contracts with correct CRID address
+    const studentRegistry = await this.deployMockStudentRegistry();
+    const courseManager = await this.deployMockCourseManager();
+    const enrollmentRequest = await this.deployMockEnrollmentRequest();
+
+    const [admin, coordinator1, coordinator2, student1, student2, student3, guest] =
       await ethers.getSigners();
 
-    return {
-      admin,
-      coordinator1,
-      coordinator2,
-      student1,
-      student2,
-      student3,
-      other,
-    };
-  },
+    // Set up roles
+    await accessControl.connect(admin).addCoordinator(coordinator1.address);
+    await accessControl.connect(admin).addCoordinator(coordinator2.address);
+    await accessControl.connect(admin).addStudent(student1.address);
+    await accessControl.connect(admin).addStudent(student2.address);
+    await accessControl.connect(admin).addStudent(student3.address);
 
-  // Setup basic system with roles (AccessControl only)
-  async setupBasicSystem() {
-    const accounts = await this.getTestAccounts();
-    const accessControl = await this.deployAccessControl();
-
-    // Add coordinators
-    await accessControl.connect(accounts.admin).addCoordinator(accounts.coordinator1.address);
-    await accessControl.connect(accounts.admin).addCoordinator(accounts.coordinator2.address);
-
-    // Add students
-    await accessControl.connect(accounts.admin).addStudent(accounts.student1.address);
-    await accessControl.connect(accounts.admin).addStudent(accounts.student2.address);
-    await accessControl.connect(accounts.admin).addStudent(accounts.student3.address);
-
-    return { accessControl, accounts };
-  },
-
-  // Setup complete system with StudentRegistry
-  async setupStudentRegistrySystem() {
-    const accounts = await this.getTestAccounts();
-    const accessControl = await this.deployAccessControl();
-    const studentRegistry = await this.deployStudentRegistry(accessControl.target);
-
-    // Add coordinators
-    await accessControl.connect(accounts.admin).addCoordinator(accounts.coordinator1.address);
-    await accessControl.connect(accounts.admin).addCoordinator(accounts.coordinator2.address);
-
-    // Add students
-    await accessControl.connect(accounts.admin).addStudent(accounts.student1.address);
-    await accessControl.connect(accounts.admin).addStudent(accounts.student2.address);
-    await accessControl.connect(accounts.admin).addStudent(accounts.student3.address);
-
-    return { accessControl, studentRegistry, accounts };
-  },
-
-  // Setup StudentRegistry with test data
-  async setupStudentRegistryWithData() {
-    const setup = await this.setupStudentRegistrySystem();
-    const { accessControl, studentRegistry, accounts } = setup;
-
-    // Register some test students
-    await studentRegistry
-      .connect(accounts.student1)
-      .registerStudent(
-        "118210898",
-        "Pablo Vegetti",
-        "pablo.vegetti@poli.ufrj.br",
-        "Goal Engineering",
-        2018
-      );
-
-    await studentRegistry
-      .connect(accounts.student2)
-      .registerStudent(
-        "119980821",
-        "Leo Jardim",
-        "leo.jardim@poli.ufrj.br",
-        "Goal Reverse-engineering",
-        2019
-      );
-
-    return { accessControl, studentRegistry, accounts };
-  },
-
-  // Test student data helpers
-  getValidStudentData() {
-    return {
-      student1: {
-        id: "118210898",
-        name: "Pablo Vegetti",
-        email: "pablo.vegetti@poli.ufrj.br",
-        program: "Goal Engineering",
-        year: 2018,
-      },
-      student2: {
-        id: "119980821",
-        name: "Leo Jardim",
-        email: "leo.jardim@poli.ufrj.br",
-        program: "Goal Reverse-engineering",
-        year: 2019,
-      },
-      student3: {
-        id: "120055443",
-        name: "Filipe Luis",
-        email: "filipe.luis@poli.ufrj.br",
-        program: "Defensive Engineering",
-        year: 2020,
-      },
-    };
-  },
-
-  getInvalidStudentData() {
-    return {
-      emptyId: {
-        id: "",
-        name: "Test Student",
-        email: "test@poli.ufrj.br",
-        program: "Test Program",
-        year: 2024,
-      },
-      emptyName: {
-        id: "999999999",
-        name: "",
-        email: "test@poli.ufrj.br",
-        program: "Test Program",
-        year: 2024,
-      },
-      emptyEmail: {
-        id: "999999999",
-        name: "Test Student",
-        email: "",
-        program: "Test Program",
-        year: 2024,
-      },
-      emptyProgram: {
-        id: "999999999",
-        name: "Test Student",
-        email: "test@poli.ufrj.br",
-        program: "",
-        year: 2024,
-      },
-      invalidYear: {
-        id: "999999999",
-        name: "Test Student",
-        email: "test@poli.ufrj.br",
-        program: "Test Program",
-        year: 1900, // Too old
-      },
-    };
-  },
-
-  // Course test data helpers
-  getValidCourseData() {
-    return {
-      course1: {
-        id: "ENG101",
-        name: "Introduction to Engineering",
-        description: "Fundamental concepts of engineering design and methodology",
-        credits: 4,
-        maxStudents: 30,
-        isActive: true,
-      },
-      course2: {
-        id: "MAT201", 
-        name: "Advanced Mathematics",
-        description: "Advanced calculus and linear algebra for engineers",
-        credits: 6,
-        maxStudents: 25,
-        isActive: true,
-      },
-      course3: {
-        id: "PHY301",
-        name: "Physics Laboratory",
-        description: "Hands-on experiments in classical and modern physics",
-        credits: 3,
-        maxStudents: 20,
-        isActive: true,
-      },
-    };
-  },
-
-  getInvalidCourseData() {
-    return {
-      emptyCourseId: {
-        id: "",
-        name: "Valid Course",
-        description: "A valid course with empty ID",
-        maxStudents: 30,
-        isActive: true,
-      },
-      emptyCourseName: {
-        id: "TST999",
-        name: "",
-        description: "A course with empty name",
-        credits: 3,
-        maxStudents: 30,
-        isActive: true,
-      },
-      invalidCredits: {
-        id: "TST999",
-        name: "Valid Course",
-        description: "A course with invalid credits",
-        credits: 0,
-        maxStudents: 30,
-        isActive: true,
-      },
-    };
-  },
-
-  // Setup complete EnrollmentRequest system
-  async setupEnrollmentRequestSystem() {
-    const accounts = await this.getTestAccounts();
-    const accessControl = await this.deployAccessControl();
-    const studentRegistry = await this.deployStudentRegistry(accessControl.target);
-    const courseManager = await this.deployMockCourseManager();
-    const enrollmentRequest = await this.deployEnrollmentRequest(
+    // Initialize the CRID system
+    await crid.connect(admin).initializeSystem(
       studentRegistry.target,
-      courseManager.target
+      courseManager.target,
+      enrollmentRequest.target
     );
 
-    // Add coordinators
-    await accessControl.connect(accounts.admin).addCoordinator(accounts.coordinator1.address);
-    await accessControl.connect(accounts.admin).addCoordinator(accounts.coordinator2.address);
-
-    // Add students
-    await accessControl.connect(accounts.admin).addStudent(accounts.student1.address);
-    await accessControl.connect(accounts.admin).addStudent(accounts.student2.address);
-    await accessControl.connect(accounts.admin).addStudent(accounts.student3.address);
-
     return {
+      crid,
       accessControl,
       studentRegistry,
       courseManager,
       enrollmentRequest,
-      accounts,
+      accounts: {
+        admin,
+        coordinator1,
+        coordinator2,
+        student1,
+        student2,
+        student3,
+        guest,
+      },
     };
   },
 
-  // Helper to add a course to mock course manager
-  async addCourseToManager(courseManager, signer, courseData) {
-    return await courseManager
-      .connect(signer)
-      .addCourse(courseData.id, courseData.name, courseData.description, courseData.credits, courseData.maxStudents);
-  },
-
-  // Helper to register a student with given data
-  async registerStudentWithData(studentRegistry, signer, data) {
-    return await studentRegistry
-      .connect(signer)
-      .registerStudent(data.id, data.name, data.email, data.program, data.year);
-  },
-
-  // Constants for roles
-  ROLES: {
-    ADMIN: ethers.keccak256(ethers.toUtf8Bytes("ADMIN_ROLE")),
-    COORDINATOR: ethers.keccak256(ethers.toUtf8Bytes("COORDINATOR_ROLE")),
-    STUDENT: ethers.keccak256(ethers.toUtf8Bytes("STUDENT_ROLE")),
-  },
-
-  // Enrollment request status constants
-  ENROLLMENT_STATUS: {
-    PENDING: 0,
-    APPROVED: 1,
-    REJECTED: 2,
-    CANCELLED: 3,
-  },
-
-  // Deploy test security contract
-  async deployTestSecurityContract(accessControlAddress) {
-    const TestSecurityContract = await ethers.getContractFactory("TestSecurityContract");
-    const testContract = await TestSecurityContract.deploy(accessControlAddress);
-    await testContract.waitForDeployment();
-    return testContract;
-  },
-
-  // Setup system with security modifiers test contract
-  async setupSecurityModifiersSystem() {
-    const setup = await this.setupBasicSystem();
-    const testContract = await this.deployTestSecurityContract(setup.accessControl.target);
-    
+  async validCourseData() {
     return {
-      ...setup,
-      testContract,
-    };
-  },
-
-  // Additional course data for comprehensive testing
-  getExtendedCourseData() {
-    return {
-      ...this.getValidCourseData(),
-      specialCharsCourse: {
-        id: "SPECIAL-123_ÁÉÍ",
-        name: "Курс with Émojis 🎓",
-        description: "Course with special characters and unicode",
+      course1: {
+        id: 1,
+        name: "Introduction to Programming",
+        description: "Basic programming concepts and practices",
+        credits: 4,
+        maxStudents: 30,
+      },
+      course2: {
+        id: 2,
+        name: "Data Structures",
+        description: "Fundamental data structures and algorithms",
         credits: 3,
-        maxStudents: 15,
-        isActive: true,
+        maxStudents: 25,
       },
-      maxValuesCourse: {
-        id: "MAX_COURSE",
-        name: "Maximum Values Course",
-        description: "Course testing maximum uint16 values",
-        credits: 65535,
-        maxStudents: 65535,
-        isActive: true,
+      course3: {
+        id: 3,
+        name: "Advanced Programming",
+        description: "Advanced programming techniques and patterns",
+        credits: 5,
+        maxStudents: 20,
       },
     };
   },
+
+  // ==============================
+  // Enrollment Request Helpers
+  // ==============================
+  async deployEnrollmentRequest() {
+    const [admin] = await ethers.getSigners();
+
+    const EnrollmentRequest = await ethers.getContractFactory("EnrollmentRequest");
+    const enrollmentRequest = await EnrollmentRequest.connect(admin).deploy(admin.address);
+    await enrollmentRequest.waitForDeployment();
+    return enrollmentRequest;
+  },
+
+  async deployEnrollmentRequestWithCRID() {
+    const [admin] = await ethers.getSigners();
+
+    const EnrollmentRequest = await ethers.getContractFactory("EnrollmentRequest");
+    const enrollmentRequest = await EnrollmentRequest.connect(admin).deploy(cridAddress);
+    await enrollmentRequest.waitForDeployment();
+    return enrollmentRequest;
+  },
+  async setupEnrollmentRequest() {
+    const enrollmentRequest = await this.deployEnrollmentRequest();
+    const [admin, agent] = await ethers.getSigners();
+    return {
+      enrollmentRequest,
+      accounts: {
+        admin,
+        agent,
+      },
+    };
+  },
+  async validEnrollmentRequestData() {
+    const [admin, agent1, agent2, agent3] = await ethers.getSigners();
+    return {
+      pending: {
+        id: 1,
+        courseId: 1,
+        studentAddress: agent1.address,
+      },
+      approved: {
+        id: 2,
+        courseId: 1,
+        studentAddress: agent2.address,
+      },
+      rejected: {
+        id: 3,
+        courseId: 1,
+        studentAddress: agent3.address,
+      },
+      canceled: {
+        id: 4,
+        courseId: 2,
+        studentAddress: agent1.address,
+      },
+      otherCourse: {
+        id: 5,
+        courseId: 2,
+        studentAddress: agent2.address,
+      },
+    };
+  },
+  // ==============================
+  // General Constants
+  // ==============================
+  ADDRESS_ZERO: ethers.ZeroAddress,
 };
 
-module.exports = testHelpers;
+module.exports = { testHelpers };
