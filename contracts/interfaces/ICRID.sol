@@ -59,6 +59,14 @@ interface ICRID {
         uint16 maxStudents
     ) external;
 
+    function updateCourse(
+        uint256 id,
+        string calldata name,
+        string calldata description,
+        uint8 credits,
+        uint16 maxStudents
+    ) external;
+
     function setCourseStatus(uint256 courseId, bool isActive) external;
     
     function getCourse(uint256 courseId)

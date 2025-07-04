@@ -381,6 +381,33 @@ const testHelpers = {
   },
 
   // ==============================
+  // Grade Manager Helpers
+  // ==============================
+  async deployGradeManager() {
+    const [admin] = await ethers.getSigners();
+
+    const GradeManager = await ethers.getContractFactory("GradeManager");
+    const gradeManager = await GradeManager.connect(admin).deploy(admin.address);
+    await gradeManager.waitForDeployment();
+    return gradeManager;
+  },
+
+  async setupGradeManager() {
+    const gradeManager = await this.deployGradeManager();
+    const [admin, student1, student2, other] = await ethers.getSigners();
+
+    return {
+      gradeManager,
+      accounts: {
+        admin,
+        student1,
+        student2,
+        other,
+      },
+    };
+  },
+
+  // ==============================
   // General Constants
   // ==============================
   ADDRESS_ZERO: ethers.ZeroAddress,
