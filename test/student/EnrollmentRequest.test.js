@@ -21,19 +21,21 @@ describe("📚 Student Context - Enrollment Request", function () {
 
   describe("Deployment", function () {
     it("Should initialize with correct access control reference", async function () {
-      expect(await enrollmentRequest.accessControl()).to.equal(accessControl.target);
+      expect(await enrollmentRequest.getAccessControl()).to.equal(accessControl.target);
     });
 
     it("Should initialize with correct student registry reference", async function () {
-      expect(await enrollmentRequest.studentRegistry()).to.equal(studentRegistry.target);
+      expect(await enrollmentRequest.getStudentRegistry()).to.equal(studentRegistry.target);
     });
 
     it("Should initialize with correct course manager reference", async function () {
-      expect(await enrollmentRequest.courseManager()).to.equal(courseManager.target);
+      expect(await enrollmentRequest.getCourseManager()).to.equal(courseManager.target);
     });
 
     it("Should not be paused initially", async function () {
-      expect(await enrollmentRequest.paused()).to.be.false;
+      const accessControlContract = await enrollmentRequest.getAccessControl();
+      const accessControlInstance = await ethers.getContractAt("CRIDAccessControl", accessControlContract);
+      expect(await accessControlInstance.paused()).to.be.false;
     });
 
     it("Should start with zero enrollment requests", async function () {
@@ -47,7 +49,7 @@ describe("📚 Student Context - Enrollment Request", function () {
       await testHelpers.registerStudentWithData(
         studentRegistry,
         accounts.student1,
-        testHelpers.getValidStudentData()[0]
+        testHelpers.getValidStudentData().student1
       );
 
       // Add course to manager
@@ -62,11 +64,11 @@ describe("📚 Student Context - Enrollment Request", function () {
       // Check event emission
       await expect(tx)
         .to.emit(enrollmentRequest, "EnrollmentRequested")
-        .withArgs(1, validCourseData.course1.id, 1); // studentId is 1, requestId is 1
+        .withArgs(testHelpers.getValidStudentData().student1.id, validCourseData.course1.id, "REQ-1"); // studentId is 1, requestId is "REQ-1"
 
       // Check storage
-      const request = await enrollmentRequest.getEnrollmentRequest(1);
-      expect(request.studentId).to.equal(1);
+      const request = await enrollmentRequest.getEnrollmentRequest("REQ-1");
+      expect(request.studentId).to.equal(testHelpers.getValidStudentData().student1.id);
       expect(request.courseId).to.equal(validCourseData.course1.id);
       expect(request.status).to.equal(testHelpers.ENROLLMENT_STATUS.PENDING);
       expect(request.requestDate).to.be.above(0);
@@ -101,7 +103,7 @@ describe("📚 Student Context - Enrollment Request", function () {
     });
 
     it("Should reject enrollment requests from inactive students", async function () {
-      await studentRegistry.connect(accounts.admin).deactivateStudent(1);
+      await studentRegistry.connect(accounts.admin).deactivateStudent(testHelpers.getValidStudentData().student1.id);
 
       await expect(
         enrollmentRequest.connect(accounts.student1).requestEnrollment(validCourseData.course1.id)
@@ -109,17 +111,19 @@ describe("📚 Student Context - Enrollment Request", function () {
     });
 
     it("Should reject enrollment requests when system is paused", async function () {
-      await enrollmentRequest.connect(accounts.admin).pause();
+      const accessControlContract = await enrollmentRequest.getAccessControl();
+      const accessControlInstance = await ethers.getContractAt("CRIDAccessControl", accessControlContract);
+      await accessControlInstance.connect(accounts.admin).pause();
 
       await expect(
         enrollmentRequest.connect(accounts.student1).requestEnrollment(validCourseData.course1.id)
-      ).to.be.revertedWith("Pausable: paused");
+      ).to.be.revertedWithCustomError(enrollmentRequest, "SystemIsPaused");
     });
 
     it("Should reject enrollment requests from unregistered students", async function () {
       await expect(
         enrollmentRequest.connect(accounts.student2).requestEnrollment(validCourseData.course1.id)
-      ).to.be.revertedWithCustomError(enrollmentRequest, "StudentNotRegistered");
+      ).to.be.revertedWithCustomError(enrollmentRequest, "StudentNotActive");
     });
   });
 
@@ -129,7 +133,7 @@ describe("📚 Student Context - Enrollment Request", function () {
       await testHelpers.registerStudentWithData(
         studentRegistry,
         accounts.student1,
-        testHelpers.getValidStudentData()[0]
+        testHelpers.getValidStudentData().student1
       );
       await testHelpers.addCourseToManager(courseManager, accounts.admin, validCourseData.course1);
 
@@ -140,18 +144,18 @@ describe("📚 Student Context - Enrollment Request", function () {
     });
 
     it("Should allow students to cancel their pending enrollment requests", async function () {
-      const tx = await enrollmentRequest.connect(accounts.student1).cancelEnrollmentRequest(1);
+      const tx = await enrollmentRequest.connect(accounts.student1).cancelEnrollmentRequest("REQ-1");
 
       // Check event emission
-      await expect(tx).to.emit(enrollmentRequest, "EnrollmentRequestCancelled").withArgs(1);
+      await expect(tx).to.emit(enrollmentRequest, "EnrollmentRequestCancelled").withArgs("REQ-1");
 
       // Check storage
-      const request = await enrollmentRequest.getEnrollmentRequest(1);
+      const request = await enrollmentRequest.getEnrollmentRequest("REQ-1");
       expect(request.status).to.equal(testHelpers.ENROLLMENT_STATUS.CANCELLED);
     });
 
     it("Should reject cancellation of non-existent requests", async function () {
-      const nonExistentRequestId = 99;
+      const nonExistentRequestId = "REQ-99";
       await expect(
         enrollmentRequest.connect(accounts.student1).cancelEnrollmentRequest(nonExistentRequestId)
       ).to.be.revertedWithCustomError(enrollmentRequest, "RequestDoesNotExist");
@@ -159,25 +163,27 @@ describe("📚 Student Context - Enrollment Request", function () {
 
     it("Should reject cancellation by non-owners", async function () {
       await expect(
-        enrollmentRequest.connect(accounts.student2).cancelEnrollmentRequest(1)
+        enrollmentRequest.connect(accounts.student2).cancelEnrollmentRequest("REQ-1")
       ).to.be.revertedWithCustomError(enrollmentRequest, "NotRequestOwner");
     });
 
     it("Should reject cancellation of non-pending requests", async function () {
       // Admin processes the request (approve/reject)
-      await enrollmentRequest.connect(accounts.admin).approveEnrollment(1);
+      await enrollmentRequest.connect(accounts.admin).approveEnrollment("REQ-1");
 
       await expect(
-        enrollmentRequest.connect(accounts.student1).cancelEnrollmentRequest(1)
+        enrollmentRequest.connect(accounts.student1).cancelEnrollmentRequest("REQ-1")
       ).to.be.revertedWithCustomError(enrollmentRequest, "RequestNotPending");
     });
 
     it("Should reject cancellation when system is paused", async function () {
-      await enrollmentRequest.connect(accounts.admin).pause();
+      const accessControlContract = await enrollmentRequest.getAccessControl();
+      const accessControlInstance = await ethers.getContractAt("CRIDAccessControl", accessControlContract);
+      await accessControlInstance.connect(accounts.admin).pause();
 
       await expect(
-        enrollmentRequest.connect(accounts.student1).cancelEnrollmentRequest(1)
-      ).to.be.revertedWith("Pausable: paused");
+        enrollmentRequest.connect(accounts.student1).cancelEnrollmentRequest("REQ-1")
+      ).to.be.revertedWithCustomError(enrollmentRequest, "SystemIsPaused");
     });
   });
 
@@ -187,7 +193,7 @@ describe("📚 Student Context - Enrollment Request", function () {
       await testHelpers.registerStudentWithData(
         studentRegistry,
         accounts.student1,
-        testHelpers.getValidStudentData()[0]
+        testHelpers.getValidStudentData().student1
       );
 
       // Add courses to manager
@@ -204,17 +210,19 @@ describe("📚 Student Context - Enrollment Request", function () {
     });
 
     it("Should return correct enrollment requests for a student", async function () {
-      const requests = await enrollmentRequest.connect(accounts.student1).getMyEnrollmentRequests();
+      const requestIds = await enrollmentRequest.connect(accounts.student1).getMyEnrollmentRequests();
 
-      expect(requests.length).to.equal(2);
+      expect(requestIds.length).to.equal(2);
 
-      expect(requests[0].id).to.equal(1);
-      expect(requests[0].courseId).to.equal(validCourseData.course1.id);
-      expect(requests[0].status).to.equal(testHelpers.ENROLLMENT_STATUS.PENDING);
+      const request1 = await enrollmentRequest.getEnrollmentRequest(requestIds[0]);
+      expect(request1.id).to.equal("REQ-1");
+      expect(request1.courseId).to.equal(validCourseData.course1.id);
+      expect(request1.status).to.equal(testHelpers.ENROLLMENT_STATUS.PENDING);
 
-      expect(requests[1].id).to.equal(2);
-      expect(requests[1].courseId).to.equal(validCourseData.course2.id);
-      expect(requests[1].status).to.equal(testHelpers.ENROLLMENT_STATUS.PENDING);
+      const request2 = await enrollmentRequest.getEnrollmentRequest(requestIds[1]);
+      expect(request2.id).to.equal("REQ-2");
+      expect(request2.courseId).to.equal(validCourseData.course2.id);
+      expect(request2.status).to.equal(testHelpers.ENROLLMENT_STATUS.PENDING);
     });
 
     it("Should return empty array for students with no requests", async function () {
@@ -223,18 +231,18 @@ describe("📚 Student Context - Enrollment Request", function () {
     });
 
     it("Should return correct information for individual enrollment requests", async function () {
-      const requestId = 1;
+      const requestId = "REQ-1"; // First request ID
       const request = await enrollmentRequest.getEnrollmentRequest(requestId);
 
       expect(request.id).to.equal(requestId);
-      expect(request.studentId).to.equal(1);
+      expect(request.studentId).to.equal(testHelpers.getValidStudentData().student1.id);
       expect(request.courseId).to.equal(validCourseData.course1.id);
       expect(request.status).to.equal(testHelpers.ENROLLMENT_STATUS.PENDING);
       expect(request.requestDate).to.be.above(0);
     });
 
     it("Should reject queries for non-existent enrollment requests", async function () {
-      const nonExistentRequestId = 99;
+      const nonExistentRequestId = "REQ-99";
       await expect(
         enrollmentRequest.getEnrollmentRequest(nonExistentRequestId)
       ).to.be.revertedWithCustomError(enrollmentRequest, "RequestDoesNotExist");
@@ -250,7 +258,7 @@ describe("📚 Student Context - Enrollment Request", function () {
     it("Should reject enrollment requests from users without STUDENT_ROLE", async function () {
       await expect(
         enrollmentRequest.connect(accounts.other).requestEnrollment(validCourseData.course1.id)
-      ).to.be.revertedWithCustomError(accessControl, "InsufficientPermissions");
+      ).to.be.revertedWithCustomError(enrollmentRequest, "StudentNotActive");
     });
 
     it("Should allow admin to approve enrollment requests", async function () {
@@ -258,20 +266,20 @@ describe("📚 Student Context - Enrollment Request", function () {
       await testHelpers.registerStudentWithData(
         studentRegistry,
         accounts.student1,
-        testHelpers.getValidStudentData()[0]
+        testHelpers.getValidStudentData().student1
       );
       await enrollmentRequest
         .connect(accounts.student1)
         .requestEnrollment(validCourseData.course1.id);
 
       // Admin can approve
-      await expect(enrollmentRequest.connect(accounts.admin).approveEnrollment(1)).to.not.be
+      await expect(enrollmentRequest.connect(accounts.admin).approveEnrollment("REQ-1")).to.not.be
         .reverted;
 
       // Non-admin cannot approve
       await expect(
-        enrollmentRequest.connect(accounts.student1).approveEnrollment(1)
-      ).to.be.revertedWithCustomError(accessControl, "InsufficientPermissions");
+        enrollmentRequest.connect(accounts.student1).approveEnrollment("REQ-1")
+      ).to.be.revertedWithCustomError(enrollmentRequest, "InsufficientPermissions");
     });
 
     it("Should allow coordinators to approve enrollment requests", async function () {
@@ -279,20 +287,20 @@ describe("📚 Student Context - Enrollment Request", function () {
       await testHelpers.registerStudentWithData(
         studentRegistry,
         accounts.student1,
-        testHelpers.getValidStudentData()[0]
+        testHelpers.getValidStudentData().student1
       );
       await enrollmentRequest
         .connect(accounts.student1)
         .requestEnrollment(validCourseData.course1.id);
 
       // Coordinator can approve
-      await expect(enrollmentRequest.connect(accounts.coordinator1).approveEnrollment(1)).to.not.be
+      await expect(enrollmentRequest.connect(accounts.coordinator1).approveEnrollment("REQ-1")).to.not.be
         .reverted;
 
       // Non-coordinator cannot approve
       await expect(
-        enrollmentRequest.connect(accounts.student2).approveEnrollment(1)
-      ).to.be.revertedWithCustomError(accessControl, "InsufficientPermissions");
+        enrollmentRequest.connect(accounts.student2).approveEnrollment("REQ-1")
+      ).to.be.revertedWithCustomError(enrollmentRequest, "InsufficientPermissions");
     });
   });
 
@@ -302,7 +310,7 @@ describe("📚 Student Context - Enrollment Request", function () {
       await testHelpers.registerStudentWithData(
         studentRegistry,
         accounts.student1,
-        testHelpers.getValidStudentData()[0]
+        testHelpers.getValidStudentData().student1
       );
       await testHelpers.addCourseToManager(courseManager, accounts.admin, validCourseData.course1);
     });
@@ -321,7 +329,7 @@ describe("📚 Student Context - Enrollment Request", function () {
       await testHelpers.registerStudentWithData(
         studentRegistry,
         accounts.student2,
-        testHelpers.getValidStudentData()[1]
+        testHelpers.getValidStudentData().student2
       );
 
       // Both students request enrollment
@@ -357,14 +365,14 @@ describe("📚 Student Context - Enrollment Request", function () {
         .requestEnrollment(validCourseData.course1.id);
 
       // Check initial status
-      const initialRequest = await enrollmentRequest.getEnrollmentRequest(1);
+      const initialRequest = await enrollmentRequest.getEnrollmentRequest("REQ-1");
       expect(initialRequest.status).to.equal(testHelpers.ENROLLMENT_STATUS.PENDING);
 
       // Admin approves request
-      await enrollmentRequest.connect(accounts.admin).approveEnrollment(1);
+      await enrollmentRequest.connect(accounts.admin).approveEnrollment("REQ-1");
 
       // Check updated status
-      const request = await enrollmentRequest.getEnrollmentRequest(1);
+      const request = await enrollmentRequest.getEnrollmentRequest("REQ-1");
       expect(request.status).to.equal(testHelpers.ENROLLMENT_STATUS.APPROVED);
 
       // Add a new course (course2)
@@ -376,10 +384,10 @@ describe("📚 Student Context - Enrollment Request", function () {
         .requestEnrollment(validCourseData.course2.id);
 
       // Admin rejects the second request
-      await enrollmentRequest.connect(accounts.admin).rejectEnrollment(2);
+      await enrollmentRequest.connect(accounts.admin).rejectEnrollment("REQ-2");
 
       // Check updated status
-      const secondRequest = await enrollmentRequest.getEnrollmentRequest(2);
+      const secondRequest = await enrollmentRequest.getEnrollmentRequest("REQ-2");
       expect(secondRequest.status).to.equal(testHelpers.ENROLLMENT_STATUS.REJECTED);
     });
   });

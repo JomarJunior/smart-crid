@@ -18,6 +18,10 @@ contract StudentRegistry is IStudentRegistry {
 
     uint256 public totalRegisteredStudents; // Total number of registered students
 
+    // Events
+    event StudentDeactivated(string studentId, address indexed admin);
+    event StudentReactivated(string studentId, address indexed admin);
+
     // Errors
     error InvalidInput();
     error DuplicateStudentId();
@@ -25,6 +29,8 @@ contract StudentRegistry is IStudentRegistry {
     error Unauthorized();
     error NotRegistered();
     error SystemIsPaused();
+    error NotActive();
+    error AlreadyActive();
 
     // Modifiers
     modifier onlyValidString(string calldata str) {
@@ -109,8 +115,78 @@ contract StudentRegistry is IStudentRegistry {
         emit StudentRegistered(id, msg.sender);
     }
 
+    /**
+     * @dev Deactivates a student account (Only Admin or Coordinator can call this)
+     * @param studentId The ID of the student to deactivate
+     */
+    function deactivateStudent(string calldata studentId)
+        external
+        whenNotPaused
+        onlyValidString(studentId)
+    {
+        if (
+            !accessControl.hasRole(accessControl.ADMIN_ROLE(), msg.sender) &&
+            !accessControl.hasRole(accessControl.COORDINATOR_ROLE(), msg.sender)
+        ) {
+            revert Unauthorized();
+        }
+        address studentAddress = idToAddress[studentId];
+        if (studentAddress == address(0)) revert NotRegistered();
+
+        if (!students[studentAddress].isActive) revert NotActive();
+
+        students[studentAddress].isActive = false;
+        emit StudentDeactivated(studentId, msg.sender);
+    }
+
+    /**
+     * @dev Reactivates a student account (Only Admin or Coordinator can call this)
+     * @param studentId The ID of the student to reactivate
+     */
+    function reactivateStudent(string calldata studentId)
+        external
+        whenNotPaused
+        onlyValidString(studentId)
+    {
+        if (
+            !accessControl.hasRole(accessControl.ADMIN_ROLE(), msg.sender) &&
+            !accessControl.hasRole(accessControl.COORDINATOR_ROLE(), msg.sender)
+        ) {
+            revert Unauthorized();
+        }
+        address studentAddress = idToAddress[studentId];
+        if (studentAddress == address(0)) revert NotRegistered();
+
+        if (students[studentAddress].isActive) revert AlreadyActive();
+
+        students[studentAddress].isActive = true;
+        emit StudentReactivated(studentId, msg.sender);
+    }
+
     function isRegistered(address studentAddress) external view returns (bool isStudentRegistered) {
         isStudentRegistered = bytes(students[studentAddress].id).length != 0;
+    }
+
+    /**
+     * @dev Check if a student is active (public function for contract integration)
+     * @param studentAddress The address of the student to check
+     * @return isActive True if the student is registered and active
+     */
+    function isStudentActive(address studentAddress) external view returns (bool isActive) {
+        isActive = false;
+        
+        if (bytes(students[studentAddress].id).length != 0) {
+            isActive = students[studentAddress].isActive;
+        }
+    }
+
+    /**
+     * @dev Get student ID by address (public function for contract integration)
+     * @param studentAddress The address of the student
+     * @return studentId The student's ID, or empty string if not registered
+     */
+    function getStudentId(address studentAddress) external view returns (string memory studentId) {
+        studentId = students[studentAddress].id;
     }
 
     function getStudentByAddress(address studentAddress) external view returns (Student memory student) {
@@ -146,5 +222,9 @@ contract StudentRegistry is IStudentRegistry {
     function getStudentAddress(string calldata studentId) external view returns (address studentAddress) {
         studentAddress = idToAddress[studentId];
         if (studentAddress == address(0)) revert NotRegistered();
+    }
+
+    function getAccessControl() external view returns (ICRIDAccessControl accessControl_) {
+        accessControl_ = accessControl;
     }
 }

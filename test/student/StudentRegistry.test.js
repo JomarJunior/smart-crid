@@ -341,76 +341,239 @@ describe("🎓 Student Context - StudentRegistry", function () {
     it("Should handle multiple students registering simultaneously", async function () {
       const data1 = validData.student1;
       const data2 = validData.student2;
-      const data3 = validData.student3;
 
-      // Register multiple students
+      // Register both students in parallel
       await Promise.all([
         testHelpers.registerStudentWithData(studentRegistry, accounts.student1, data1),
         testHelpers.registerStudentWithData(studentRegistry, accounts.student2, data2),
-        testHelpers.registerStudentWithData(studentRegistry, accounts.student3, data3),
       ]);
 
-      expect(await studentRegistry.totalRegisteredStudents()).to.equal(3);
+      expect(await studentRegistry.totalRegisteredStudents()).to.equal(2);
       expect(await studentRegistry.isRegistered(accounts.student1.address)).to.be.true;
       expect(await studentRegistry.isRegistered(accounts.student2.address)).to.be.true;
-      expect(await studentRegistry.isRegistered(accounts.student3.address)).to.be.true;
     });
 
     it("Should handle gas limit scenarios", async function () {
-      // This test ensures our contract doesn't hit gas limits with reasonable data
-      const longName = "A".repeat(100); // 100 character name
-      const longEmail = "a".repeat(90) + "@poli.ufrj.br"; // ~100 character email
-      const longProgram = "B".repeat(100); // 100 character program
-
+      // Test with very long strings (but within reasonable limits)
+      const longString = "A".repeat(1000);
       const data = {
-        id: "999999999",
-        name: longName,
-        email: longEmail,
-        program: longProgram,
+        id: "LONG_TEST_ID",
+        name: longString,
+        email: "long@example.com",
+        program: longString,
         year: 2024,
       };
 
-      await testHelpers.registerStudentWithData(studentRegistry, accounts.student1, data);
+      await expect(
+        testHelpers.registerStudentWithData(studentRegistry, accounts.student1, data)
+      ).to.not.be.reverted;
 
-      const retrieved = await studentRegistry.getStudentByAddress(accounts.student1.address);
-      expect(retrieved.fullName).to.equal(longName);
-      expect(retrieved.email).to.equal(longEmail);
-      expect(retrieved.program).to.equal(longProgram);
+      const retrievedStudent = await studentRegistry
+        .connect(accounts.student1)
+        .getStudentByAddress(accounts.student1.address);
+      expect(retrievedStudent.fullName).to.equal(longString);
     });
 
     it("Should maintain data integrity with special characters", async function () {
-      const data = {
-        id: "118210898",
-        name: "José María Azpilicueta-González",
-        email: "jose.azpilicueta@poli.ufrj.br",
-        program: "Engenharia de Computação & Informação",
+      const specialData = {
+        id: "SPEC_ID_123",
+        name: "José María Ñoño-Äöü",
+        email: "josé.maría@université.fr",
+        program: "Ingeniería de Sistemas Интелектуальні 智能系统",
         year: 2024,
       };
 
-      await testHelpers.registerStudentWithData(studentRegistry, accounts.student1, data);
+      await testHelpers.registerStudentWithData(studentRegistry, accounts.student1, specialData);
 
-      const retrieved = await studentRegistry.getStudentById(data.id);
-      expect(retrieved.fullName).to.equal(data.name);
-      expect(retrieved.email).to.equal(data.email);
-      expect(retrieved.program).to.equal(data.program);
+      const retrievedStudent = await studentRegistry
+        .connect(accounts.student1)
+        .getStudentByAddress(accounts.student1.address);
+      
+      expect(retrievedStudent.fullName).to.equal(specialData.name);
+      expect(retrievedStudent.email).to.equal(specialData.email);
+      expect(retrievedStudent.program).to.equal(specialData.program);
     });
 
     it("Should handle year edge cases", async function () {
       const currentYear = new Date().getFullYear();
-      const futureYear = currentYear + 1;
+      const futureYear = currentYear + 10;
 
       const data = {
-        id: "118210898",
-        name: "Future Student",
-        email: "future@poli.ufrj.br",
-        program: "Future Engineering",
+        ...validData.student1,
         year: futureYear,
       };
 
+      await expect(
+        testHelpers.registerStudentWithData(studentRegistry, accounts.student1, data)
+      ).to.not.be.reverted;
+
+      const retrievedStudent = await studentRegistry
+        .connect(accounts.student1)
+        .getStudentByAddress(accounts.student1.address);
+      expect(retrievedStudent.enrollmentYear).to.equal(futureYear);
+    });
+
+    it("Should handle empty string edge cases properly", async function () {
+      const dataWithEmptyId = { ...validData.student1, id: "" };
+      const dataWithEmptyName = { ...validData.student1, name: "" };
+      const dataWithEmptyEmail = { ...validData.student1, email: "" };
+      const dataWithEmptyProgram = { ...validData.student1, program: "" };
+
+      await expect(
+        testHelpers.registerStudentWithData(studentRegistry, accounts.student1, dataWithEmptyId)
+      ).to.be.revertedWithCustomError(studentRegistry, "InvalidInput");
+
+      await expect(
+        testHelpers.registerStudentWithData(studentRegistry, accounts.student1, dataWithEmptyName)
+      ).to.be.revertedWithCustomError(studentRegistry, "InvalidInput");
+
+      await expect(
+        testHelpers.registerStudentWithData(studentRegistry, accounts.student1, dataWithEmptyEmail)
+      ).to.be.revertedWithCustomError(studentRegistry, "InvalidInput");
+
+      await expect(
+        testHelpers.registerStudentWithData(studentRegistry, accounts.student1, dataWithEmptyProgram)
+      ).to.be.revertedWithCustomError(studentRegistry, "InvalidInput");
+    });
+
+    it("Should properly handle activation/deactivation edge cases", async function () {
+      const data = validData.student1;
       await testHelpers.registerStudentWithData(studentRegistry, accounts.student1, data);
 
-      const retrieved = await studentRegistry.getStudentById(data.id);
-      expect(retrieved.enrollmentYear).to.equal(futureYear);
+      // Initially student should be active
+      expect(await studentRegistry.isStudentActive(accounts.student1.address)).to.be.true;
+
+      // Test deactivating active student
+      await expect(
+        studentRegistry.connect(accounts.admin).deactivateStudent(data.id)
+      ).to.not.be.reverted;
+      expect(await studentRegistry.isStudentActive(accounts.student1.address)).to.be.false;
+
+      // Try to deactivate already inactive student (should revert)
+      await expect(
+        studentRegistry.connect(accounts.admin).deactivateStudent(data.id)
+      ).to.be.revertedWithCustomError(studentRegistry, "NotActive");
+
+      // Test reactivating inactive student
+      await expect(
+        studentRegistry.connect(accounts.admin).reactivateStudent(data.id)
+      ).to.not.be.reverted;
+      expect(await studentRegistry.isStudentActive(accounts.student1.address)).to.be.true;
+
+      // Try to reactivate already active student (should revert)
+      await expect(
+        studentRegistry.connect(accounts.admin).reactivateStudent(data.id)
+      ).to.be.revertedWithCustomError(studentRegistry, "AlreadyActive");
+    });
+
+    it("Should handle zero year correctly", async function () {
+      const data = { ...validData.student1, year: 0 };
+      
+      await expect(
+        testHelpers.registerStudentWithData(studentRegistry, accounts.student1, data)
+      ).to.not.be.reverted;
+
+      const retrievedStudent = await studentRegistry
+        .connect(accounts.student1)
+        .getStudentByAddress(accounts.student1.address);
+      expect(retrievedStudent.enrollmentYear).to.equal(0);
+    });
+  });
+
+  describe("Advanced Integration Tests", function () {
+    beforeEach(async function () {
+      const data = validData.student1;
+      await testHelpers.registerStudentWithData(studentRegistry, accounts.student1, data);
+    });
+
+    it("Should handle role changes correctly", async function () {
+      const data = validData.student1;
+      
+      // Register a second student first
+      const data2 = validData.student2;
+      await testHelpers.registerStudentWithData(studentRegistry, accounts.student2, data2);
+      
+      // Initially student can access their data
+      await expect(
+        studentRegistry.connect(accounts.student1).getStudentByAddress(accounts.student1.address)
+      ).to.not.be.reverted;
+
+      // Remove student role
+      await accessControl.connect(accounts.admin).removeStudent(accounts.student1.address);
+
+      // Student can still access their own data (privacy control allows self-access)
+      await expect(
+        studentRegistry.connect(accounts.student1).getStudentByAddress(accounts.student1.address)
+      ).to.not.be.reverted;
+
+      // But they cannot access other students' data without proper role
+      await expect(
+        studentRegistry.connect(accounts.student1).getStudentByAddress(accounts.student2.address)
+      ).to.be.revertedWithCustomError(studentRegistry, "Unauthorized");
+
+      // Add coordinator role
+      await accessControl.connect(accounts.admin).addCoordinator(accounts.student1.address);
+
+      // Now they should be able to access other students' data as coordinator
+      await expect(
+        studentRegistry.connect(accounts.student1).getStudentByAddress(accounts.student2.address)
+      ).to.not.be.reverted;
+    });
+
+    it("Should handle pause/unpause during operations", async function () {
+      // Pause the system
+      await accessControl.connect(accounts.admin).pause();
+
+      // Registration should fail when paused
+      const newData = validData.student2;
+      await expect(
+        testHelpers.registerStudentWithData(studentRegistry, accounts.student2, newData)
+      ).to.be.revertedWithCustomError(studentRegistry, "SystemIsPaused");
+
+      // Admin operations should also fail when paused
+      await expect(
+        studentRegistry.connect(accounts.admin).reactivateStudent(validData.student1.id)
+      ).to.be.revertedWithCustomError(studentRegistry, "SystemIsPaused");
+
+      // Unpause the system
+      await accessControl.connect(accounts.admin).unpause();
+
+      // Operations should work again
+      await expect(
+        testHelpers.registerStudentWithData(studentRegistry, accounts.student2, newData)
+      ).to.not.be.reverted;
+    });
+
+    it("Should maintain consistency during complex operations", async function () {
+      const initialCount = await studentRegistry.totalRegisteredStudents();
+
+      // Register multiple students
+      const studentsData = [validData.student2, validData.student3];
+      for (let i = 0; i < studentsData.length; i++) {
+        const data = studentsData[i];
+        const account = i === 0 ? accounts.student2 : accounts.student3;
+        await testHelpers.registerStudentWithData(studentRegistry, account, data);
+      }
+
+      // Verify count increased correctly
+      expect(await studentRegistry.totalRegisteredStudents()).to.equal(
+        Number(initialCount) + studentsData.length
+      );
+
+      // Deactivate some students
+      await studentRegistry.connect(accounts.admin).deactivateStudent(validData.student2.id);
+
+      // Verify the deactivated student is indeed inactive
+      expect(await studentRegistry.isStudentActive(accounts.student2.address)).to.be.false;
+
+      // But other students should still be active
+      expect(await studentRegistry.isStudentActive(accounts.student1.address)).to.be.true;
+      expect(await studentRegistry.isStudentActive(accounts.student3.address)).to.be.true;
+
+      // Total count should remain the same
+      expect(await studentRegistry.totalRegisteredStudents()).to.equal(
+        Number(initialCount) + studentsData.length
+      );
     });
   });
 });

@@ -27,9 +27,9 @@ const testHelpers = {
   },
 
   // Deploy enrollment request contract
-  async deployEnrollmentRequest(accessControlAddress, studentRegistryAddress, courseManagerAddress) {
+  async deployEnrollmentRequest(studentRegistryAddress, courseManagerAddress) {
     const EnrollmentRequest = await ethers.getContractFactory("EnrollmentRequest");
-    const enrollmentRequest = await EnrollmentRequest.deploy(accessControlAddress, studentRegistryAddress, courseManagerAddress);
+    const enrollmentRequest = await EnrollmentRequest.deploy(studentRegistryAddress, courseManagerAddress);
     await enrollmentRequest.waitForDeployment();
     return enrollmentRequest;
   },
@@ -246,7 +246,6 @@ const testHelpers = {
     const studentRegistry = await this.deployStudentRegistry(accessControl.target);
     const courseManager = await this.deployMockCourseManager();
     const enrollmentRequest = await this.deployEnrollmentRequest(
-      accessControl.target,
       studentRegistry.target,
       courseManager.target
     );
@@ -296,6 +295,48 @@ const testHelpers = {
     APPROVED: 1,
     REJECTED: 2,
     CANCELLED: 3,
+  },
+
+  // Deploy test security contract
+  async deployTestSecurityContract(accessControlAddress) {
+    const TestSecurityContract = await ethers.getContractFactory("TestSecurityContract");
+    const testContract = await TestSecurityContract.deploy(accessControlAddress);
+    await testContract.waitForDeployment();
+    return testContract;
+  },
+
+  // Setup system with security modifiers test contract
+  async setupSecurityModifiersSystem() {
+    const setup = await this.setupBasicSystem();
+    const testContract = await this.deployTestSecurityContract(setup.accessControl.target);
+    
+    return {
+      ...setup,
+      testContract,
+    };
+  },
+
+  // Additional course data for comprehensive testing
+  getExtendedCourseData() {
+    return {
+      ...this.getValidCourseData(),
+      specialCharsCourse: {
+        id: "SPECIAL-123_ÁÉÍ",
+        name: "Курс with Émojis 🎓",
+        description: "Course with special characters and unicode",
+        credits: 3,
+        maxStudents: 15,
+        isActive: true,
+      },
+      maxValuesCourse: {
+        id: "MAX_COURSE",
+        name: "Maximum Values Course",
+        description: "Course testing maximum uint16 values",
+        credits: 65535,
+        maxStudents: 65535,
+        isActive: true,
+      },
+    };
   },
 };
 
