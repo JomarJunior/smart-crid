@@ -8,8 +8,19 @@ const router = createRouter({
       path: '/',
       name: 'home',
       component: HomeView,
+      meta: {
+        title: 'Smart CRID - Home',
+      },
     },
   ],
+})
+
+router.beforeEach((to, from, next) => {
+  // Set the document title based on the route meta title
+  if (to.meta.title) {
+    document.title = to.meta.title
+  }
+  next()
 })
 
 export default router
