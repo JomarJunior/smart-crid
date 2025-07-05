@@ -27,7 +27,8 @@ interface ICRID {
     function initializeSystem(
         address _studentRegistry,
         address _courseManager,
-        address _enrollmentRequest
+        address _enrollmentRequest,
+        address _gradeManager
     ) external;
     
     // Student operations

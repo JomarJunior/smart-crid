@@ -60,8 +60,9 @@ services:
     environment:
       - NODE_ENV=development
       - VITE_NETWORK=localhost
-      - VITE_RPC_URL=http://hardhat-node:8545
+      - VITE_RPC_URL=http://localhost:8545
       - VITE_CHAIN_ID=31337
+      - VITE_CRID_CONTRACT_ADDRESS=0xe7f1725E7734CE288F8367e1Bb143E90bb3F0512
       - WATCHPACK_POLLING=true
     depends_on:
       - hardhat-node

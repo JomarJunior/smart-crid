@@ -10,7 +10,7 @@
   "scripts": {
     "compile": "hardhat compile",
     "test": "hardhat test",
-    "deploy": "hardhat ignition deploy --network localhost",
+    "deploy": "hardhat ignition deploy ignition/modules/CRID.js --network localhost",
     "coverage": "hardhat coverage",
     "coverage:summary": "hardhat coverage --quiet | grep -A 20 '=================='",
     "lint:javascript": "eslint .",

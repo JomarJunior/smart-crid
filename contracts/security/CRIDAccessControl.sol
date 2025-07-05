@@ -13,7 +13,7 @@ contract CRIDAccessControl is ICRIDAccessControl, AccessControl {
     // State variables
     bool public override paused; // Emergency pause state
     address public systemAdmin; // The admin of the system
-    address public immutable CRID_ADDRESS;
+    address public cridAddress; // Address of the CRID contract
 
     // Events
     event SystemInitialized(address indexed admin);
@@ -24,6 +24,7 @@ contract CRIDAccessControl is ICRIDAccessControl, AccessControl {
     error InsufficientPermissions();
     error InvalidUserRole();
     error InvalidAddress();
+    error AlreadyInitialized();
 
     // Modifiers
     modifier whenNotPaused() {
@@ -32,13 +33,12 @@ contract CRIDAccessControl is ICRIDAccessControl, AccessControl {
     }
 
     modifier onlyCRID() {
-        if (msg.sender != CRID_ADDRESS) revert InsufficientPermissions();
+        if (msg.sender != cridAddress) revert InsufficientPermissions();
         _;
     }
 
-    constructor(address cridAddress) {
+    constructor() {
         systemAdmin = _msgSender(); // The caller of the constructor will be the default admin
-        CRID_ADDRESS = cridAddress;
 
         // Set up role hierarchy
         _grantRole(DEFAULT_ADMIN_ROLE, systemAdmin);
@@ -48,6 +48,16 @@ contract CRIDAccessControl is ICRIDAccessControl, AccessControl {
         _setRoleAdmin(COORDINATOR_ROLE, ADMIN_ROLE);
         _setRoleAdmin(STUDENT_ROLE, ADMIN_ROLE);
 
+        emit SystemInitialized(systemAdmin);
+    }
+
+    function initialize(
+        address crid
+    ) external whenNotPaused {
+        if (cridAddress != address(0)) revert AlreadyInitialized();
+        if (crid == address(0)) revert InvalidAddress();
+
+        cridAddress = crid;
         emit SystemInitialized(systemAdmin);
     }
 
