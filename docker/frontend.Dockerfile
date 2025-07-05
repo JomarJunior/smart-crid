@@ -1,17 +1,17 @@
 FROM node:20-alpine
 
 # Set working directory
-WORKDIR /app/frontend
+WORKDIR /app
 
 # Install dependencies
-COPY ./frontend/package*.json ./
+COPY ./frontend/smart-crid/package*.json ./
 RUN npm install
 
 # Copy frontend source code
-COPY ./frontend ./
+COPY ./frontend/smart-crid ./
 
-# Expose React development server port
-EXPOSE 3000
+# Expose Vue development server port
+EXPOSE 5173
 
 # Start the development server by default
-CMD ["npm", "start"]
+CMD ["npm", "run", "dev"]

@@ -44,33 +44,33 @@ services:
       - hardhat-node
 
   # Frontend Development Environment
-  # frontend:
-  #   build:
-  #     context: .
-  #     dockerfile: docker/frontend.Dockerfile
-  #   container_name: crid-frontend
-  #   working_dir: /app/frontend
-  #   volumes:
-  #     - ./frontend:/app/frontend
-  #     - frontend_node_modules:/app/frontend/node_modules
-  #   ports:
-  #     - "3000:3000"  # React development server port
-  #   networks:
-  #     - crid-network
-  #   environment:
-  #     - NODE_ENV=development
-  #     - REACT_APP_NETWORK=localhost
-  #     - REACT_APP_RPC_URL=http://hardhat-node:8545
-  #     - REACT_APP_CHAIN_ID=31337
-  #     - WATCHPACK_POLLING=true
-  #   depends_on:
-  #     - hardhat-node
-  #   healthcheck:
-  #     test: ["CMD", "curl", "-f", "http://localhost:3000"]
-  #     # test: ["CMD", "wget", "--quiet", "--tries=1", "--spider", "http://localhost:3000"]
-  #     interval: 30s
-  #     timeout: 10s
-  #     retries: 3
+  frontend:
+    build:
+      context: .
+      dockerfile: docker/frontend.Dockerfile
+    container_name: crid-frontend
+    working_dir: /app
+    volumes:
+      - ./frontend/smart-crid:/app
+      - frontend_node_modules:/app/node_modules
+    ports:
+      - "5173:5173"  # Vue development server port
+    networks:
+      - crid-network
+    environment:
+      - NODE_ENV=development
+      - VITE_NETWORK=localhost
+      - VITE_RPC_URL=http://hardhat-node:8545
+      - VITE_CHAIN_ID=31337
+      - WATCHPACK_POLLING=true
+    depends_on:
+      - hardhat-node
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:5173"]
+      # test: ["CMD", "wget", "--quiet", "--tries=1", "--spider", "http://localhost:3000"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
 
   # The Graph Node for Blockchain Data Indexing
   graph-node:

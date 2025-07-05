@@ -50,9 +50,9 @@ start_dev() {
     echo -e "${GREEN}✅ Development environment is ready!${NC}"
     echo -e "${BLUE}📋 Available services:${NC}"
     echo "  • Hardhat Node: http://localhost:8545"
-    echo "  • Frontend: http://localhost:3000"
+    echo "  • Frontend: http://localhost:5173"
     echo "  • The Graph: http://localhost:8000"
-    echo "  • IPFS: http://localhost:5001"
+    echo "  • IPFS: http://localhost:5001 (No UI)"
 }
 
 # 🛑 Stop services
