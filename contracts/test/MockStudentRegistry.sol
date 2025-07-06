@@ -55,6 +55,19 @@ contract MockStudentRegistry is IStudentRegistry {
         emit DeactivateStudentByIdCalled(studentId, agent);
     }
 
+    function listAllStudents() external view override returns (Student[] memory students) {
+        // For mock purposes, we return a single dummy student
+        students = new Student[](1);
+        students[0] = Student({
+            id: "dummy-id",
+            fullName: "Dummy Student",
+            email: "dummy@student.edu",
+            program: "Computer Science",
+            enrollmentYear: 2023,
+            isActive: true
+        });
+    }
+
     function isRegistered(address studentAddress) external view override returns (bool isStudentRegistered) {
         isStudentRegistered = _registeredStudents[studentAddress];
     }

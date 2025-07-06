@@ -28,7 +28,10 @@ export const useStudentStore = defineStore('student', {
             }
 
             // Create a new contract instance
-            const signer = await blockchain.signers[0];
+            const signer = await blockchain.signers[blockchain.accounts[0]];
+            if (!signer) {
+                throw new Error('Signer not found. Please ensure you are connected to the blockchain.');
+            }
             this.contract = markRaw(new ethers.Contract(contractAddress, CRID.abi, signer));
         },
         async fetchStudents() {
@@ -36,18 +39,60 @@ export const useStudentStore = defineStore('student', {
             if (!this.contract) {
                 throw new Error('Contract is not connected. Please call connect() first.');
             }
-
-            const studentCount = await this.contract.getStudentCount();
-            this.students = [];
-            for (let i = 0; i < studentCount; i++) {
-                const student = await this.contract.getStudent(i);
-                console.log(`Fetched student ${i}:`, student);
-                this.students.push({ ...student });
+            try {
+                const students = await this.contract.listAllStudents();
+                console.log('Fetched students:', students);
+                this.students = students.map(student => ({
+                    id: student.id,
+                    fullName: student.fullName,
+                    email: student.email,
+                    program: student.program,
+                    enrollmentYear: student.enrollmentYear,
+                    isActive: student.isActive,
+                }));
+            } catch (error) {
+                throw new Error('Failed to fetch students from the blockchain.');
             }
         },
 
         async addStudent(studentData) {
             // Add a new student to the blockchain
+            // For this method, we need to stabilsh another connection to the blockchain
+            // We should use the address provided by the user in the form
+            try {
+                // Validate studentData
+                if (!studentData.id || !studentData.fullName || !studentData.email || !studentData.program || !studentData.enrollmentYear) {
+                    throw new Error('Invalid student data. Please ensure all fields are filled out correctly.');
+                }
+
+                const contractAddress = deployments['CRIDModule#CRID'] || process.env.VUE_APP_CRID_CONTRACT_ADDRESS;
+                if (!contractAddress) {
+                    throw new Error('CRID contract address is not set. Please check your environment variables.');
+                }
+
+                // Create a new contract instance with the current signer
+                const blockchain = useBlockchainStore();
+                const signer = await blockchain.signers[studentData.address];
+                if (!signer) {
+                    throw new Error('Signer not found for the provided address. Please ensure the address is correct.');
+                }
+
+                const newContract = markRaw(new ethers.Contract(contractAddress, CRID.abi, signer));
+
+                console.log('Adding student with data:', studentData);
+                const tx = await newContract.registerStudent(
+                    studentData.id,
+                    studentData.fullName,
+                    studentData.email,
+                    studentData.program,
+                    studentData.enrollmentYear
+                );
+                await tx.wait(); // Wait for the transaction to be mined
+                console.log('Student added:', studentData);
+                this.fetchStudents(); // Refresh the list of students
+            } catch (error) {
+                throw error; // Propagate the error to be handled by the caller
+            }
         },
 
         async updateStudent(studentId, studentData) {

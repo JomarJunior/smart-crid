@@ -2,19 +2,14 @@
   <VCard v-bind="$attrs" class="brutalist-card" variant="outlined">
     <VCardTitle class="brutalist-card-title">
       <slot name="title">
-        <span>Brutalist Card</span>
       </slot>
     </VCardTitle>
     <VCardText class="brutalist-card-text">
       <slot name="text">
-        <p>This is a simple example of a brutalist card component.</p>
-        <p>It uses Vuetify's VCard component with a minimalistic design.</p>
       </slot>
     </VCardText>
     <VCardActions class="brutalist-card-actions">
       <slot name="actions">
-        <VBtn>Action 1</VBtn>
-        <VBtn>Action 2</VBtn>
       </slot>
     </VCardActions>
   </VCard>

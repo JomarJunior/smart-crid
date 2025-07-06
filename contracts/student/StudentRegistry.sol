@@ -154,6 +154,19 @@ contract StudentRegistry is IStudentRegistry {
         emit StudentReactivated(studentId, agent);
     }
 
+    function listAllStudents() external view returns (Student[] memory studentsList) {
+        studentsList = new Student[](totalRegisteredStudents);
+        uint256 index = 0;
+
+        for (uint256 i = 0; i < totalRegisteredStudents; i++) {
+            address studentAddress = idToAddress[studentsList[i].id];
+            if (studentAddress != address(0)) {
+                studentsList[index] = students[studentAddress];
+                index++;
+            }
+        }
+    }
+
     function isRegistered(address studentAddress) external view returns (bool isStudentRegistered) {
         if (studentAddress == address(0)) revert InvalidInput();
         isStudentRegistered = bytes(students[studentAddress].id).length != 0;

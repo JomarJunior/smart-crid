@@ -22,6 +22,8 @@
       </VAppBarTitle>
     </VBtn>
 
+    <AddressImpersonator />
+
     <VBtn
       :icon="isLightTheme ? 'mdi-weather-night' : 'mdi-weather-sunny'"
       @click="toggleDarkTheme"
@@ -33,9 +35,13 @@
 
 <script>
 import { useSmartCridStore } from '@/stores/smart-crid';
+import AddressImpersonator from './AddressImpersonator.vue';
 
 export default {
   name: 'AppBar',
+  components: {
+    AddressImpersonator,
+  },
   props: {
     title: {
       type: String,
@@ -67,7 +73,7 @@ export default {
   },
   mounted() {
     // Initialize the theme
-    this.smartCridStore.initializeTheme();
+    this.smartCridStore.initialize();
   },
 }
 </script>

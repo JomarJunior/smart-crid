@@ -93,6 +93,77 @@ contract CRID is SecurityModifiers, ICRID {
     }
 
     // =======================
+    // ACCESS CONTROL OPERATIONS
+    // =======================
+    /**
+     * @dev Add a new coordinator (admin only)
+     */
+    function addCoordinator(address coordinator) external onlyAdmin whenNotPaused systemMustBeInitialized {
+        if (coordinator == address(0)) {
+            revert InvalidInput();
+        }
+        ACCESS_CONTROL.addCoordinator(coordinator);
+    }
+
+    /**
+     * @dev Remove a coordinator (admin only)
+     */
+    function removeCoordinator(address coordinator) external onlyAdmin whenNotPaused systemMustBeInitialized {
+        if (coordinator == address(0)) {
+            revert InvalidInput();
+        }
+        ACCESS_CONTROL.removeCoordinator(coordinator);
+    }
+
+    /**
+     * @dev Add a new student (admin only)
+     */
+    function addStudent(address student) external onlyAdmin whenNotPaused systemMustBeInitialized {
+        if (student == address(0)) {
+            revert InvalidInput();
+        }
+        ACCESS_CONTROL.addStudent(student);
+    }
+
+    /**
+     * @dev Remove a student (admin only)
+     */
+    function removeStudent(address student) external onlyAdmin whenNotPaused systemMustBeInitialized {
+        if (student == address(0)) {
+            revert InvalidInput();
+        }
+        ACCESS_CONTROL.removeStudent(student);
+    }
+
+    /**
+     * @dev Pause the system (admin only)
+     */
+    function pauseSystem() external onlyAdmin whenNotPaused systemMustBeInitialized {
+        ACCESS_CONTROL.pause();
+    }
+
+    /**
+     * @dev Unpause the system (admin only)
+     */
+    function unpauseSystem() external onlyAdmin systemMustBeInitialized {
+        ACCESS_CONTROL.unpause();
+    }
+
+    /**
+     * @dev Check if the system is paused
+     */
+    function isSystemPaused() external view systemMustBeInitialized returns (bool paused) {
+        paused = ACCESS_CONTROL.paused();
+    }
+
+    /** 
+     * @dev Check if the user has a specific role
+     */
+    function hasRole(bytes32 role, address account) external view systemMustBeInitialized returns (bool doesHasRole) {
+        doesHasRole = ACCESS_CONTROL.hasRole(role, account);
+    }
+
+    // =======================
     // STUDENT CONTEXT OPERATIONS
     // =======================
 
@@ -121,6 +192,19 @@ contract CRID is SecurityModifiers, ICRID {
         } else {
             studentRegistry.deactivateStudentById(studentId, msg.sender);
         }
+    }
+
+    /**
+     * @dev List all registered students (coordinators and admins only)
+     */
+    function listAllStudents()
+        external
+        view
+        onlyCoordinatorOrAdmin
+        systemMustBeInitialized
+        returns (IStudentRegistry.Student[] memory students)
+    {
+        return studentRegistry.listAllStudents();
     }
 
     /**

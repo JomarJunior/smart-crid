@@ -10,7 +10,8 @@
   "scripts": {
     "compile": "hardhat compile",
     "test": "hardhat test",
-    "deploy": "hardhat ignition deploy ignition/modules/CRID.js --network localhost",
+    "deploy": "hardhat ignition deploy ignition/modules/CRID.js --network localhost && npm run update-frontend",
+    "update-frontend": "cp artifacts/contracts/core/CRID.sol/CRID.json frontend/smart-crid/src/artifacts && cp ignition/deployments/chain-31337/deployed_addresses.json frontend/smart-crid/src/artifacts",
     "coverage": "hardhat coverage",
     "coverage:summary": "hardhat coverage --quiet | grep -A 20 '=================='",
     "lint:javascript": "eslint .",

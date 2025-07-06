@@ -31,6 +31,7 @@ interface IStudentRegistry {
     function deactivateStudentById(string calldata studentId, address agent) external;
     function isRegistered(address studentAddress) external view returns (bool isStudentRegistered);
     function isStudentActive(address studentAddress) external view returns (bool isActive);
+    function listAllStudents() external view returns (Student[] memory students);
     function getStudentId(address studentAddress) external view returns (string memory studentId);
     function getStudentByAddress(address studentAddress) external view returns (Student memory student);
     function getStudentById(string calldata studentId) external view returns (Student memory student);

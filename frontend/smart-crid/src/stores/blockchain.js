@@ -14,7 +14,7 @@ export const useBlockchainStore = defineStore('blockchain', {
     actions: {
         async connect() {
             try {
-                if (this.provider) {
+                if (this.accounts && this.accounts.length > 0) {
                     return;
                 }
 
@@ -29,7 +29,13 @@ export const useBlockchainStore = defineStore('blockchain', {
                 }
 
                 // Create signers for each account
-                this.signers = this.accounts.map(account => this.provider.getSigner(account));
+                this.signers = this.accounts.reduce(
+                    (acc, account) => {
+                        acc[account] = markRaw(this.provider.getSigner(account));
+                        return acc;
+                    },
+                    {}
+                );
 
                 // Get network information
                 this.network = markRaw(await this.provider.getNetwork());
@@ -46,5 +52,32 @@ export const useBlockchainStore = defineStore('blockchain', {
 
     getters: {
         isConnected: (state) => !!state.accounts && state.accounts.length > 0,
+        getAccounts: (state) => {
+            if (!state.accounts || state.accounts.length === 0) {
+                throw new Error('No accounts available. Please connect to the blockchain first.');
+            }
+            return state.accounts;
+        },
+        getAdminAccount: (state) => {
+            if (!state.accounts || state.accounts.length === 0) {
+                throw new Error('No accounts available. Please connect to the blockchain first.');
+            }
+            // Assuming the first account is the admin
+            return state.accounts[0];
+        },
+        getCoordinatorsAccounts: (state) => {
+            if (!state.accounts || state.accounts.length === 0) {
+                throw new Error('No accounts available. Please connect to the blockchain first.');
+            }
+            // Assuming the first three accounts are coordinators
+            return state.accounts.slice(1, 4);
+        },
+        getStudentsAccounts: (state) => {
+            if (!state.accounts || state.accounts.length === 0) {
+                throw new Error('No accounts available. Please connect to the blockchain first.');
+            }
+            // Assuming the remaining accounts are students
+            return state.accounts.slice(4);
+        },
     },
 })

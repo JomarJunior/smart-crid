@@ -11,6 +11,8 @@
 import { RouterLink, RouterView } from 'vue-router'
 import { useBlockchainStore } from './stores/blockchain'
 import { useStudentStore } from './stores/student'
+import { useAccessControlStore } from './stores/access-control'
+import { useSmartCridStore } from './stores/smart-crid'
 import AppBar from './components/AppBar.vue'
 
 export default {
@@ -23,6 +25,8 @@ export default {
   data: () => ({
     blockchain: useBlockchainStore(),
     student: useStudentStore(),
+    accessControl: useAccessControlStore(),
+    smartCRID: useSmartCridStore(),
   }),
   computed: {
     appTitle() {
@@ -30,11 +34,17 @@ export default {
       return 'Smart CRID'
     },
     navigationItems() {
-      return [
+      const items = [
         { name: 'Home', path: '/' },
-        { name: 'About', path: '/about' },
-        { name: 'Contact', path: '/contact' },
+        { name: 'Students', path: '/students' },
+        { name: 'Coordinators', path: '/coordinators' },
       ]
+
+      if (this.accessControl.isAdmin(this.smartCRID.loggedAccount)) {
+        items.push({ name: 'Roles', path: '/roles' })
+      }
+
+      return items
     },
   },
   mounted() {
