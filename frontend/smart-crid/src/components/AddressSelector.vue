@@ -62,9 +62,9 @@ export default {
     roleLabel(address) {
       // Function to return the role label based on the address
       if (this.accessControlStore.isAdmin(address)) {
-        return ' ( Admin )'
-      } else if (this.accessControlStore.isCoordinator(address)) {
         return ' ( Coordinator )'
+      } else if (this.accessControlStore.isCoordinator(address)) {
+        return ' ( Professor )'
       } else if (this.accessControlStore.isStudent(address)) {
         return ' ( Student )'
       }

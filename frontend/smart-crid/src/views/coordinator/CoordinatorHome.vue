@@ -5,11 +5,11 @@
         <!-- Left space  --->
       </VCol>
       <VCol>
-        <VIcon size="100" icon="mdi-school" color="primary"></VIcon>
+        <VIcon size="100" icon="mdi-account-tie-hat" color="primary"></VIcon>
         <div class="d-flex flex-column align-left justify-center">
-          <p class="text-h2 brutalist-font">Coordinators Home</p>
+          <p class="text-h2 brutalist-font">Professors Home</p>
           <p>
-            Welcome to the Coordinators Home page. Here you can view and manage courses and
+            Welcome to the Professors Home page. Here you can view and manage courses and
             enrollment requests.
           </p>
           <!-- Add any additional content or components related to coordinator management here -->

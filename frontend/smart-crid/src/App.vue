@@ -40,10 +40,10 @@ export default {
       ]
 
       if (this.accessControl.isAdmin(this.smartCRID.loggedAccount)) {
-        items.push({ name: 'Coordinators', path: '/coordinators' })
+        items.push({ name: 'Professors', path: '/coordinators' })
         items.push({ name: 'Roles', path: '/roles' })
       } else if (this.accessControl.isCoordinator(this.smartCRID.loggedAccount)) {
-        items.push({ name: 'Coordinators', path: '/coordinators' })
+        items.push({ name: 'Professors', path: '/coordinators' })
       }
 
       return items

@@ -10,7 +10,7 @@
             <div class="d-flex justify-left flex-column">
               <p>Here you can see all registered courses.</p>
               <p>Students can request enrollment in these courses.</p>
-              <p>Coordinators can register new courses through the registration form accessed via the button below.</p>
+              <p>Coordinators and professors can register new courses through the registration form accessed via the button below.</p>
               <br>
               <BrutalistButton
                 v-if="canRegisterCourse"

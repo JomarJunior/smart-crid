@@ -5,7 +5,7 @@
         <!-- Left space  --->
       </VCol>
       <VCol>
-        <VIcon size="100" icon="mdi-school" color="primary"></VIcon>
+        <VIcon size="100" icon="mdi-account-school" color="primary"></VIcon>
         <div class="d-flex flex-column align-left justify-center">
           <p class="text-h2 brutalist-font">Students Home</p>
           <p>
