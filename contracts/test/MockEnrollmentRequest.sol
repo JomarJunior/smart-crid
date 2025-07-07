@@ -1,5 +1,6 @@
 // SPDX-License-Identifier: MIT
 // solhint-disable not-rely-on-time
+// solhint-disable ordering
 pragma solidity ^0.8.0;
 
 import {IEnrollmentRequest} from "../interfaces/IEnrollmentRequest.sol";
