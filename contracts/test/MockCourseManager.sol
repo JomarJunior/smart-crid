@@ -62,6 +62,11 @@ contract MockCourseManager is ICourseManager {
         _activeCourses[courseId] = false; // Mock deactivation logic
     }
 
+    function listAllCourses() external pure override returns (Course[] memory courses) {
+        // For mock purposes, we return an empty array
+        courses = new Course[](0);
+    }
+
     function getCourse(uint256 id) external pure override returns (Course memory course) {
         // For mock purposes, we return a dummy course
         course = Course({

@@ -26,6 +26,11 @@ contract MockEnrollmentRequest is IEnrollmentRequest {
         emit RejectEnrollmentRequestCalled(courseId, agent);
     }
 
+    function listAllEnrollmentRequests() external pure override returns (Request[] memory requestsList) {
+        // For mock purposes, we return an empty array
+        requestsList = new Request[](0);
+    }
+
     function getEnrollmentRequest(uint256 requestId) external view override returns (Request memory request) {
         // For mock purposes, we return a dummy request
         request = Request({

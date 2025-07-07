@@ -10,6 +10,7 @@ export const useStudentStore = defineStore('student', {
     state: () => ({
         contract: null, // The CRID contract instance
         students: [],
+        studentsByAddress: {}, // Map of student addresses to their IDs
         selectedStudent: null,
     }),
 
@@ -90,8 +91,35 @@ export const useStudentStore = defineStore('student', {
                 await tx.wait(); // Wait for the transaction to be mined
                 console.log('Student added:', studentData);
                 this.fetchStudents(); // Refresh the list of students
+                this.fetchStudentByAddress(studentData.address); // Fetch the student by address to update the mapping
             } catch (error) {
                 throw error; // Propagate the error to be handled by the caller
+            }
+        },
+
+        async fetchStudentByAddress(address) {
+            // Fetch a student by their address
+            try {
+                const provider = useBlockchainStore().provider;
+                if (!provider) {
+                    throw new Error('Blockchain provider is not connected. Please check your connection.');
+                }
+
+                const contractAddress = deployments['CRIDModule#CRID'] || process.env.VUE_APP_CRID_CONTRACT_ADDRESS;
+                if (!contractAddress) {
+                    throw new Error('CRID contract address is not set. Please check your environment variables.');
+                }
+
+                // Create a new contract instance with the current provider
+                const contract = markRaw(new ethers.Contract(contractAddress, CRID.abi, provider));
+                try {
+                    const student = await contract.getStudentByAddress(address);
+                    this.studentsByAddress[address] = student.id;
+                } catch (error) {
+                    this.studentsByAddress[address] = undefined; // If the student is not found, set to undefined
+                }
+            } catch (error) {
+                throw error;
             }
         },
 
@@ -110,5 +138,19 @@ export const useStudentStore = defineStore('student', {
         isConnected: (state) => {
             return !!state.contract;
         },
+        isRegistered: (state) => (address) => {
+            // Check if the student is registered by their address
+            return state.studentsByAddress[address] !== undefined;
+        },
+        getFullNameByAddress: (state) => (address) => {
+            // Get the full name of the student based on their address
+            const studentId = state.studentsByAddress[address];
+            console.log(studentId);
+            if (studentId !== undefined) {
+                const student = state.getStudentById(studentId);
+                return student ? student.fullName : '';
+            }
+            return '';
+        }
     },
 })

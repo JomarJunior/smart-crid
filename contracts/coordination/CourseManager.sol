@@ -113,6 +113,20 @@ contract CourseManager is ICourseManager {
     }
 
     /**
+     * @dev List all courses
+     */
+    function listAllCourses() external view returns (Course[] memory courseList) {
+        courseList = new Course[](courseCount);
+        uint256 index = 0;
+        for (uint256 i = 1; i <= courseCount; i++) {
+            if (courses[i].id != 0) {
+                courseList[index] = courses[i];
+                index++;
+            }
+        }
+    }
+
+    /**
      * @dev Get course details by ID
      */
     function getCourse(uint256 id) external view onlyExistingCourse(id) returns (Course memory course) {

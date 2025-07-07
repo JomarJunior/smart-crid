@@ -2,18 +2,21 @@
   <VContainer v-if="canAccess" fluid>
     <VRow>
       <VCol cols="3">
-        <!--left space-->
+        <!-- Left space  --->
       </VCol>
       <VCol>
-        <VIcon size="100" icon="mdi-shield-account" color="primary"></VIcon>
+        <VIcon size="100" icon="mdi-school" color="primary"></VIcon>
         <div class="d-flex flex-column align-left justify-center">
-          <p class="text-h2 brutalist-font">Roles Home</p>
-          <p>Welcome to the Roles Home page. Here you can manage roles and permissions.</p>
-          <!-- Add any additional content or components related to role management here -->
+          <p class="text-h2 brutalist-font">Coordinators Home</p>
+          <p>
+            Welcome to the Coordinators Home page. Here you can view and manage courses and
+            enrollment requests.
+          </p>
+          <!-- Add any additional content or components related to coordinator management here -->
         </div>
       </VCol>
       <VCol cols="3">
-        <!--right space-->
+        <!-- Right space  --->
       </VCol>
     </VRow>
     <VDivider class="my-4"></VDivider>
@@ -41,12 +44,17 @@
   </VContainer>
   <VContainer v-else>
     <BrutalistCard>
-        <template #title>
-            <span class="ml-2">!!!!!!!!!!!!!! Access Denied !!!!!!!!!!!!!!</span>
-        </template>
-        <template #text>
-            <p class="text-body-1">You do not have permission to access this page.</p>
-        </template>
+      <template #title>
+        <span class="ml-2">!!!!!!!!!!!!!! Access Denied !!!!!!!!!!!!!!</span>
+      </template>
+      <template #text>
+        <p class="text-body-1">
+          You do not have permission to access this page or perform this action.
+        </p>
+        <p class="text-body-1">
+          If you believe this is an error, please contact your administrator.
+        </p>
+      </template>
       <BrutalistButton :to="'/'" color="secondary">Go to Home</BrutalistButton>
     </BrutalistCard>
   </VContainer>
@@ -59,7 +67,7 @@ import { useAccessControlStore } from '@/stores/access-control'
 import { useSmartCridStore } from '@/stores/smart-crid'
 
 export default {
-  name: 'StudentsHome',
+  name: 'CoordinatorsHome',
   components: {
     BrutalistButton,
     BrutalistCard,
@@ -70,27 +78,26 @@ export default {
     accessControlStore: useAccessControlStore(),
     smartCridStore: useSmartCridStore(),
   }),
-  mounted() {
-    // Initialize the student store when the component is mounted
+  async mounted() {
+    // Initialize the coordinator store when the component is mounted
   },
   computed: {
     canAccess() {
-      return (
-        this.accessControlStore.isAdmin(this.smartCridStore.loggedAccount) ||
-        this.accessControlStore.isCoordinator(this.smartCridStore.loggedAccount)
-      )
+      const isAdmin = this.accessControlStore.isAdmin(this.smartCridStore.loggedAccount)
+      const isCoordinator = this.accessControlStore.isCoordinator(this.smartCridStore.loggedAccount)
+      return isAdmin || isCoordinator
     },
     navigationLinks() {
       return [
         {
-          name: 'Add Coordinator',
-          path: '/roles/add-coordinator',
-          icon: 'mdi-shield-crown-outline',
+          name: 'List Courses',
+          path: '/coordinators/courses/list',
+          icon: 'mdi-book-open-page-variant',
         },
         {
-          name: 'Add Student',
-          path: '/roles/add-student',
-          icon: 'mdi-shield-account-outline',
+          name: 'Register Course',
+          path: '/coordinators/courses/register',
+          icon: 'mdi-book-plus',
         },
       ]
     },

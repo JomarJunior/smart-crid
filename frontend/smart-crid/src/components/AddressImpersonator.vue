@@ -1,5 +1,5 @@
 <template>
-  <AddressSelector v-model="selectedAccount" compact max-width="200px" class="mt-5 mr-2"/>
+  <AddressSelector v-model="selectedAccount" compact max-width="200px" class="mt-5 mr-2" />
 </template>
 
 <script>

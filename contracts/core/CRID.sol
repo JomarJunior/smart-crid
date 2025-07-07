@@ -265,6 +265,18 @@ contract CRID is SecurityModifiers, ICRID {
     }
 
     /**
+     * @dev List all courses
+     */
+    function listAllCourses()
+        external
+        view
+        systemMustBeInitialized
+        returns (ICourseManager.Course[] memory courses)
+    {
+        return courseManager.listAllCourses();
+    }
+
+    /**
      * @dev Get course information (public view)
      */
     function getCourse(
@@ -331,6 +343,19 @@ contract CRID is SecurityModifiers, ICRID {
         uint256 requestId
     ) external onlyCoordinatorOrAdmin whenNotPaused systemMustBeInitialized {
         enrollmentRequest.rejectEnrollmentRequest(requestId, msg.sender);
+    }
+
+    /**
+     * @dev List all enrollment requests
+     */
+    function listAllEnrollmentRequests()
+        external
+        view
+        onlyCoordinatorOrAdmin
+        systemMustBeInitialized
+        returns (IEnrollmentRequest.Request[] memory requests)
+    {
+        return enrollmentRequest.listAllEnrollmentRequests();
     }
 
     /**

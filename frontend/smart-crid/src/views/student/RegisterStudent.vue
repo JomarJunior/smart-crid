@@ -10,8 +10,9 @@
           </template>
           <template #text>
             <p>
-              Use the form below to register a new student in the system. Ensure all fields are
-              filled out correctly.
+              Use the form below to register yourself as a student. Ensure all fields are
+              filled out correctly. In order to be able to register, you must be logged in
+              with your wallet and have received an invitation from the coordinator.
               <RegisterStudentForm @cancel="handleCancel" />
             </p>
           </template>

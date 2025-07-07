@@ -37,11 +37,13 @@ export default {
       const items = [
         { name: 'Home', path: '/' },
         { name: 'Students', path: '/students' },
-        { name: 'Coordinators', path: '/coordinators' },
       ]
 
       if (this.accessControl.isAdmin(this.smartCRID.loggedAccount)) {
+        items.push({ name: 'Coordinators', path: '/coordinators' })
         items.push({ name: 'Roles', path: '/roles' })
+      } else if (this.accessControl.isCoordinator(this.smartCRID.loggedAccount)) {
+        items.push({ name: 'Coordinators', path: '/coordinators' })
       }
 
       return items

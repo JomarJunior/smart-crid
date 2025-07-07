@@ -54,6 +54,7 @@ interface ICourseManager {
     function deactivateCourse(uint256 courseId, address agent) external;
 
     // View functions
+    function listAllCourses() external view returns (Course[] memory courses);
     function getCourse(uint256 id) external view returns (Course memory course);
     function isCourseActive(uint256 courseId) external view returns (bool isActive);
     function courseExists(uint256 courseId) external view returns (bool exists);

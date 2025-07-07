@@ -44,6 +44,7 @@ interface IEnrollmentRequest {
     function cancelEnrollmentRequest(uint256 requestId, address agent) external;
     function approveEnrollmentRequest(uint256 requestId, address agent) external;
     function rejectEnrollmentRequest(uint256 requestId, address agent) external;
+    function listAllEnrollmentRequests() external view returns (Request[] memory requestsList);
     function getEnrollmentRequest(uint256 requestId) external view returns (Request memory request);
     function getEnrollmentRequestsByStudent(address student) external view returns (uint256[] memory requestIds);
     function getEnrollmentRequestsByCourse(uint256 courseId) external view returns (uint256[] memory requestIds);

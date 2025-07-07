@@ -69,7 +69,33 @@ export const useAccessControlStore = defineStore('accessControl', {
                 throw new Error('Contract is not connected. Please call connect() first.');
             }
             try {
-                const tx = await this.contract.addCoordinator(coordinatorAddress);
+                console.log(`Adding coordinator: ${coordinatorAddress}`);
+                const blockchain = useBlockchainStore();
+                
+                if (!blockchain.isConnected) {
+                    throw new Error('Blockchain connection is not established. Please connect first.');
+                }
+
+                const provider = new ethers.JsonRpcProvider(blockchain.rpcUrl);
+                if (!provider) {
+                    throw new Error('Provider is not available. Please check your blockchain connection.');
+                }
+
+                const signer = await provider.getSigner(blockchain.accounts[0]);
+                console.log('Signer:', signer);
+                if (!signer) {
+                    throw new Error('Signer is not available. Please ensure you are connected to the blockchain.');
+                }
+
+                const contractAddress = deployments['CRIDModule#CRID'] || process.env.VUE_APP_CRID_CONTRACT_ADDRESS;
+                if (!contractAddress) {
+                    throw new Error('CRID contract address is not set. Please check your environment variables.');
+                }
+
+                // Create a new contract instance with the signer
+                const contract = new ethers.Contract(contractAddress, CRID.abi, signer);
+
+                const tx = await contract.addCoordinator(coordinatorAddress);
                 await tx.wait();
                 console.log(`Coordinator ${coordinatorAddress} added successfully.`);
                 // Update the coordinatorsAddresses state

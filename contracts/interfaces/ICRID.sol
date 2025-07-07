@@ -74,6 +74,8 @@ interface ICRID {
         uint16 maxStudents
     ) external;
 
+    function listAllCourses() external view returns (ICourseManager.Course[] memory courses);
+
     function setCourseStatus(uint256 courseId, bool isActive) external;
 
     function getCourse(uint256 courseId) external view returns (ICourseManager.Course memory course);
@@ -84,6 +86,7 @@ interface ICRID {
     function approveEnrollmentRequest(uint256 requestId) external;
     function rejectEnrollmentRequest(uint256 requestId) external;
 
+    function listAllEnrollmentRequests() external view returns (IEnrollmentRequest.Request[] memory requestsList);
     function getEnrollmentRequest(uint256 requestId) external view returns (IEnrollmentRequest.Request memory request);
 
     function getEnrollmentRequestsByStudent(address studentAddress) external view returns (uint256[] memory requestIds);

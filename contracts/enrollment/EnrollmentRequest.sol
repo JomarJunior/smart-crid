@@ -141,6 +141,23 @@ contract EnrollmentRequest is IEnrollmentRequest {
     }
 
     /**
+     * @dev Get all enrollment requests
+     * @return requestsList An array of all enrollment requests
+     */
+    function listAllEnrollmentRequests() external view returns (Request[] memory requestsList) {
+        uint256 totalRequests = enrollmentRequestsCount;
+        requestsList = new Request[](totalRequests);
+        uint256 index = 0;
+
+        for (uint256 i = 1; i <= totalRequests; i++) {
+            requestsList[index] = requests[i];
+            index++;
+        }
+
+        return requestsList;
+    }
+
+    /**
      * @dev Get data for a specific enrollment request
      * @param requestId The ID of the request to retrieve
      * @return request The request data
@@ -167,9 +184,7 @@ contract EnrollmentRequest is IEnrollmentRequest {
      * @param courseId The ID of the course
      * @return requestIds An array of request IDs for the course
      */
-    function getEnrollmentRequestsByCourse(
-        uint256 courseId
-    ) external view returns (uint256[] memory requestIds) {
+    function getEnrollmentRequestsByCourse(uint256 courseId) external view returns (uint256[] memory requestIds) {
         return courseRequests[courseId];
     }
 

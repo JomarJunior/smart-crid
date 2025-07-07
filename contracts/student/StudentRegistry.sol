@@ -16,6 +16,7 @@ contract StudentRegistry is IStudentRegistry {
     mapping(address studentAddress => Student student) public students; // Store students by addresses
     mapping(string studentId => address studentAddress) public idToAddress; // Index student addresses by their ids
     mapping(address studentAddress => string studentId) public addressToId; // Index student ids by their addresses
+    address[] public studentAddresses; // List of all student addresses
 
     uint256 public totalRegisteredStudents; // Total number of registered students
 
@@ -111,6 +112,8 @@ contract StudentRegistry is IStudentRegistry {
         // Update the index mappings
         idToAddress[id] = studentAddress;
         addressToId[studentAddress] = id;
+        // Add the student address to the list
+        studentAddresses.push(studentAddress);
         
         // Increment the total registered students count
         totalRegisteredStudents++;
@@ -155,15 +158,10 @@ contract StudentRegistry is IStudentRegistry {
     }
 
     function listAllStudents() external view returns (Student[] memory studentsList) {
-        studentsList = new Student[](totalRegisteredStudents);
-        uint256 index = 0;
-
-        for (uint256 i = 0; i < totalRegisteredStudents; i++) {
-            address studentAddress = idToAddress[studentsList[i].id];
-            if (studentAddress != address(0)) {
-                studentsList[index] = students[studentAddress];
-                index++;
-            }
+        uint256 count = totalRegisteredStudents;
+        studentsList = new Student[](count);
+        for (uint256 i = 0; i < count; i++) {
+            studentsList[i] = students[studentAddresses[i]];
         }
     }
 
