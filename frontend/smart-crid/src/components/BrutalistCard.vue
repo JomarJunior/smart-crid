@@ -1,16 +1,13 @@
 <template>
   <VCard v-bind="$attrs" class="brutalist-card" variant="outlined">
     <VCardTitle class="brutalist-card-title">
-      <slot name="title">
-      </slot>
+      <slot name="title"> </slot>
     </VCardTitle>
     <VCardText class="brutalist-card-text">
-      <slot name="text">
-      </slot>
+      <slot name="text"> </slot>
     </VCardText>
     <VCardActions class="brutalist-card-actions">
-      <slot name="actions">
-      </slot>
+      <slot name="actions"> </slot>
     </VCardActions>
   </VCard>
 </template>

@@ -43,7 +43,8 @@ export default {
   transform: translate(3px, 3px);
 }
 
-.brutalist-button:focus, .brutalist-button:active {
+.brutalist-button:focus,
+.brutalist-button:active {
   box-shadow: 0px 0px rgb(var(--v-theme-background)) !important;
   transform: translate(5px, 5px);
 }

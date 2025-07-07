@@ -13,12 +13,24 @@
       required
     />
     <div class="d-flex justify-center">
-      <BrutalistButton prepend-icon="" type="submit" color="primary" class="ma-2" :loading="loading">
+      <BrutalistButton
+        prepend-icon=""
+        type="submit"
+        color="primary"
+        class="ma-2"
+        :loading="loading"
+      >
         <VIcon icon="mdi-check" class="mr-2"></VIcon>
         Submit
       </BrutalistButton>
       <VSpacer />
-      <BrutalistButton prepend-icon="" color="secondary" class="ma-2" @click="$emit('cancel')" :disabled="loading">
+      <BrutalistButton
+        prepend-icon=""
+        color="secondary"
+        class="ma-2"
+        @click="$emit('cancel')"
+        :disabled="loading"
+      >
         <VIcon icon="mdi-close" class="mr-2"></VIcon>
         Cancel
       </BrutalistButton>

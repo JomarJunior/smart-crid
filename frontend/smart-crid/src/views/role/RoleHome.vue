@@ -41,12 +41,12 @@
   </VContainer>
   <VContainer v-else>
     <BrutalistCard>
-        <template #title>
-            <span class="ml-2">!!!!!!!!!!!!!! Access Denied !!!!!!!!!!!!!!</span>
-        </template>
-        <template #text>
-            <p class="text-body-1">You do not have permission to access this page.</p>
-        </template>
+      <template #title>
+        <span class="ml-2">!!!!!!!!!!!!!! Access Denied !!!!!!!!!!!!!!</span>
+      </template>
+      <template #text>
+        <p class="text-body-1">You do not have permission to access this page.</p>
+      </template>
       <BrutalistButton :to="'/'" color="secondary">Go to Home</BrutalistButton>
     </BrutalistCard>
   </VContainer>

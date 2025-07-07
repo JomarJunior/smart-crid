@@ -79,14 +79,7 @@ describe("🏛️ Coordination Context - Course Manager", function () {
       await expect(
         courseManager
           .connect(admin)
-          .addCourse(
-            course.id,
-            "Another Course",
-            "Another Description",
-            3,
-            50,
-            admin.address
-          )
+          .addCourse(course.id, "Another Course", "Another Description", 3, 50, admin.address)
       ).to.be.revertedWithCustomError(courseManager, "CourseAlreadyExists");
     });
 
@@ -111,14 +104,7 @@ describe("🏛️ Coordination Context - Course Manager", function () {
       await expect(
         courseManager
           .connect(admin)
-          .addCourse(
-            course.id,
-            course.name,
-            "",
-            course.credits,
-            course.maxStudents,
-            admin.address
-          )
+          .addCourse(course.id, course.name, "", course.credits, course.maxStudents, admin.address)
       ).to.be.revertedWithCustomError(courseManager, "InvalidInput");
     });
   });
@@ -170,14 +156,7 @@ describe("🏛️ Coordination Context - Course Manager", function () {
       await expect(
         courseManager
           .connect(other)
-          .updateCourse(
-            course.id,
-            "New Name",
-            "New Desc",
-            4,
-            120,
-            other.address
-          )
+          .updateCourse(course.id, "New Name", "New Desc", 4, 120, other.address)
       ).to.be.revertedWithCustomError(courseManager, "UnauthorizedCaller");
     });
 
@@ -187,14 +166,7 @@ describe("🏛️ Coordination Context - Course Manager", function () {
       await expect(
         courseManager
           .connect(admin)
-          .updateCourse(
-            nonExistentId,
-            "New Name",
-            "New Desc",
-            4,
-            120,
-            admin.address
-          )
+          .updateCourse(nonExistentId, "New Name", "New Desc", 4, 120, admin.address)
       ).to.be.revertedWithCustomError(courseManager, "CourseNotFound");
     });
   });
@@ -216,9 +188,10 @@ describe("🏛️ Coordination Context - Course Manager", function () {
 
     it("should deactivate an active course", async function () {
       const { admin } = accounts;
-      await expect(
-        courseManager.connect(admin).deactivateCourse(course.id, admin.address)
-      ).to.emit(courseManager, "CourseDeactivated");
+      await expect(courseManager.connect(admin).deactivateCourse(course.id, admin.address)).to.emit(
+        courseManager,
+        "CourseDeactivated"
+      );
       expect(await courseManager.isCourseActive(course.id)).to.be.false;
     });
 
@@ -231,9 +204,7 @@ describe("🏛️ Coordination Context - Course Manager", function () {
 
     it("should revert deactivating an already inactive course", async function () {
       const { admin } = accounts;
-      await courseManager
-        .connect(admin)
-        .deactivateCourse(course.id, admin.address);
+      await courseManager.connect(admin).deactivateCourse(course.id, admin.address);
       await expect(
         courseManager.connect(admin).deactivateCourse(course.id, admin.address)
       ).to.be.revertedWithCustomError(courseManager, "CourseInactive");
@@ -241,12 +212,11 @@ describe("🏛️ Coordination Context - Course Manager", function () {
 
     it("should activate an inactive course", async function () {
       const { admin } = accounts;
-      await courseManager
-        .connect(admin)
-        .deactivateCourse(course.id, admin.address);
-      await expect(
-        courseManager.connect(admin).activateCourse(course.id, admin.address)
-      ).to.emit(courseManager, "CourseActivated");
+      await courseManager.connect(admin).deactivateCourse(course.id, admin.address);
+      await expect(courseManager.connect(admin).activateCourse(course.id, admin.address)).to.emit(
+        courseManager,
+        "CourseActivated"
+      );
       expect(await courseManager.isCourseActive(course.id)).to.be.true;
     });
 
@@ -311,16 +281,15 @@ describe("🏛️ Coordination Context - Course Manager", function () {
 
     it("should return false for an inactive course", async function () {
       const { admin } = accounts;
-      await courseManager
-        .connect(admin)
-        .deactivateCourse(course.id, admin.address);
+      await courseManager.connect(admin).deactivateCourse(course.id, admin.address);
       expect(await courseManager.isCourseActive(course.id)).to.be.false;
     });
 
     it("should revert checking active status of non-existent course", async function () {
-      await expect(
-        courseManager.isCourseActive(999)
-      ).to.be.revertedWithCustomError(courseManager, "CourseNotFound");
+      await expect(courseManager.isCourseActive(999)).to.be.revertedWithCustomError(
+        courseManager,
+        "CourseNotFound"
+      );
     });
   });
 });

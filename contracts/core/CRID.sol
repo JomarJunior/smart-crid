@@ -156,7 +156,7 @@ contract CRID is SecurityModifiers, ICRID {
         paused = ACCESS_CONTROL.paused();
     }
 
-    /** 
+    /**
      * @dev Check if the user has a specific role
      */
     function hasRole(bytes32 role, address account) external view systemMustBeInitialized returns (bool doesHasRole) {
@@ -267,12 +267,7 @@ contract CRID is SecurityModifiers, ICRID {
     /**
      * @dev List all courses
      */
-    function listAllCourses()
-        external
-        view
-        systemMustBeInitialized
-        returns (ICourseManager.Course[] memory courses)
-    {
+    function listAllCourses() external view systemMustBeInitialized returns (ICourseManager.Course[] memory courses) {
         return courseManager.listAllCourses();
     }
 

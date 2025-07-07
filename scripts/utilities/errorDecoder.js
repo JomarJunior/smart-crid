@@ -4,9 +4,7 @@ import { keccak256, toUtf8Bytes } from "ethers";
 const errorSelector = process.argv[2];
 
 if (!errorSelector) {
-  console.error(
-    "❌ Please provide an error selector as a command-line argument."
-  );
+  console.error("❌ Please provide an error selector as a command-line argument.");
   process.exit(1);
 }
 

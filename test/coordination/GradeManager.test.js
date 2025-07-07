@@ -71,8 +71,9 @@ describe("💯 Coordination Context - Grade Manager", function () {
 
     it("should revert when trying to remove a non-existent grade", async function () {
       const { admin } = accounts;
-      await expect(gradeManager.connect(admin).removeGrade(999, admin.address))
-        .to.be.revertedWithCustomError(gradeManager, "GradeNotFound");
+      await expect(
+        gradeManager.connect(admin).removeGrade(999, admin.address)
+      ).to.be.revertedWithCustomError(gradeManager, "GradeNotFound");
     });
   });
 

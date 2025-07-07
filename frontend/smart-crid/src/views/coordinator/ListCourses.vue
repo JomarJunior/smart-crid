@@ -10,8 +10,11 @@
             <div class="d-flex justify-left flex-column">
               <p>Here you can see all registered courses.</p>
               <p>Students can request enrollment in these courses.</p>
-              <p>Coordinators and professors can register new courses through the registration form accessed via the button below.</p>
-              <br>
+              <p>
+                Coordinators and professors can register new courses through the registration form
+                accessed via the button below.
+              </p>
+              <br />
               <BrutalistButton
                 v-if="canRegisterCourse"
                 prepend-icon="mdi-plus"
@@ -24,12 +27,7 @@
           </template>
         </BrutalistCard>
         <div class="d-flex flex-wrap justify-center">
-          <CourseCard
-            v-for="course in courses"
-            :key="course.id"
-            :course="course"
-            width="400"
-          />
+          <CourseCard v-for="course in courses" :key="course.id" :course="course" width="400" />
         </div>
       </VCol>
     </VRow>

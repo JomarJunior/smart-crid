@@ -39,7 +39,6 @@ contract CourseManager is ICourseManager {
         CRID_CONTRACT = cridContract;
     }
 
-
     /**
      * @dev Add a new course (only callable by CRID contract)
      */

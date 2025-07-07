@@ -23,7 +23,7 @@
       <VCol cols="12" sm="8" md="6">
         <VAutocomplete
           v-model="searchQuery"
-          :items="studentStore.students.map(student => student.fullName)"
+          :items="studentStore.students.map((student) => student.fullName)"
           label="Search for a student"
           class="mb-4"
           prepend-inner-icon="mdi-magnify"
@@ -57,7 +57,7 @@
 
 <script>
 import BrutalistButton from '@/components/BrutalistButton.vue'
-import { useStudentStore } from '@/stores/student';
+import { useStudentStore } from '@/stores/student'
 
 export default {
   name: 'StudentsHome',
@@ -71,8 +71,8 @@ export default {
   }),
   async mounted() {
     // Initialize the student store when the component is mounted
-    await this.studentStore.connect();
-    await this.studentStore.fetchStudents();
+    await this.studentStore.connect()
+    await this.studentStore.fetchStudents()
   },
   computed: {
     navigationLinks() {
@@ -91,7 +91,7 @@ export default {
           name: 'List Courses',
           path: '/coordinators/courses/list',
           icon: 'mdi-book-open',
-        }
+        },
       ]
     },
   },

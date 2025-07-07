@@ -51,9 +51,7 @@ contract CRIDAccessControl is ICRIDAccessControl, AccessControl {
         emit SystemInitialized(systemAdmin);
     }
 
-    function initialize(
-        address crid
-    ) external whenNotPaused {
+    function initialize(address crid) external whenNotPaused {
         if (cridAddress != address(0)) revert AlreadyInitialized();
         if (crid == address(0)) revert InvalidAddress();
 

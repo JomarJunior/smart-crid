@@ -225,7 +225,6 @@ Roles Hierarchy:
 
 ### 5.2 Bounded Contexts
 
-
 #### 5.2.1 Student Context 🎓
 
 **Responsibility**: Managing student-related operations and data
@@ -550,10 +549,10 @@ smart-crid/
 
 **Milestone: Complete Enrollment Request System**
 
-- [X] Implement enrollment request submission logic
-- [X] Build course management functionality
-- [X] Develop approval/rejection workflow
-- [X] Create comprehensive test coverage (>90%)
+- [x] Implement enrollment request submission logic
+- [x] Build course management functionality
+- [x] Develop approval/rejection workflow
+- [x] Create comprehensive test coverage (>90%)
 - [ ] Security analysis and vulnerability assessment
 
 **Deliverables:**

@@ -5,11 +5,7 @@
         <div class="d-flex">
           {{ student.fullName }}
           <VSpacer />
-          <VChip
-            class="mt-2"
-            size="x-large"
-            :color="student.isActive ? 'success' : 'error'"
-          >
+          <VChip class="mt-2" size="x-large" :color="student.isActive ? 'success' : 'error'">
             {{ student.isActive ? 'Active' : 'Former' }}
           </VChip>
         </div>
@@ -33,7 +29,9 @@
           </VListItem>
           <VListItem>
             <VListItemTitle>Email</VListItemTitle>
-            <VListItemSubtitle><a :href="'mailto:' + student.email">{{ student.email }}</a></VListItemSubtitle>
+            <VListItemSubtitle
+              ><a :href="'mailto:' + student.email">{{ student.email }}</a></VListItemSubtitle
+            >
             <template #prepend>
               <VIcon>mdi-email</VIcon>
             </template>

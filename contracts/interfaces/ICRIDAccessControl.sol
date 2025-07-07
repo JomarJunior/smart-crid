@@ -9,12 +9,12 @@ abstract contract ICRIDAccessControl is IAccessControl {
     bytes32 public constant STUDENT_ROLE = keccak256("STUDENT_ROLE");
 
     // Functions
-    function addCoordinator(address coordinator) virtual external;
-    function addStudent(address student) virtual external;
-    function removeCoordinator(address coordinator) virtual external;
-    function removeStudent(address student) virtual external;
-    function pause() virtual external;
-    function unpause() virtual external;
-    function paused() virtual external view returns (bool isPaused);
-    function hasRole(bytes32 role, address account) virtual external view returns (bool doesHasRole);
+    function addCoordinator(address coordinator) external virtual;
+    function addStudent(address student) external virtual;
+    function removeCoordinator(address coordinator) external virtual;
+    function removeStudent(address student) external virtual;
+    function pause() external virtual;
+    function unpause() external virtual;
+    function paused() external view virtual returns (bool isPaused);
+    function hasRole(bytes32 role, address account) external view virtual returns (bool doesHasRole);
 }

@@ -99,19 +99,13 @@ contract GradeManager is IGradeManager {
         emit GradeRemoved(student, courseId, agent);
     }
 
-    function getGrade(address student, uint256 courseId) 
-        external 
-        view 
-        returns (uint8 grade) 
-    {
+    function getGrade(address student, uint256 courseId) external view returns (uint8 grade) {
         return studentCourseGrades[student][courseId];
     }
 
-    function getGradesByStudent(address student) 
-        external 
-        view 
-        returns (uint256[] memory courseIds, uint8[] memory _grades) 
-    {
+    function getGradesByStudent(
+        address student
+    ) external view returns (uint256[] memory courseIds, uint8[] memory _grades) {
         uint256[] storage gradeIds = studentGrades[student];
         uint256 length = gradeIds.length;
         courseIds = new uint256[](length);
@@ -124,11 +118,9 @@ contract GradeManager is IGradeManager {
         }
     }
 
-    function getGradesByCourse(uint256 courseId) 
-        external 
-        view 
-        returns (address[] memory students, uint8[] memory _grades) 
-    {
+    function getGradesByCourse(
+        uint256 courseId
+    ) external view returns (address[] memory students, uint8[] memory _grades) {
         uint256[] storage gradeIds = courseGrades[courseId];
         uint256 length = gradeIds.length;
         students = new address[](length);

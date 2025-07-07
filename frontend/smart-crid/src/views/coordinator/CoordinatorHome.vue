@@ -9,8 +9,8 @@
         <div class="d-flex flex-column align-left justify-center">
           <p class="text-h2 brutalist-font">Professors Home</p>
           <p>
-            Welcome to the Professors Home page. Here you can view and manage courses and
-            enrollment requests.
+            Welcome to the Professors Home page. Here you can view and manage courses and enrollment
+            requests.
           </p>
           <!-- Add any additional content or components related to coordinator management here -->
         </div>

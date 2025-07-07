@@ -34,8 +34,8 @@
 </template>
 
 <script>
-import { useSmartCridStore } from '@/stores/smart-crid';
-import AddressImpersonator from './AddressImpersonator.vue';
+import { useSmartCridStore } from '@/stores/smart-crid'
+import AddressImpersonator from './AddressImpersonator.vue'
 
 export default {
   name: 'AppBar',
@@ -62,18 +62,18 @@ export default {
     },
     isLightTheme() {
       // Check if the current theme is light
-      return this.smartCridStore.isLightTheme;
+      return this.smartCridStore.isLightTheme
     },
   },
   methods: {
     toggleDarkTheme() {
       // Toggle dark theme logic
-      this.smartCridStore.toggleTheme();
+      this.smartCridStore.toggleTheme()
     },
   },
   mounted() {
     // Initialize the theme
-    this.smartCridStore.initialize();
+    this.smartCridStore.initialize()
   },
 }
 </script>

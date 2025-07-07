@@ -33,9 +33,19 @@
           <VListItem>
             <VListItemTitle>Enrolled Students</VListItemTitle>
             <VListItemSubtitle
-              >{{ coordinatorStore.getCourseEnrollmentsByCourseId(course.id).filter(enrollment => enrollment.status == 1).length }} /
-              {{ course.maxStudents }} ( {{ coordinatorStore.getCourseEnrollmentsByCourseId(course.id).filter(enrollment => enrollment.status == 0).length }} )
-              </VListItemSubtitle>
+              >{{
+                coordinatorStore
+                  .getCourseEnrollmentsByCourseId(course.id)
+                  .filter((enrollment) => enrollment.status == 1).length
+              }}
+              / {{ course.maxStudents }} (
+              {{
+                coordinatorStore
+                  .getCourseEnrollmentsByCourseId(course.id)
+                  .filter((enrollment) => enrollment.status == 0).length
+              }}
+              )
+            </VListItemSubtitle>
             <template #prepend>
               <VIcon>mdi-account-multiple</VIcon>
             </template>
@@ -72,17 +82,18 @@
                 <VListItemTitle>{{
                   studentStore.getFullNameByAddress(enrollment.student)
                 }}</VListItemTitle>
-                <VListItemSubtitle
-                >
+                <VListItemSubtitle>
                   <VChip :color="enrollmentStatusColor(enrollment.status)">
-                    <VIcon class="mr-4">{{ enrollment.status == 0 ? 'mdi-clock' : enrollment.status == 1 ? 'mdi-check' : 'mdi-close' }}</VIcon>
+                    <VIcon class="mr-4">{{
+                      enrollment.status == 0
+                        ? 'mdi-clock'
+                        : enrollment.status == 1
+                          ? 'mdi-check'
+                          : 'mdi-close'
+                    }}</VIcon>
                     {{ enrollmentStatusMap(enrollment.status) }}
                   </VChip>
-                  <VChip
-                    v-if="alreadyHasGrade(enrollment)"
-                    color="primary"
-                    size="x-large"
-                  >
+                  <VChip v-if="alreadyHasGrade(enrollment)" color="primary" size="x-large">
                     <VIcon class="mr-2">mdi-star-four-points</VIcon>
                     {{ coordinatorStore.getStudentGradeByCourseId(enrollment.student, course.id) }}
                   </VChip>
@@ -126,34 +137,23 @@
         </VList>
       </template>
     </BrutalistCard>
-    <VDialog
-      v-model="displayGradeDialog"
-      width="700"
-    >
+    <VDialog v-model="displayGradeDialog" width="700">
       <BrutalistCard>
         <template #title>
           <div class="d-flex">
             Add Grade for {{ selectedGradeInfo.student }}
             <VSpacer />
-            <VBtn
-              icon="mdi-close"
-              variant="text"
-              @click="displayGradeDialog = false"
-            />
+            <VBtn icon="mdi-close" variant="text" @click="displayGradeDialog = false" />
           </div>
         </template>
         <template #text>
-          <p class="ml-5"><h1>Course: {{ course.name }}</h1></p>
+          <h1>Course: {{ course.name }}</h1>
           <p class="ml-5">Please enter the grade for the student.</p>
           <p class="ml-5">This grade will be recorded on the blockchain.</p>
           <p class="ml-5">Ensure the grade is within the valid range.</p>
           <p class="ml-5">Grade must be between 0 and 100.</p>
           <VForm @submit.prevent="submitGrade">
-            <VOtpInput
-              v-model="selectedGradeInfo.grade"
-              label="Grade"
-              :length="3"
-            />
+            <VOtpInput v-model="selectedGradeInfo.grade" label="Grade" :length="3" />
             <div class="d-flex justify-end mt-9">
               <BrutalistButton type="submit" color="primary" :disabled="disableGradeButton">
                 Submit
@@ -199,7 +199,7 @@ export default {
       enrollment: null,
       course: null,
       grade: null,
-    }
+    },
   }),
   computed: {},
   methods: {
@@ -224,9 +224,7 @@ export default {
         return
       }
       this.coordinatorStore
-        .addGrade(
-          {...this.selectedGradeInfo, grade: parsedGrade },
-        )
+        .addGrade({ ...this.selectedGradeInfo, grade: parsedGrade })
         .then(() => {
           console.log('Grade submitted successfully')
           this.displayGradeDialog = false
@@ -274,7 +272,7 @@ export default {
       const studentAddress = enrollment.student
       const courseId = this.course.id
       return this.coordinatorStore.getStudentGradeByCourseId(studentAddress, courseId) !== null
-    }
+    },
   },
   async mounted() {
     await this.coordinatorStore.fetchEnrollments()
@@ -294,9 +292,13 @@ export default {
       return isAdmin || isCoordinator
     },
     disableGradeButton() {
-      return this.selectedGradeInfo.grade === null || this.selectedGradeInfo.grade === ''
-        || this.selectedGradeInfo.grade < 0 || this.selectedGradeInfo.grade > 100
-    }
+      return (
+        this.selectedGradeInfo.grade === null ||
+        this.selectedGradeInfo.grade === '' ||
+        this.selectedGradeInfo.grade < 0 ||
+        this.selectedGradeInfo.grade > 100
+      )
+    },
   },
 }
 </script>

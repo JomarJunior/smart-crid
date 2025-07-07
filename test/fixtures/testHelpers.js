@@ -9,7 +9,7 @@ const testHelpers = {
     const [admin] = await ethers.getSigners();
 
     const AccessControl = await ethers.getContractFactory("CRIDAccessControl");
-    const accessControl = await AccessControl.connect(admin).deploy(admin.address);
+    const accessControl = await AccessControl.connect(admin).deploy();
     await accessControl.waitForDeployment();
     return accessControl;
   },
@@ -19,7 +19,10 @@ const testHelpers = {
     const [admin, coordinator1, coordinator2, coordinator3, student1, student2, student3, guest] =
       await ethers.getSigners();
 
-    // Set up roles
+    // Initialize with admin as mock CRID for testing purposes
+    await accessControl.connect(admin).initialize(admin.address);
+
+    // Now we can call methods through the admin (acting as CRID)
     await accessControl.connect(admin).addCoordinator(coordinator1.address);
     await accessControl.connect(admin).addCoordinator(coordinator2.address);
     await accessControl.connect(admin).addCoordinator(coordinator3.address);
@@ -227,11 +230,12 @@ const testHelpers = {
   async setupCRID() {
     const accessControl = await this.deployMockAccessControl();
     const crid = await this.deployCRID(accessControl.target);
-    
+
     // Deploy contracts with correct CRID address
     const studentRegistry = await this.deployMockStudentRegistry();
     const courseManager = await this.deployMockCourseManager();
     const enrollmentRequest = await this.deployMockEnrollmentRequest();
+    const gradeManager = await this.deployGradeManager(crid.target);
 
     const [admin, coordinator1, coordinator2, student1, student2, student3, guest] =
       await ethers.getSigners();
@@ -244,11 +248,14 @@ const testHelpers = {
     await accessControl.connect(admin).addStudent(student3.address);
 
     // Initialize the CRID system
-    await crid.connect(admin).initializeSystem(
-      studentRegistry.target,
-      courseManager.target,
-      enrollmentRequest.target
-    );
+    await crid
+      .connect(admin)
+      .initializeSystem(
+        studentRegistry.target,
+        courseManager.target,
+        enrollmentRequest.target,
+        gradeManager.target
+      );
 
     return {
       crid,
@@ -256,6 +263,7 @@ const testHelpers = {
       studentRegistry,
       courseManager,
       enrollmentRequest,
+      gradeManager,
       accounts: {
         admin,
         coordinator1,
@@ -383,11 +391,11 @@ const testHelpers = {
   // ==============================
   // Grade Manager Helpers
   // ==============================
-  async deployGradeManager() {
+  async deployGradeManager(cridAddress) {
     const [admin] = await ethers.getSigners();
 
     const GradeManager = await ethers.getContractFactory("GradeManager");
-    const gradeManager = await GradeManager.connect(admin).deploy(admin.address);
+    const gradeManager = await GradeManager.connect(admin).deploy(cridAddress || admin.address);
     await gradeManager.waitForDeployment();
     return gradeManager;
   },

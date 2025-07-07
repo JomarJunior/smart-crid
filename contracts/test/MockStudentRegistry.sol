@@ -36,9 +36,7 @@ contract MockStudentRegistry is IStudentRegistry {
     ) external override {
         _registeredStudents[studentAddress] = true;
         _studentIds[studentAddress] = id;
-        emit RegisterStudentCalled(
-            studentAddress, id, fullName, email, program, enrollmentYear, agent
-        );
+        emit RegisterStudentCalled(studentAddress, id, fullName, email, program, enrollmentYear, agent);
     }
 
     function activateStudentById(string calldata studentId, address agent) external override {
@@ -75,7 +73,7 @@ contract MockStudentRegistry is IStudentRegistry {
     function isStudentActive(address studentAddress) external view override returns (bool isActive) {
         // For mock purposes, we return true
         string memory studentId = _studentIds[studentAddress];
-        isActive = _activeStudents[studentId];        
+        isActive = _activeStudents[studentId];
     }
 
     function getStudentId(address studentAddress) external pure override returns (string memory studentId) {

@@ -10,8 +10,11 @@
             <div class="d-flex justify-left flex-column">
               <p>Here you can see all registered students.</p>
               <p>A student must receive a permission before registering themselves.</p>
-              <p>If you have permission, you can register yourself through the registration form accessed via the button below.</p>
-              <br>
+              <p>
+                If you have permission, you can register yourself through the registration form
+                accessed via the button below.
+              </p>
+              <br />
               <BrutalistButton
                 prepend-icon="mdi-plus"
                 color="primary"

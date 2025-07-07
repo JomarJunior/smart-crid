@@ -91,9 +91,7 @@ export default {
   computed: {
     // Define computed properties if needed
     canAccess() {
-      return (
-        this.accessControlStore.isAdmin(this.smartCridStore.loggedAccount)
-      )
+      return this.accessControlStore.isAdmin(this.smartCridStore.loggedAccount)
     },
   },
   methods: {

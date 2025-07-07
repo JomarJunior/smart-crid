@@ -1,5 +1,5 @@
 // Vuetify theme for: Brutalist CRID
-import colors from 'vuetify/util/colors'
+import colors from "vuetify/util/colors";
 
 export default {
   dark: false,
@@ -14,4 +14,4 @@ export default {
     success: colors.green.accent2,
     warning: colors.orange.accent2,
   },
-}
+};

@@ -10,7 +10,12 @@ module.exports = buildModule("CRIDModule", (m) => {
   const enrollmentRequest = m.contract("EnrollmentRequest", [crid]);
 
   m.call(accessControl, "initialize", [crid]);
-  m.call(crid, "initializeSystem", [studentRegistry, courseManager, enrollmentRequest, gradeManager]);
+  m.call(crid, "initializeSystem", [
+    studentRegistry,
+    courseManager,
+    enrollmentRequest,
+    gradeManager,
+  ]);
 
   return {
     accessControl,

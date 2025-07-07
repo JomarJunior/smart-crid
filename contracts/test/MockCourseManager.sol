@@ -9,7 +9,7 @@ import {ICourseManager} from "../interfaces/ICourseManager.sol";
  * @dev Mock implementation of the ICourseManager interface for testing purposes
  */
 contract MockCourseManager is ICourseManager {
-    mapping (uint256 courseId => bool isActive) private _activeCourses;
+    mapping(uint256 courseId => bool isActive) private _activeCourses;
 
     event AddCourseCalled(
         uint256 courseId,

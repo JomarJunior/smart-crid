@@ -22,7 +22,10 @@ export default {
     // Initialize the selected account with the logged-in account from the store
     await this.blockchainStore.connect()
     await this.smartCridStore.initialize()
-    this.selectedAccount = this.blockchainStore.loggedAccount || this.smartCridStore.loggedAccount || this.blockchainStore.getAdminAccount
+    this.selectedAccount =
+      this.blockchainStore.loggedAccount ||
+      this.smartCridStore.loggedAccount ||
+      this.blockchainStore.getAdminAccount
   },
   computed: {
     adminAccounts() {

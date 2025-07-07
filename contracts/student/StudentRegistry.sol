@@ -114,7 +114,7 @@ contract StudentRegistry is IStudentRegistry {
         addressToId[studentAddress] = id;
         // Add the student address to the list
         studentAddresses.push(studentAddress);
-        
+
         // Increment the total registered students count
         totalRegisteredStudents++;
 
@@ -125,11 +125,10 @@ contract StudentRegistry is IStudentRegistry {
      * @dev Deactivates a student account (Only callable by CRID contract)
      * @param studentId The ID of the student to deactivate
      */
-    function deactivateStudentById(string calldata studentId, address agent)
-        external
-        onlyCRID
-        onlyValidString(studentId)
-    {
+    function deactivateStudentById(
+        string calldata studentId,
+        address agent
+    ) external onlyCRID onlyValidString(studentId) {
         address studentAddress = idToAddress[studentId];
         if (studentAddress == address(0)) revert NotRegistered();
 
@@ -143,11 +142,10 @@ contract StudentRegistry is IStudentRegistry {
      * @dev Reactivates a student account (Only callable by CRID contract)
      * @param studentId The ID of the student to reactivate
      */
-    function activateStudentById(string calldata studentId, address agent)
-        external
-        onlyCRID
-        onlyValidString(studentId)
-    {
+    function activateStudentById(
+        string calldata studentId,
+        address agent
+    ) external onlyCRID onlyValidString(studentId) {
         address studentAddress = idToAddress[studentId];
         if (studentAddress == address(0)) revert NotRegistered();
 
@@ -179,7 +177,7 @@ contract StudentRegistry is IStudentRegistry {
         // if not registered, return false
         if (bytes(students[studentAddress].id).length == 0) revert NotRegistered();
         isActive = false;
-        
+
         if (bytes(students[studentAddress].id).length != 0) {
             isActive = students[studentAddress].isActive;
         }

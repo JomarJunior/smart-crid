@@ -6,7 +6,7 @@ module.exports = [
   {
     languageOptions: {
       ecmaVersion: 2022,
-      sourceType: "commonjs",
+      sourceType: "module",
       globals: {
         ...globals.node,
         ...globals.mocha,
@@ -39,6 +39,7 @@ module.exports = [
       "dist/",
       "build/",
       "scripts/",
+      "test/",
     ],
   },
 ];

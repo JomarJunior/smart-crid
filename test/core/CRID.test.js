@@ -8,11 +8,20 @@ describe("🏗️ Core Context - CRID Orchestrator", function () {
   let studentRegistry;
   let courseManager;
   let enrollmentRequest;
+  let gradeManager;
   let accounts;
 
   beforeEach(async function () {
     const setup = await testHelpers.setupCRID();
-    ({ crid, accessControl, studentRegistry, courseManager, enrollmentRequest, accounts } = setup);
+    ({
+      crid,
+      accessControl,
+      studentRegistry,
+      courseManager,
+      enrollmentRequest,
+      gradeManager,
+      accounts,
+    } = setup);
   });
 
   describe("Deployment", function () {
@@ -41,7 +50,12 @@ describe("🏗️ Core Context - CRID Orchestrator", function () {
       await expect(
         crid
           .connect(accounts.admin)
-          .initializeSystem(studentRegistry.target, courseManager.target, enrollmentRequest.target)
+          .initializeSystem(
+            studentRegistry.target,
+            courseManager.target,
+            enrollmentRequest.target,
+            gradeManager.target
+          )
       ).to.be.revertedWithCustomError(crid, "SystemAlreadyInitialized");
     });
 
@@ -49,11 +63,17 @@ describe("🏗️ Core Context - CRID Orchestrator", function () {
       // Deploy a fresh CRID without initialization
       const accessControlFresh = await testHelpers.deployAccessControl();
       const cridFresh = await testHelpers.deployCRID(accessControlFresh.target);
+      const gradeManagerFresh = await testHelpers.deployGradeManager(cridFresh.target);
 
       await expect(
         cridFresh
           .connect(accounts.student1)
-          .initializeSystem(studentRegistry.target, courseManager.target, enrollmentRequest.target)
+          .initializeSystem(
+            studentRegistry.target,
+            courseManager.target,
+            enrollmentRequest.target,
+            gradeManagerFresh.target
+          )
       ).to.be.reverted; // Should be reverted by onlyAdmin modifier
     });
 
@@ -61,6 +81,7 @@ describe("🏗️ Core Context - CRID Orchestrator", function () {
       // Deploy a fresh CRID without initialization
       const accessControlFresh = await testHelpers.deployAccessControl();
       const cridFresh = await testHelpers.deployCRID(accessControlFresh.target);
+      const gradeManagerFresh = await testHelpers.deployGradeManager(cridFresh.target);
 
       await expect(
         cridFresh
@@ -68,7 +89,8 @@ describe("🏗️ Core Context - CRID Orchestrator", function () {
           .initializeSystem(
             testHelpers.ADDRESS_ZERO,
             courseManager.target,
-            enrollmentRequest.target
+            enrollmentRequest.target,
+            gradeManagerFresh.target
           )
       ).to.be.revertedWithCustomError(cridFresh, "InvalidContract");
 
@@ -78,14 +100,31 @@ describe("🏗️ Core Context - CRID Orchestrator", function () {
           .initializeSystem(
             studentRegistry.target,
             testHelpers.ADDRESS_ZERO,
-            enrollmentRequest.target
+            enrollmentRequest.target,
+            gradeManagerFresh.target
           )
       ).to.be.revertedWithCustomError(cridFresh, "InvalidContract");
 
       await expect(
         cridFresh
           .connect(accounts.admin)
-          .initializeSystem(studentRegistry.target, courseManager.target, testHelpers.ADDRESS_ZERO)
+          .initializeSystem(
+            studentRegistry.target,
+            courseManager.target,
+            testHelpers.ADDRESS_ZERO,
+            gradeManagerFresh.target
+          )
+      ).to.be.revertedWithCustomError(cridFresh, "InvalidContract");
+
+      await expect(
+        cridFresh
+          .connect(accounts.admin)
+          .initializeSystem(
+            studentRegistry.target,
+            courseManager.target,
+            enrollmentRequest.target,
+            testHelpers.ADDRESS_ZERO
+          )
       ).to.be.revertedWithCustomError(cridFresh, "InvalidContract");
     });
 
@@ -93,11 +132,17 @@ describe("🏗️ Core Context - CRID Orchestrator", function () {
       // Deploy a fresh CRID without initialization
       const accessControlFresh = await testHelpers.deployAccessControl();
       const cridFresh = await testHelpers.deployCRID(accessControlFresh.target);
+      const gradeManagerFresh = await testHelpers.deployGradeManager(cridFresh.target);
 
       await expect(
         cridFresh
           .connect(accounts.admin)
-          .initializeSystem(studentRegistry.target, courseManager.target, enrollmentRequest.target)
+          .initializeSystem(
+            studentRegistry.target,
+            courseManager.target,
+            enrollmentRequest.target,
+            gradeManagerFresh.target
+          )
       )
         .to.emit(cridFresh, "SystemInitialized")
         .withArgs(accounts.admin.address);
@@ -898,16 +943,14 @@ describe("🏗️ Core Context - CRID Orchestrator", function () {
     it("should handle uninitialized system correctly", async function () {
       // Deploy a fresh CRID without initialization
       const accessControlFresh = await testHelpers.deployAccessControl();
-
-      // Add student role first
-      await accessControlFresh.connect(accounts.admin).addStudent(accounts.student1.address);
-
       const cridFresh = await testHelpers.deployCRID(accessControlFresh.target);
 
+      // Initialize accessControl with cridFresh
+      await accessControlFresh.connect(accounts.admin).initialize(cridFresh.target);
+
+      // Try to use an admin function that requires system initialization
       await expect(
-        cridFresh
-          .connect(accounts.student1)
-          .registerStudent("123", "Test", "test@test.com", "Test", 2023)
+        cridFresh.connect(accounts.admin).addCoordinator(accounts.coordinator1.address)
       ).to.be.revertedWithCustomError(cridFresh, "SystemNotInitialized");
     });
 
