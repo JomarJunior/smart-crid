@@ -86,10 +86,10 @@
                   <VChip :color="enrollmentStatusColor(enrollment.status)">
                     <VIcon class="mr-4">{{
                       enrollment.status == 0
-                        ? 'mdi-clock'
+                        ? "mdi-clock"
                         : enrollment.status == 1
-                          ? 'mdi-check'
-                          : 'mdi-close'
+                          ? "mdi-check"
+                          : "mdi-close"
                     }}</VIcon>
                     {{ enrollmentStatusMap(enrollment.status) }}
                   </VChip>
@@ -167,15 +167,15 @@
 </template>
 
 <script>
-import BrutalistCard from './BrutalistCard.vue'
-import BrutalistButton from './BrutalistButton.vue'
-import { useCoordinatorStore } from '@/stores/coordinator'
-import { useStudentStore } from '@/stores/student'
-import { useSmartCridStore } from '@/stores/smart-crid'
-import { useAccessControlStore } from '@/stores/access-control'
+import BrutalistCard from "./BrutalistCard.vue";
+import BrutalistButton from "./BrutalistButton.vue";
+import { useCoordinatorStore } from "@/stores/coordinator";
+import { useStudentStore } from "@/stores/student";
+import { useSmartCridStore } from "@/stores/smart-crid";
+import { useAccessControlStore } from "@/stores/access-control";
 
 export default {
-  name: 'CourseCard',
+  name: "CourseCard",
   inheritAttrs: false,
   components: {
     BrutalistCard,
@@ -204,54 +204,54 @@ export default {
   computed: {},
   methods: {
     requestEnrollment() {
-      this.loadingEnrollment = true
+      this.loadingEnrollment = true;
       this.coordinatorStore
         .requestEnrollment({ courseId: this.course.id })
         .then(() => {
-          console.log('Enrollment request sent successfully')
+          console.log("Enrollment request sent successfully");
         })
         .catch((error) => {
-          console.error('Error requesting enrollment:', error)
+          console.error("Error requesting enrollment:", error);
         })
         .finally(() => {
-          this.loadingEnrollment = false
-        })
+          this.loadingEnrollment = false;
+        });
     },
     submitGrade() {
-      const parsedGrade = this.stringToInteger(this.selectedGradeInfo.grade)
+      const parsedGrade = this.stringToInteger(this.selectedGradeInfo.grade);
       if (parsedGrade === null || parsedGrade < 0 || parsedGrade > 100) {
-        console.error('Invalid grade input. Please enter a number between 0 and 100.')
-        return
+        console.error("Invalid grade input. Please enter a number between 0 and 100.");
+        return;
       }
       this.coordinatorStore
         .addGrade({ ...this.selectedGradeInfo, grade: parsedGrade })
         .then(() => {
-          console.log('Grade submitted successfully')
-          this.displayGradeDialog = false
+          console.log("Grade submitted successfully");
+          this.displayGradeDialog = false;
         })
         .catch((error) => {
-          console.error('Error submitting grade:', error)
-        })
+          console.error("Error submitting grade:", error);
+        });
     },
     enrollmentStatusMap(status) {
       // Map the enrollment status to a human-readable string
       const statusMap = {
-        0: 'Pending',
-        1: 'Enrolled',
-        2: 'Rejected',
-        3: 'Withdrawn',
-      }
-      return statusMap[status] || 'Unknown'
+        0: "Pending",
+        1: "Enrolled",
+        2: "Rejected",
+        3: "Withdrawn",
+      };
+      return statusMap[status] || "Unknown";
     },
     enrollmentStatusColor(status) {
       // Map the enrollment status to a color
       const colorMap = {
-        0: 'warning',
-        1: 'success',
-        2: 'error',
-        3: 'error',
-      }
-      return colorMap[status] || 'default'
+        0: "warning",
+        1: "success",
+        2: "error",
+        3: "error",
+      };
+      return colorMap[status] || "default";
     },
     openGradeDialog(enrollment) {
       this.selectedGradeInfo = {
@@ -260,45 +260,47 @@ export default {
         enrollment,
         course: this.course.id,
         grade: null,
-      }
-      this.displayGradeDialog = true
+      };
+      this.displayGradeDialog = true;
     },
     stringToInteger(str) {
       // Convert a string to an integer
-      const parsed = parseInt(str, 10)
-      return isNaN(parsed) ? null : parsed
+      const parsed = parseInt(str, 10);
+      return isNaN(parsed) ? null : parsed;
     },
     alreadyHasGrade(enrollment) {
-      const studentAddress = enrollment.student
-      const courseId = this.course.id
-      return this.coordinatorStore.getStudentGradeByCourseId(studentAddress, courseId) !== null
+      const studentAddress = enrollment.student;
+      const courseId = this.course.id;
+      return this.coordinatorStore.getStudentGradeByCourseId(studentAddress, courseId) !== null;
     },
   },
   async mounted() {
-    await this.coordinatorStore.fetchEnrollments()
-    await this.studentStore.fetchStudents()
+    await this.coordinatorStore.fetchEnrollments();
+    await this.studentStore.fetchStudents();
     const promises = this.coordinatorStore
       .getCourseEnrollmentsByCourseId(this.course.id)
       .map((enrollment) => {
-        return this.studentStore.fetchStudentByAddress(enrollment.student)
-      })
-    await Promise.all(promises)
-    await this.coordinatorStore.fetchGradesByCourseId(this.course.id)
+        return this.studentStore.fetchStudentByAddress(enrollment.student);
+      });
+    await Promise.all(promises);
+    await this.coordinatorStore.fetchGradesByCourseId(this.course.id);
   },
   computed: {
     haveCoordinatorPermission() {
-      const isAdmin = this.accessControlStore.isAdmin(this.smartCridStore.loggedAccount)
-      const isCoordinator = this.accessControlStore.isCoordinator(this.smartCridStore.loggedAccount)
-      return isAdmin || isCoordinator
+      const isAdmin = this.accessControlStore.isAdmin(this.smartCridStore.loggedAccount);
+      const isCoordinator = this.accessControlStore.isCoordinator(
+        this.smartCridStore.loggedAccount,
+      );
+      return isAdmin || isCoordinator;
     },
     disableGradeButton() {
       return (
         this.selectedGradeInfo.grade === null ||
-        this.selectedGradeInfo.grade === '' ||
+        this.selectedGradeInfo.grade === "" ||
         this.selectedGradeInfo.grade < 0 ||
         this.selectedGradeInfo.grade > 100
-      )
+      );
     },
   },
-}
+};
 </script>

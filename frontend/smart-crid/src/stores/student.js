@@ -45,7 +45,6 @@ export const useStudentStore = defineStore("student", {
       }
       try {
         const students = await this.contract.listAllStudents();
-        console.log("Fetched students:", students);
         this.students = students.map((student) => ({
           id: student.id,
           fullName: student.fullName,
@@ -54,7 +53,7 @@ export const useStudentStore = defineStore("student", {
           enrollmentYear: student.enrollmentYear,
           isActive: student.isActive,
         }));
-      } catch (error) {
+      } catch {
         throw new Error("Failed to fetch students from the blockchain.");
       }
     },
@@ -96,7 +95,6 @@ export const useStudentStore = defineStore("student", {
 
         const newContract = markRaw(new ethers.Contract(contractAddress, CRID.abi, signer));
 
-        console.log("Adding student with data:", studentData);
         const tx = await newContract.registerStudent(
           studentData.id,
           studentData.fullName,
@@ -105,44 +103,39 @@ export const useStudentStore = defineStore("student", {
           studentData.enrollmentYear,
         );
         await tx.wait(); // Wait for the transaction to be mined
-        console.log("Student added:", studentData);
         this.fetchStudents(); // Refresh the list of students
         this.fetchStudentByAddress(studentData.address); // Fetch the student by address to update the mapping
-      } catch (error) {
-        throw error; // Propagate the error to be handled by the caller
+      } catch {
+        throw new Error("Failed to register student on the blockchain.");
       }
     },
 
     async fetchStudentByAddress(address) {
       // Fetch a student by their address
+      const provider = useBlockchainStore().provider;
+      if (!provider) {
+        throw new Error("Blockchain provider is not connected. Please check your connection.");
+      }
+
+      const contractAddress =
+        deployments["CRIDModule#CRID"] || process.env.VUE_APP_CRID_CONTRACT_ADDRESS;
+      if (!contractAddress) {
+        throw new Error(
+          "CRID contract address is not set. Please check your environment variables.",
+        );
+      }
+
+      // Create a new contract instance with the current provider
+      const contract = markRaw(new ethers.Contract(contractAddress, CRID.abi, provider));
       try {
-        const provider = useBlockchainStore().provider;
-        if (!provider) {
-          throw new Error("Blockchain provider is not connected. Please check your connection.");
-        }
-
-        const contractAddress =
-          deployments["CRIDModule#CRID"] || process.env.VUE_APP_CRID_CONTRACT_ADDRESS;
-        if (!contractAddress) {
-          throw new Error(
-            "CRID contract address is not set. Please check your environment variables.",
-          );
-        }
-
-        // Create a new contract instance with the current provider
-        const contract = markRaw(new ethers.Contract(contractAddress, CRID.abi, provider));
-        try {
-          const student = await contract.getStudentByAddress(address);
-          this.studentsByAddress[address] = student.id;
-        } catch (error) {
-          this.studentsByAddress[address] = undefined; // If the student is not found, set to undefined
-        }
-      } catch (error) {
-        throw error;
+        const student = await contract.getStudentByAddress(address);
+        this.studentsByAddress[address] = student.id;
+      } catch {
+        this.studentsByAddress[address] = undefined; // If the student is not found, set to undefined
       }
     },
 
-    async updateStudent(studentId, studentData) {
+    async updateStudent(_studentId, _studentData) {
       // Update an existing student on the blockchain
     },
   },
@@ -164,7 +157,6 @@ export const useStudentStore = defineStore("student", {
     getFullNameByAddress: (state) => (address) => {
       // Get the full name of the student based on their address
       const studentId = state.studentsByAddress[address];
-      console.log(studentId);
       if (studentId !== undefined) {
         const student = state.getStudentById(studentId);
         return student ? student.fullName : "";

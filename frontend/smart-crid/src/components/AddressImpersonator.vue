@@ -3,12 +3,12 @@
 </template>
 
 <script>
-import { useSmartCridStore } from '@/stores/smart-crid'
-import { useBlockchainStore } from '@/stores/blockchain'
-import AddressSelector from './AddressSelector.vue'
+import { useSmartCridStore } from "@/stores/smart-crid";
+import { useBlockchainStore } from "@/stores/blockchain";
+import AddressSelector from "./AddressSelector.vue";
 
 export default {
-  name: 'AddressImpersonator',
+  name: "AddressImpersonator",
   components: {
     AddressSelector,
   },
@@ -20,38 +20,38 @@ export default {
   methods: {},
   async mounted() {
     // Initialize the selected account with the logged-in account from the store
-    await this.blockchainStore.connect()
-    await this.smartCridStore.initialize()
+    await this.blockchainStore.connect();
+    await this.smartCridStore.initialize();
     this.selectedAccount =
       this.blockchainStore.loggedAccount ||
       this.smartCridStore.loggedAccount ||
-      this.blockchainStore.getAdminAccount
+      this.blockchainStore.getAdminAccount;
   },
   computed: {
     adminAccounts() {
       if (!this.blockchainStore.isConnected) {
-        return []
+        return [];
       }
-      return [this.blockchainStore.getAdminAccount]
+      return [this.blockchainStore.getAdminAccount];
     },
     coordinatorAccounts() {
       if (!this.blockchainStore.isConnected) {
-        return []
+        return [];
       }
-      return this.blockchainStore.getCoordinatorsAccounts
+      return this.blockchainStore.getCoordinatorsAccounts;
     },
     studentAccounts() {
       if (!this.blockchainStore.isConnected) {
-        return []
+        return [];
       }
-      return this.blockchainStore.getStudentsAccounts
+      return this.blockchainStore.getStudentsAccounts;
     },
   },
   watch: {
     selectedAccount(newValue) {
       // Update the logged account in the store when the selected account changes
-      this.smartCridStore.setLoggedAccount(newValue)
+      this.smartCridStore.setLoggedAccount(newValue);
     },
   },
-}
+};
 </script>

@@ -27,12 +27,12 @@
 </template>
 
 <script>
-import { useBlockchainStore } from '@/stores/blockchain'
-import { useAccessControlStore } from '@/stores/access-control'
-import { useStudentStore } from '@/stores/student'
+import { useBlockchainStore } from "@/stores/blockchain";
+import { useAccessControlStore } from "@/stores/access-control";
+import { useStudentStore } from "@/stores/student";
 
 export default {
-  name: 'AddressSelector',
+  name: "AddressSelector",
   props: {
     modelValue: {
       type: String,
@@ -43,7 +43,7 @@ export default {
       default: false,
     },
   },
-  emits: ['update:modelValue'],
+  emits: ["update:modelValue"],
   data: () => ({
     blockchainStore: useBlockchainStore(),
     accessControlStore: useAccessControlStore(),
@@ -53,58 +53,58 @@ export default {
   methods: {
     reduceAddressDisplay(address) {
       // Function to reduce the address display for better readability
-      const reducedAddress = address ? `#${address.slice(2, 8)}` : ''
+      const reducedAddress = address ? `#${address.slice(2, 8)}` : "";
       if (!this.compact) {
-        return reducedAddress
+        return reducedAddress;
       }
-      return reducedAddress + this.roleLabel(address)
+      return reducedAddress + this.roleLabel(address);
     },
     roleLabel(address) {
       // Function to return the role label based on the address
       if (this.accessControlStore.isAdmin(address)) {
-        return ' ( Coordinator )'
+        return " ( Coordinator )";
       } else if (this.accessControlStore.isCoordinator(address)) {
-        return ' ( Professor )'
+        return " ( Professor )";
       } else if (this.accessControlStore.isStudent(address)) {
-        return ' ( Student )'
+        return " ( Student )";
       }
-      return ' ( Guest )'
+      return " ( Guest )";
     },
     getFullName(account) {
       // Get the full name of the student based on the selected account
       return this.studentStore.isRegistered(account)
         ? this.studentStore.getFullNameByAddress(account)
-        : '#' + account.slice(2, 8)
+        : "#" + account.slice(2, 8);
     },
   },
   async mounted() {
-    await this.blockchainStore.connect()
-    await this.accessControlStore.connect()
-    this.studentStore.connect()
-    this.studentStore.fetchStudents()
+    await this.blockchainStore.connect();
+    await this.accessControlStore.connect();
+    this.studentStore.connect();
+    this.studentStore.fetchStudents();
     const promises = this.blockchainStore.getStudentsAccounts.map((student) => {
-      return this.studentStore.fetchStudentByAddress(student)
-    })
-    Promise.all(promises)
+      return this.studentStore.fetchStudentByAddress(student);
+    });
+    Promise.all(promises);
   },
   computed: {
     selectedAddress: {
       get() {
-        return this.modelValue
+        return this.modelValue;
       },
       set(value) {
-        this.$emit('update:modelValue', value)
+        this.$emit("update:modelValue", value);
       },
     },
     allAccounts() {
       if (!this.blockchainStore.isConnected) {
-        return []
+        return [];
       }
       return [this.blockchainStore.getAdminAccount].concat(
         this.blockchainStore.getCoordinatorsAccounts,
         this.blockchainStore.getStudentsAccounts,
-      )
+      );
     },
   },
-}
+};
 </script>

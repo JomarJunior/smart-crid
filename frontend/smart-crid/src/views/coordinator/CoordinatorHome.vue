@@ -61,20 +61,20 @@
 </template>
 
 <script>
-import BrutalistButton from '@/components/BrutalistButton.vue'
-import BrutalistCard from '@/components/BrutalistCard.vue'
-import { useAccessControlStore } from '@/stores/access-control'
-import { useSmartCridStore } from '@/stores/smart-crid'
+import BrutalistButton from "@/components/BrutalistButton.vue";
+import BrutalistCard from "@/components/BrutalistCard.vue";
+import { useAccessControlStore } from "@/stores/access-control";
+import { useSmartCridStore } from "@/stores/smart-crid";
 
 export default {
-  name: 'CoordinatorsHome',
+  name: "CoordinatorsHome",
   components: {
     BrutalistButton,
     BrutalistCard,
   },
   data: () => ({
     // Define any data properties needed for the component
-    searchQuery: '',
+    searchQuery: "",
     accessControlStore: useAccessControlStore(),
     smartCridStore: useSmartCridStore(),
   }),
@@ -83,24 +83,26 @@ export default {
   },
   computed: {
     canAccess() {
-      const isAdmin = this.accessControlStore.isAdmin(this.smartCridStore.loggedAccount)
-      const isCoordinator = this.accessControlStore.isCoordinator(this.smartCridStore.loggedAccount)
-      return isAdmin || isCoordinator
+      const isAdmin = this.accessControlStore.isAdmin(this.smartCridStore.loggedAccount);
+      const isCoordinator = this.accessControlStore.isCoordinator(
+        this.smartCridStore.loggedAccount,
+      );
+      return isAdmin || isCoordinator;
     },
     navigationLinks() {
       return [
         {
-          name: 'List Courses',
-          path: '/coordinators/courses/list',
-          icon: 'mdi-book-open-page-variant',
+          name: "List Courses",
+          path: "/coordinators/courses/list",
+          icon: "mdi-book-open-page-variant",
         },
         {
-          name: 'Register Course',
-          path: '/coordinators/courses/register',
-          icon: 'mdi-book-plus',
+          name: "Register Course",
+          path: "/coordinators/courses/register",
+          icon: "mdi-book-plus",
         },
-      ]
+      ];
     },
   },
-}
+};
 </script>

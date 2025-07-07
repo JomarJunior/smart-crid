@@ -38,13 +38,12 @@ export const useBlockchainStore = defineStore("blockchain", {
 
         // Get network information
         this.network = markRaw(await this.provider.getNetwork());
-        console.log("Connected to blockchain:", {
-          rpcUrl,
-          accounts: this.accounts,
-          network: this.network,
-        });
-      } catch (error) {
-        console.error("Error connecting to blockchain:", error);
+
+        // Connection successful
+        this.isConnected = true;
+      } catch {
+        // Connection failed
+        this.isConnected = false;
       }
     },
   },

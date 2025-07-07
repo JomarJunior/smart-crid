@@ -48,7 +48,6 @@ export const useCoordinatorStore = defineStore("coordinator", {
       }
       try {
         const courses = await this.contract.listAllCourses();
-        console.log("Fetched courses:", courses);
         this.courses = courses.map((course) => ({
           id: course.id,
           name: course.name,
@@ -67,7 +66,6 @@ export const useCoordinatorStore = defineStore("coordinator", {
       }
       try {
         const enrollments = await this.contract.listAllEnrollmentRequests();
-        console.log("Fetched enrollments:", enrollments);
         this.enrollments = enrollments.map((enrollment) => ({
           id: enrollment.id,
           student: enrollment.student,
@@ -86,7 +84,6 @@ export const useCoordinatorStore = defineStore("coordinator", {
       }
       try {
         const grades = await this.contract.getGradesByCourse(courseId);
-        console.log("Fetched grades:", grades);
 
         if (this.grades[courseId] === undefined) {
           this.grades[courseId] = {};
@@ -117,7 +114,9 @@ export const useCoordinatorStore = defineStore("coordinator", {
           !courseData.credits ||
           !courseData.maxStudents
         ) {
-          throw new Error("Invalid course data. Please ensure all fields are filled out correctly.");
+          throw new Error(
+            "Invalid course data. Please ensure all fields are filled out correctly.",
+          );
         }
 
         const tx = await this.contract.addCourse(
@@ -128,16 +127,14 @@ export const useCoordinatorStore = defineStore("coordinator", {
           courseData.maxStudents,
         );
         await tx.wait();
-        console.log("Course added successfully:", tx);
         await this.fetchCourses(); // Refresh the list of courses
-      } catch (error) {
+      } catch {
         throw new Error("Failed to add course to the blockchain.");
       }
     },
     async requestEnrollment(enrollmentData) {
       // Request enrollment in a course
       try {
-        console.log("Requesting enrollment with data:", enrollmentData);
         if (!enrollmentData.courseId) {
           throw new Error(
             "Invalid enrollment data. Please ensure all fields are filled out correctly.",
@@ -163,162 +160,136 @@ export const useCoordinatorStore = defineStore("coordinator", {
 
         // Create a new contract instance with the current signer
         const newContract = markRaw(new ethers.Contract(contractAddress, CRID.abi, signer));
-        console.log("Requesting enrollment with data:", enrollmentData);
         const tx = await newContract.requestEnrollment(enrollmentData.courseId);
         await tx.wait(); // Wait for the transaction to be mined
-        console.log("Enrollment requested successfully:", tx);
         await this.fetchEnrollments(); // Refresh the list of enrollments
       } catch (error) {
         throw new Error(error);
       }
     },
     async cancelEnrollment(enrollmentData) {
-      try {
-        if (!enrollmentData.id) {
-          throw new Error(
-            "Invalid enrollment data. Please ensure all fields are filled out correctly.",
-          );
-        }
-
-        const blockchain = useBlockchainStore();
-        const smartCridStore = useSmartCridStore();
-        const signer = await blockchain.signers[smartCridStore.loggedAccount];
-        if (!signer) {
-          throw new Error(
-            "Signer not found for the provided address. Please ensure the address is correct.",
-          );
-        }
-
-        const contractAddress =
-          deployments["CRIDModule#CRID"] || process.env.VUE_APP_CRID_CONTRACT_ADDRESS;
-        if (!contractAddress) {
-          throw new Error(
-            "CRID contract address is not set. Please check your environment variables.",
-          );
-        }
-
-        // Create a new contract instance with the current signer
-        const newContract = markRaw(new ethers.Contract(contractAddress, CRID.abi, signer));
-        console.log("Cancelling enrollment with data:", enrollmentData);
-        const tx = await newContract.cancelEnrollmentRequest(enrollmentData.id);
-        await tx.wait(); // Wait for the transaction to be mined
-        console.log("Enrollment cancelled successfully:", tx);
-        await this.fetchEnrollments(); // Refresh the list of enrollments
-      } catch (error) {
-        throw error;
+      if (!enrollmentData.id) {
+        throw new Error(
+          "Invalid enrollment data. Please ensure all fields are filled out correctly.",
+        );
       }
+
+      const blockchain = useBlockchainStore();
+      const smartCridStore = useSmartCridStore();
+      const signer = await blockchain.signers[smartCridStore.loggedAccount];
+      if (!signer) {
+        throw new Error(
+          "Signer not found for the provided address. Please ensure the address is correct.",
+        );
+      }
+
+      const contractAddress =
+        deployments["CRIDModule#CRID"] || process.env.VUE_APP_CRID_CONTRACT_ADDRESS;
+      if (!contractAddress) {
+        throw new Error(
+          "CRID contract address is not set. Please check your environment variables.",
+        );
+      }
+
+      // Create a new contract instance with the current signer
+      const newContract = markRaw(new ethers.Contract(contractAddress, CRID.abi, signer));
+      const tx = await newContract.cancelEnrollmentRequest(enrollmentData.id);
+      await tx.wait(); // Wait for the transaction to be mined
+      await this.fetchEnrollments(); // Refresh the list of enrollments
     },
     async approveEnrollment(enrollmentData) {
-      try {
-        if (!enrollmentData.id) {
-          throw new Error(
-            "Invalid enrollment data. Please ensure all fields are filled out correctly.",
-          );
-        }
-
-        const blockchain = useBlockchainStore();
-        const smartCridStore = useSmartCridStore();
-        const signer = await blockchain.signers[smartCridStore.loggedAccount];
-        if (!signer) {
-          throw new Error(
-            "Signer not found for the provided address. Please ensure the address is correct.",
-          );
-        }
-
-        const contractAddress =
-          deployments["CRIDModule#CRID"] || process.env.VUE_APP_CRID_CONTRACT_ADDRESS;
-        if (!contractAddress) {
-          throw new Error(
-            "CRID contract address is not set. Please check your environment variables.",
-          );
-        }
-
-        // Create a new contract instance with the current signer
-        const newContract = markRaw(new ethers.Contract(contractAddress, CRID.abi, signer));
-        console.log("Approving enrollment with data:", enrollmentData);
-        const tx = await newContract.approveEnrollmentRequest(enrollmentData.id);
-        await tx.wait(); // Wait for the transaction to be mined
-        console.log("Enrollment approved successfully:", tx);
-        await this.fetchEnrollments(); // Refresh the list of enrollments
-      } catch (error) {
-        throw error;
+      if (!enrollmentData.id) {
+        throw new Error(
+          "Invalid enrollment data. Please ensure all fields are filled out correctly.",
+        );
       }
+
+      const blockchain = useBlockchainStore();
+      const smartCridStore = useSmartCridStore();
+      const signer = await blockchain.signers[smartCridStore.loggedAccount];
+      if (!signer) {
+        throw new Error(
+          "Signer not found for the provided address. Please ensure the address is correct.",
+        );
+      }
+
+      const contractAddress =
+        deployments["CRIDModule#CRID"] || process.env.VUE_APP_CRID_CONTRACT_ADDRESS;
+      if (!contractAddress) {
+        throw new Error(
+          "CRID contract address is not set. Please check your environment variables.",
+        );
+      }
+
+      // Create a new contract instance with the current signer
+      const newContract = markRaw(new ethers.Contract(contractAddress, CRID.abi, signer));
+      const tx = await newContract.approveEnrollmentRequest(enrollmentData.id);
+      await tx.wait(); // Wait for the transaction to be mined
+      await this.fetchEnrollments(); // Refresh the list of enrollments
     },
     async rejectEnrollment(enrollmentData) {
-      try {
-        if (!enrollmentData.id) {
-          throw new Error(
-            "Invalid enrollment data. Please ensure all fields are filled out correctly.",
-          );
-        }
-
-        const blockchain = useBlockchainStore();
-        const smartCridStore = useSmartCridStore();
-        const signer = await blockchain.signers[smartCridStore.loggedAccount];
-        if (!signer) {
-          throw new Error(
-            "Signer not found for the provided address. Please ensure the address is correct.",
-          );
-        }
-
-        const contractAddress =
-          deployments["CRIDModule#CRID"] || process.env.VUE_APP_CRID_CONTRACT_ADDRESS;
-        if (!contractAddress) {
-          throw new Error(
-            "CRID contract address is not set. Please check your environment variables.",
-          );
-        }
-
-        // Create a new contract instance with the current signer
-        const newContract = markRaw(new ethers.Contract(contractAddress, CRID.abi, signer));
-        console.log("Rejecting enrollment with data:", enrollmentData);
-        const tx = await newContract.rejectEnrollmentRequest(enrollmentData.id);
-        await tx.wait(); // Wait for the transaction to be mined
-        console.log("Enrollment rejected successfully:", tx);
-        await this.fetchEnrollments(); // Refresh the list of enrollments
-      } catch (error) {
-        throw error;
+      if (!enrollmentData.id) {
+        throw new Error(
+          "Invalid enrollment data. Please ensure all fields are filled out correctly.",
+        );
       }
+
+      const blockchain = useBlockchainStore();
+      const smartCridStore = useSmartCridStore();
+      const signer = await blockchain.signers[smartCridStore.loggedAccount];
+      if (!signer) {
+        throw new Error(
+          "Signer not found for the provided address. Please ensure the address is correct.",
+        );
+      }
+
+      const contractAddress =
+        deployments["CRIDModule#CRID"] || process.env.VUE_APP_CRID_CONTRACT_ADDRESS;
+      if (!contractAddress) {
+        throw new Error(
+          "CRID contract address is not set. Please check your environment variables.",
+        );
+      }
+
+      // Create a new contract instance with the current signer
+      const newContract = markRaw(new ethers.Contract(contractAddress, CRID.abi, signer));
+      const tx = await newContract.rejectEnrollmentRequest(enrollmentData.id);
+      await tx.wait(); // Wait for the transaction to be mined
+      await this.fetchEnrollments(); // Refresh the list of enrollments
     },
     async addGrade(gradeData) {
-      try {
-        // Validate gradeData
-        if (!gradeData.student || !gradeData.course || gradeData.grade === undefined) {
-          throw new Error("Invalid grade data. Please ensure all fields are filled out correctly.");
-        }
-
-        const blockchain = useBlockchainStore();
-        const smartCridStore = useSmartCridStore();
-        const signer = await blockchain.signers[smartCridStore.loggedAccount];
-        if (!signer) {
-          throw new Error(
-            "Signer not found for the provided address. Please ensure the address is correct.",
-          );
-        }
-
-        const contractAddress =
-          deployments["CRIDModule#CRID"] || process.env.VUE_APP_CRID_CONTRACT_ADDRESS;
-        if (!contractAddress) {
-          throw new Error(
-            "CRID contract address is not set. Please check your environment variables.",
-          );
-        }
-
-        // Create a new contract instance with the current signer
-        const newContract = markRaw(new ethers.Contract(contractAddress, CRID.abi, signer));
-        console.log("Adding grade with data:", gradeData);
-        const tx = await newContract.addGrade(
-          gradeData.studentAddress,
-          gradeData.course,
-          gradeData.grade,
-        );
-        await tx.wait(); // Wait for the transaction to be mined
-        console.log("Grade added successfully:", tx);
-        await this.fetchEnrollments(); // Refresh the list of enrollments
-        await this.fetchGradesByCourseId(gradeData.course); // Refresh the grades for the course
-      } catch (error) {
-        throw error;
+      // Validate gradeData
+      if (!gradeData.student || !gradeData.course || gradeData.grade === undefined) {
+        throw new Error("Invalid grade data. Please ensure all fields are filled out correctly.");
       }
+
+      const blockchain = useBlockchainStore();
+      const smartCridStore = useSmartCridStore();
+      const signer = await blockchain.signers[smartCridStore.loggedAccount];
+      if (!signer) {
+        throw new Error(
+          "Signer not found for the provided address. Please ensure the address is correct.",
+        );
+      }
+
+      const contractAddress =
+        deployments["CRIDModule#CRID"] || process.env.VUE_APP_CRID_CONTRACT_ADDRESS;
+      if (!contractAddress) {
+        throw new Error(
+          "CRID contract address is not set. Please check your environment variables.",
+        );
+      }
+
+      // Create a new contract instance with the current signer
+      const newContract = markRaw(new ethers.Contract(contractAddress, CRID.abi, signer));
+      const tx = await newContract.addGrade(
+        gradeData.studentAddress,
+        gradeData.course,
+        gradeData.grade,
+      );
+      await tx.wait(); // Wait for the transaction to be mined
+      await this.fetchEnrollments(); // Refresh the list of enrollments
+      await this.fetchGradesByCourseId(gradeData.course); // Refresh the grades for the course
     },
   },
   getters: {

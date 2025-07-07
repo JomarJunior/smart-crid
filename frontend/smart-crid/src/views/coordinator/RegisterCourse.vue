@@ -39,14 +39,14 @@
 </template>
 
 <script>
-import BrutalistButton from '@/components/BrutalistButton.vue'
-import BrutalistCard from '@/components/BrutalistCard.vue'
-import RegisterCourseForm from '@/components/RegisterCourseForm.vue'
-import { useAccessControlStore } from '@/stores/access-control'
-import { useSmartCridStore } from '@/stores/smart-crid'
+import BrutalistButton from "@/components/BrutalistButton.vue";
+import BrutalistCard from "@/components/BrutalistCard.vue";
+import RegisterCourseForm from "@/components/RegisterCourseForm.vue";
+import { useAccessControlStore } from "@/stores/access-control";
+import { useSmartCridStore } from "@/stores/smart-crid";
 
 export default {
-  name: 'RegisterCourse',
+  name: "RegisterCourse",
   data: () => ({
     // Define any data properties needed for the component
     accessControlStore: useAccessControlStore(),
@@ -61,7 +61,7 @@ export default {
     handleCancel() {
       // Logic to handle cancellation, e.g., reset the form or navigate away
       // Route to the course list or home page
-      this.$router.push({ name: 'courses' })
+      this.$router.push({ name: "courses" });
     },
   },
   mounted() {
@@ -70,10 +70,12 @@ export default {
   computed: {
     // Define computed properties if needed
     canAccess() {
-      const isAdmin = this.accessControlStore.isAdmin(this.smartCridStore.loggedAccount)
-      const isCoordinator = this.accessControlStore.isCoordinator(this.smartCridStore.loggedAccount)
-      return isAdmin || isCoordinator
+      const isAdmin = this.accessControlStore.isAdmin(this.smartCridStore.loggedAccount);
+      const isCoordinator = this.accessControlStore.isCoordinator(
+        this.smartCridStore.loggedAccount,
+      );
+      return isAdmin || isCoordinator;
     },
   },
-}
+};
 </script>

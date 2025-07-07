@@ -14,19 +14,19 @@
 
 <script>
 export default {
-  name: 'BrutalistCard',
+  name: "BrutalistCard",
   inheritAttrs: false,
   data: () => ({}),
   computed: {},
   methods: {},
-}
+};
 </script>
 
 <style scoped>
-@import url('https://fonts.googleapis.com/css2?family=New+Amsterdam&display=swap');
+@import url("https://fonts.googleapis.com/css2?family=New+Amsterdam&display=swap");
 
 .brutalist-card-title {
-  font-family: 'New Amsterdam', sans-serif !important;
+  font-family: "New Amsterdam", sans-serif !important;
   margin-bottom: 12px;
   font-size: 2.5rem;
   border-radius: 8px;
@@ -35,7 +35,7 @@ export default {
 }
 
 .brutalist-card-text {
-  font-family: 'New Amsterdam', sans-serif !important;
+  font-family: "New Amsterdam", sans-serif !important;
   font-size: 1.3rem;
   color: rgb(var(--v-theme-accent));
   text-align: justify;
@@ -44,7 +44,7 @@ export default {
 .brutalist-card-actions {
   display: flex;
   justify-content: space-between;
-  font-family: 'New Amsterdam', sans-serif !important;
+  font-family: "New Amsterdam", sans-serif !important;
   color: rgb(var(--v-theme-secondary));
 }
 

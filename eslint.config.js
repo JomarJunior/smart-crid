@@ -29,6 +29,27 @@ module.exports = [
       "no-var": "error",
     },
   },
+  // Frontend/Browser environment configuration
+  {
+    files: ["frontend/**/*.js"],
+    languageOptions: {
+      ecmaVersion: 2022,
+      sourceType: "module",
+      globals: {
+        ...globals.browser,
+        ...globals.node,
+      },
+    },
+    rules: {
+      semi: ["error", "always"],
+      quotes: ["warn", "double"],
+      indent: ["warn", 2],
+      "no-unused-vars": ["warn", { argsIgnorePattern: "^_" }],
+      "no-console": "warn",
+      "prefer-const": "error",
+      "no-var": "error",
+    },
+  },
   {
     ignores: [
       "node_modules/",
@@ -40,6 +61,7 @@ module.exports = [
       "build/",
       "scripts/",
       "test/",
+      "frontend/**/*.vue", // Exclude Vue files from main ESLint config
     ],
   },
 ];

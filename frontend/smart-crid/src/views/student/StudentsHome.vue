@@ -56,44 +56,44 @@
 </template>
 
 <script>
-import BrutalistButton from '@/components/BrutalistButton.vue'
-import { useStudentStore } from '@/stores/student'
+import BrutalistButton from "@/components/BrutalistButton.vue";
+import { useStudentStore } from "@/stores/student";
 
 export default {
-  name: 'StudentsHome',
+  name: "StudentsHome",
   components: {
     BrutalistButton,
   },
   data: () => ({
     // Define any data properties needed for the component
-    searchQuery: '',
+    searchQuery: "",
     studentStore: useStudentStore(),
   }),
   async mounted() {
     // Initialize the student store when the component is mounted
-    await this.studentStore.connect()
-    await this.studentStore.fetchStudents()
+    await this.studentStore.connect();
+    await this.studentStore.fetchStudents();
   },
   computed: {
     navigationLinks() {
       return [
         {
-          name: 'List',
-          path: '/students/list',
-          icon: 'mdi-account-group',
+          name: "List",
+          path: "/students/list",
+          icon: "mdi-account-group",
         },
         {
-          name: 'Register',
-          path: '/students/register',
-          icon: 'mdi-account-plus',
+          name: "Register",
+          path: "/students/register",
+          icon: "mdi-account-plus",
         },
         {
-          name: 'List Courses',
-          path: '/coordinators/courses/list',
-          icon: 'mdi-book-open',
+          name: "List Courses",
+          path: "/coordinators/courses/list",
+          icon: "mdi-book-open",
         },
-      ]
+      ];
     },
   },
-}
+};
 </script>

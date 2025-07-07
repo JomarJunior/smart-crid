@@ -34,18 +34,18 @@
 </template>
 
 <script>
-import { useSmartCridStore } from '@/stores/smart-crid'
-import AddressImpersonator from './AddressImpersonator.vue'
+import { useSmartCridStore } from "@/stores/smart-crid";
+import AddressImpersonator from "./AddressImpersonator.vue";
 
 export default {
-  name: 'AppBar',
+  name: "AppBar",
   components: {
     AddressImpersonator,
   },
   props: {
     title: {
       type: String,
-      default: 'Smart CRID',
+      default: "Smart CRID",
     },
     items: {
       type: Array,
@@ -58,24 +58,24 @@ export default {
   computed: {
     developmentEnvironment() {
       // Check if the app is running in development mode
-      return import.meta.env.MODE === 'development'
+      return import.meta.env.MODE === "development";
     },
     isLightTheme() {
       // Check if the current theme is light
-      return this.smartCridStore.isLightTheme
+      return this.smartCridStore.isLightTheme;
     },
   },
   methods: {
     toggleDarkTheme() {
       // Toggle dark theme logic
-      this.smartCridStore.toggleTheme()
+      this.smartCridStore.toggleTheme();
     },
   },
   mounted() {
     // Initialize the theme
-    this.smartCridStore.initialize()
+    this.smartCridStore.initialize();
   },
-}
+};
 </script>
 
 <style scoped>

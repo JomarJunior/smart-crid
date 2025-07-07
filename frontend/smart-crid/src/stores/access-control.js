@@ -72,7 +72,6 @@ export const useAccessControlStore = defineStore("accessControl", {
         throw new Error("Contract is not connected. Please call connect() first.");
       }
       try {
-        console.log(`Adding coordinator: ${coordinatorAddress}`);
         const blockchain = useBlockchainStore();
 
         if (!blockchain.isConnected) {
@@ -85,7 +84,6 @@ export const useAccessControlStore = defineStore("accessControl", {
         }
 
         const signer = await provider.getSigner(blockchain.accounts[0]);
-        console.log("Signer:", signer);
         if (!signer) {
           throw new Error(
             "Signer is not available. Please ensure you are connected to the blockchain.",
@@ -105,7 +103,6 @@ export const useAccessControlStore = defineStore("accessControl", {
 
         const tx = await contract.addCoordinator(coordinatorAddress);
         await tx.wait();
-        console.log(`Coordinator ${coordinatorAddress} added successfully.`);
         // Update the coordinatorsAddresses state
         if (!this.coordinatorsAddresses.includes(coordinatorAddress)) {
           this.coordinatorsAddresses.push(coordinatorAddress);
@@ -122,7 +119,6 @@ export const useAccessControlStore = defineStore("accessControl", {
       try {
         const tx = await this.contract.removeCoordinator(coordinatorAddress);
         await tx.wait();
-        console.log(`Coordinator ${coordinatorAddress} removed successfully.`);
         // Update the coordinatorsAddresses state
         const index = this.coordinatorsAddresses.indexOf(coordinatorAddress);
         if (index !== -1) {
@@ -138,7 +134,6 @@ export const useAccessControlStore = defineStore("accessControl", {
         throw new Error("Contract is not connected. Please call connect() first.");
       }
       try {
-        console.log(`Adding student: ${studentAddress}`);
         const blockchain = useBlockchainStore();
 
         if (!blockchain.isConnected) {
@@ -151,7 +146,6 @@ export const useAccessControlStore = defineStore("accessControl", {
         }
 
         const signer = await provider.getSigner(blockchain.accounts[0]);
-        console.log("Signer:", signer);
         if (!signer) {
           throw new Error(
             "Signer is not available. Please ensure you are connected to the blockchain.",
@@ -171,7 +165,6 @@ export const useAccessControlStore = defineStore("accessControl", {
 
         const tx = await contract.addStudent(studentAddress);
         await tx.wait();
-        console.log(`Student ${studentAddress} added successfully.`);
         // Update the studentsAddresses state
         if (!this.studentsAddresses.includes(studentAddress)) {
           this.studentsAddresses.push(studentAddress);
@@ -188,7 +181,6 @@ export const useAccessControlStore = defineStore("accessControl", {
       try {
         const tx = await this.contract.removeStudent(studentAddress);
         await tx.wait();
-        console.log(`Student ${studentAddress} removed successfully.`);
         // Update the studentsAddresses state
         const index = this.studentsAddresses.indexOf(studentAddress);
         if (index !== -1) {

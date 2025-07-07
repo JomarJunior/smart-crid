@@ -6,7 +6,7 @@
           {{ student.fullName }}
           <VSpacer />
           <VChip class="mt-2" size="x-large" :color="student.isActive ? 'success' : 'error'">
-            {{ student.isActive ? 'Active' : 'Former' }}
+            {{ student.isActive ? "Active" : "Former" }}
           </VChip>
         </div>
       </template>
@@ -57,10 +57,10 @@
 </template>
 
 <script>
-import BrutalistCard from './BrutalistCard.vue'
+import BrutalistCard from "./BrutalistCard.vue";
 
 export default {
-  name: 'StudentCard',
+  name: "StudentCard",
   inheritAttrs: false,
   components: {
     BrutalistCard,
@@ -72,5 +72,5 @@ export default {
     },
   },
   computed: {},
-}
+};
 </script>

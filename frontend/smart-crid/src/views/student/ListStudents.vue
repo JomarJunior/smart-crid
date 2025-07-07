@@ -39,13 +39,13 @@
 </template>
 
 <script>
-import { useStudentStore } from '@/stores/student'
-import StudentCard from '@/components/StudentCard.vue'
-import BrutalistCard from '@/components/BrutalistCard.vue'
-import BrutalistButton from '@/components/BrutalistButton.vue'
+import { useStudentStore } from "@/stores/student";
+import StudentCard from "@/components/StudentCard.vue";
+import BrutalistCard from "@/components/BrutalistCard.vue";
+import BrutalistButton from "@/components/BrutalistButton.vue";
 
 export default {
-  name: 'ListStudents',
+  name: "ListStudents",
   components: {
     StudentCard,
     BrutalistCard,
@@ -56,12 +56,12 @@ export default {
   }),
   computed: {
     students() {
-      return this.studentStore.students
+      return this.studentStore.students;
     },
   },
   async mounted() {
-    await this.studentStore.connect()
-    await this.studentStore.fetchStudents()
+    await this.studentStore.connect();
+    await this.studentStore.fetchStudents();
   },
-}
+};
 </script>

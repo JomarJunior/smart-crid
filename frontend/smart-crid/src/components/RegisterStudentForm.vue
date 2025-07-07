@@ -39,22 +39,22 @@
 </template>
 
 <script>
-import { useStudentStore } from '@/stores/student'
-import { useSmartCridStore } from '@/stores/smart-crid'
-import BrutalistButton from '@/components/BrutalistButton.vue'
+import { useStudentStore } from "@/stores/student";
+import { useSmartCridStore } from "@/stores/smart-crid";
+import BrutalistButton from "@/components/BrutalistButton.vue";
 
 export default {
-  name: 'RegisterStudentForm',
+  name: "RegisterStudentForm",
   components: {
     BrutalistButton,
   },
   data: () => ({
-    address: '',
-    studentName: '',
-    studentLastName: '',
-    studentId: '',
-    email: '',
-    program: '',
+    address: "",
+    studentName: "",
+    studentLastName: "",
+    studentId: "",
+    email: "",
+    program: "",
     enrollmentYear: null,
     studentStore: useStudentStore(),
     smartCRID: useSmartCridStore(),
@@ -62,29 +62,29 @@ export default {
   }),
   methods: {
     handleSubmit() {
-      this.loading = true
+      this.loading = true;
       this.studentStore
         .addStudent({
           address: this.smartCRID.loggedAccount,
           id: this.studentId,
-          fullName: this.studentName + ' ' + this.studentLastName,
+          fullName: this.studentName + " " + this.studentLastName,
           email: this.email,
           program: this.program,
           enrollmentYear: this.enrollmentYear,
         })
         .then(() => {
           // Handle successful registration, e.g., show a success message or redirect
-          this.$emit('studentRegistered')
-          this.$router.push({ name: 'list-students' })
+          this.$emit("studentRegistered");
+          this.$router.push({ name: "list-students" });
         })
         .catch((error) => {
           // Handle error during registration
-          console.error('Error registering student:', error)
+          console.error("Error registering student:", error);
         })
         .finally(() => {
-          this.loading = false
-        })
+          this.loading = false;
+        });
     },
   },
-}
+};
 </script>

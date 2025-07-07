@@ -35,15 +35,15 @@
 </template>
 
 <script>
-import { useCoordinatorStore } from '@/stores/coordinator'
-import { useSmartCridStore } from '@/stores/smart-crid'
-import { useAccessControlStore } from '@/stores/access-control'
-import CourseCard from '@/components/CourseCard.vue'
-import BrutalistCard from '@/components/BrutalistCard.vue'
-import BrutalistButton from '@/components/BrutalistButton.vue'
+import { useCoordinatorStore } from "@/stores/coordinator";
+import { useSmartCridStore } from "@/stores/smart-crid";
+import { useAccessControlStore } from "@/stores/access-control";
+import CourseCard from "@/components/CourseCard.vue";
+import BrutalistCard from "@/components/BrutalistCard.vue";
+import BrutalistButton from "@/components/BrutalistButton.vue";
 
 export default {
-  name: 'ListCourses',
+  name: "ListCourses",
   components: {
     CourseCard,
     BrutalistCard,
@@ -57,17 +57,19 @@ export default {
   computed: {
     canRegisterCourse() {
       // Check if the user has permission to register courses
-      const isAdmin = this.accessControlStore.isAdmin(this.smartCridStore.loggedAccount)
-      const isCoordinator = this.accessControlStore.isCoordinator(this.smartCridStore.loggedAccount)
-      return isAdmin || isCoordinator
+      const isAdmin = this.accessControlStore.isAdmin(this.smartCridStore.loggedAccount);
+      const isCoordinator = this.accessControlStore.isCoordinator(
+        this.smartCridStore.loggedAccount,
+      );
+      return isAdmin || isCoordinator;
     },
     courses() {
-      return this.coordinatorStore.courses
+      return this.coordinatorStore.courses;
     },
   },
   async mounted() {
-    await this.coordinatorStore.connect()
-    await this.coordinatorStore.fetchCourses()
+    await this.coordinatorStore.connect();
+    await this.coordinatorStore.fetchCourses();
   },
-}
+};
 </script>

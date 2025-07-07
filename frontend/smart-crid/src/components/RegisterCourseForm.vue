@@ -50,25 +50,25 @@
 </template>
 
 <script>
-import BrutalistButton from '@/components/BrutalistButton.vue'
-import { useCoordinatorStore } from '@/stores/coordinator'
+import BrutalistButton from "@/components/BrutalistButton.vue";
+import { useCoordinatorStore } from "@/stores/coordinator";
 
 export default {
-  name: 'RegisterCourseForm',
+  name: "RegisterCourseForm",
   components: {
     BrutalistButton,
   },
   data: () => ({
-    courseName: '',
-    courseDescription: '',
+    courseName: "",
+    courseDescription: "",
     credits: 4,
     maxStudents: 30,
     loading: false,
     coordinatorStore: useCoordinatorStore(),
   }),
   async mounted() {
-    await this.coordinatorStore.connect()
-    await this.coordinatorStore.fetchCourses()
+    await this.coordinatorStore.connect();
+    await this.coordinatorStore.fetchCourses();
   },
   methods: {
     handleSubmit() {
@@ -77,25 +77,25 @@ export default {
         description: this.courseDescription,
         credits: this.credits,
         maxStudents: this.maxStudents,
-      }
-      console.log('Submitting course registration:', courseData)
+      };
+      console.log("Submitting course registration:", courseData);
 
-      this.loading = true
+      this.loading = true;
       this.coordinatorStore
         .addCourse(courseData)
         .then(() => {
           // Handle successful registration, e.g., show a success message or redirect
-          this.$emit('courseRegistered')
-          this.$router.push({ name: 'list-courses' })
+          this.$emit("courseRegistered");
+          this.$router.push({ name: "list-courses" });
         })
         .catch((error) => {
           // Handle error during registration
-          console.error('Error registering course:', error)
+          console.error("Error registering course:", error);
         })
         .finally(() => {
-          this.loading = false
-        })
+          this.loading = false;
+        });
     },
   },
-}
+};
 </script>

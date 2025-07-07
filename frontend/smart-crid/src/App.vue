@@ -8,15 +8,15 @@
 </template>
 
 <script>
-import { RouterLink, RouterView } from 'vue-router'
-import { useBlockchainStore } from './stores/blockchain'
-import { useStudentStore } from './stores/student'
-import { useAccessControlStore } from './stores/access-control'
-import { useSmartCridStore } from './stores/smart-crid'
-import AppBar from './components/AppBar.vue'
+import { RouterLink, RouterView } from "vue-router";
+import { useBlockchainStore } from "./stores/blockchain";
+import { useStudentStore } from "./stores/student";
+import { useAccessControlStore } from "./stores/access-control";
+import { useSmartCridStore } from "./stores/smart-crid";
+import AppBar from "./components/AppBar.vue";
 
 export default {
-  name: 'App',
+  name: "App",
   components: {
     RouterLink,
     RouterView,
@@ -31,38 +31,38 @@ export default {
   computed: {
     appTitle() {
       // If development, return a different title
-      return 'Smart CRID'
+      return "Smart CRID";
     },
     navigationItems() {
       const items = [
-        { name: 'Home', path: '/' },
-        { name: 'Students', path: '/students' },
-      ]
+        { name: "Home", path: "/" },
+        { name: "Students", path: "/students" },
+      ];
 
       if (this.accessControl.isAdmin(this.smartCRID.loggedAccount)) {
-        items.push({ name: 'Professors', path: '/coordinators' })
-        items.push({ name: 'Roles', path: '/roles' })
+        items.push({ name: "Professors", path: "/coordinators" });
+        items.push({ name: "Roles", path: "/roles" });
       } else if (this.accessControl.isCoordinator(this.smartCRID.loggedAccount)) {
-        items.push({ name: 'Professors', path: '/coordinators' })
+        items.push({ name: "Professors", path: "/coordinators" });
       }
 
-      return items
+      return items;
     },
   },
   mounted() {
     // Initialize the blockchain store
-    console.log('Initializing blockchain store...')
+    console.log("Initializing blockchain store...");
     this.blockchain.connect().then(() => {
       this.student
         .connect()
         .then(() => {
-          console.log('Student store connected successfully.')
-          this.student.fetchStudents()
+          console.log("Student store connected successfully.");
+          this.student.fetchStudents();
         })
         .catch((error) => {
-          console.error('Error connecting student store:', error)
-        })
-    })
+          console.error("Error connecting student store:", error);
+        });
+    });
   },
-}
+};
 </script>

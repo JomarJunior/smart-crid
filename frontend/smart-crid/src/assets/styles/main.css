@@ -1,7 +1,7 @@
-@import url('https://fonts.googleapis.com/css2?family=New+Amsterdam&display=swap');
+@import url("https://fonts.googleapis.com/css2?family=New+Amsterdam&display=swap");
 
 body {
-  font-family: 'New Amsterdam', sans-serif;
+  font-family: "New Amsterdam", sans-serif;
 }
 
 a {
@@ -10,7 +10,7 @@ a {
 }
 
 .brutalist-font {
-  font-family: 'New Amsterdam', sans-serif !important;
+  font-family: "New Amsterdam", sans-serif !important;
 }
 
 .brutalist-shadow-animated,

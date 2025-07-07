@@ -24,12 +24,12 @@
 </template>
 
 <script>
-import BrutalistButton from '@/components/BrutalistButton.vue'
-import BrutalistCard from '@/components/BrutalistCard.vue'
-import RegisterStudentForm from '@/components/RegisterStudentForm.vue'
+import BrutalistButton from "@/components/BrutalistButton.vue";
+import BrutalistCard from "@/components/BrutalistCard.vue";
+import RegisterStudentForm from "@/components/RegisterStudentForm.vue";
 
 export default {
-  name: 'RegisterStudent',
+  name: "RegisterStudent",
   components: {
     BrutalistCard,
     BrutalistButton,
@@ -42,8 +42,8 @@ export default {
     handleCancel() {
       // Logic to handle cancellation, e.g., reset the form or navigate away
       // Route to the student list or home page
-      this.$router.push({ name: 'students' })
+      this.$router.push({ name: "students" });
     },
   },
-}
+};
 </script>

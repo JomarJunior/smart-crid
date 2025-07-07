@@ -53,20 +53,20 @@
 </template>
 
 <script>
-import BrutalistButton from '@/components/BrutalistButton.vue'
-import BrutalistCard from '@/components/BrutalistCard.vue'
-import { useAccessControlStore } from '@/stores/access-control'
-import { useSmartCridStore } from '@/stores/smart-crid'
+import BrutalistButton from "@/components/BrutalistButton.vue";
+import BrutalistCard from "@/components/BrutalistCard.vue";
+import { useAccessControlStore } from "@/stores/access-control";
+import { useSmartCridStore } from "@/stores/smart-crid";
 
 export default {
-  name: 'StudentsHome',
+  name: "StudentsHome",
   components: {
     BrutalistButton,
     BrutalistCard,
   },
   data: () => ({
     // Define any data properties needed for the component
-    searchQuery: '',
+    searchQuery: "",
     accessControlStore: useAccessControlStore(),
     smartCridStore: useSmartCridStore(),
   }),
@@ -78,22 +78,22 @@ export default {
       return (
         this.accessControlStore.isAdmin(this.smartCridStore.loggedAccount) ||
         this.accessControlStore.isCoordinator(this.smartCridStore.loggedAccount)
-      )
+      );
     },
     navigationLinks() {
       return [
         {
-          name: 'Add Coordinator',
-          path: '/roles/add-coordinator',
-          icon: 'mdi-shield-crown-outline',
+          name: "Add Coordinator",
+          path: "/roles/add-coordinator",
+          icon: "mdi-shield-crown-outline",
         },
         {
-          name: 'Add Student',
-          path: '/roles/add-student',
-          icon: 'mdi-shield-account-outline',
+          name: "Add Student",
+          path: "/roles/add-student",
+          icon: "mdi-shield-account-outline",
         },
-      ]
+      ];
     },
   },
-}
+};
 </script>

@@ -67,15 +67,15 @@
 </template>
 
 <script>
-import BrutalistButton from '@/components/BrutalistButton.vue'
-import BrutalistCard from '@/components/BrutalistCard.vue'
+import BrutalistButton from "@/components/BrutalistButton.vue";
+import BrutalistCard from "@/components/BrutalistCard.vue";
 
-import { useAccessControlStore } from '@/stores/access-control'
-import { useBlockchainStore } from '@/stores/blockchain'
-import { useSmartCridStore } from '@/stores/smart-crid'
+import { useAccessControlStore } from "@/stores/access-control";
+import { useBlockchainStore } from "@/stores/blockchain";
+import { useSmartCridStore } from "@/stores/smart-crid";
 
 export default {
-  name: 'AddStudent',
+  name: "AddStudent",
   components: {
     BrutalistButton,
     BrutalistCard,
@@ -97,55 +97,55 @@ export default {
       return (
         this.accessControlStore.isAdmin(this.smartCridStore.loggedAccount) ||
         this.accessControlStore.isCoordinator(this.smartCridStore.loggedAccount)
-      )
+      );
     },
   },
   methods: {
     // Define methods for handling form submission, etc.
     submit() {
-      console.log('Selected addresses indices:', this.selectedAddressesIndices)
+      console.log("Selected addresses indices:", this.selectedAddressesIndices);
       const promises = this.selectedAddressesIndices.map((index) =>
         this.accessControlStore.addStudent(this.blockchainStore.getStudentsAccounts[index]),
-      )
+      );
 
-      this.loading = true
+      this.loading = true;
       Promise.all(promises)
         .then(() => {
-          console.log('Students added successfully')
-          this.selectedAddressesIndices = []
+          console.log("Students added successfully");
+          this.selectedAddressesIndices = [];
         })
         .catch((error) => {
-          console.error('Error adding students:', error)
-          this.$toast.error('Failed to add students. Please try again.')
+          console.error("Error adding students:", error);
+          this.$toast.error("Failed to add students. Please try again.");
         })
         .finally(() => {
-          this.loading = false
-        })
+          this.loading = false;
+        });
     },
     getRole(address) {
-      const isAdmin = this.accessControlStore.isAdmin(address)
-      const isCoordinator = this.accessControlStore.isCoordinator(address)
-      const isStudent = this.accessControlStore.isStudent(address)
+      const isAdmin = this.accessControlStore.isAdmin(address);
+      const isCoordinator = this.accessControlStore.isCoordinator(address);
+      const isStudent = this.accessControlStore.isStudent(address);
 
-      if (isAdmin) return 'Admin'
-      if (isCoordinator) return 'Coordinator'
-      if (isStudent) return 'Student'
-      return 'Guest'
+      if (isAdmin) return "Admin";
+      if (isCoordinator) return "Coordinator";
+      if (isStudent) return "Student";
+      return "Guest";
     },
     getColorString(address) {
-      return '#' + address.slice(2, 8)
+      return "#" + address.slice(2, 8);
     },
     toggleSelectedAddressesIndices(index) {
-      const selectedIndex = this.selectedAddressesIndices.indexOf(index)
+      const selectedIndex = this.selectedAddressesIndices.indexOf(index);
       if (selectedIndex > -1) {
-        this.selectedAddressesIndices.splice(selectedIndex, 1)
+        this.selectedAddressesIndices.splice(selectedIndex, 1);
       } else {
-        this.selectedAddressesIndices.push(index)
+        this.selectedAddressesIndices.push(index);
       }
     },
     isSelected(index) {
-      return this.selectedAddressesIndices.includes(index)
+      return this.selectedAddressesIndices.includes(index);
     },
   },
-}
+};
 </script>

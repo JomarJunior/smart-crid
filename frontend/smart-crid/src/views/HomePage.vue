@@ -116,14 +116,14 @@
 </template>
 
 <script>
-import BrutalistCard from '@/components/BrutalistCard.vue'
-import BrutalistButton from '@/components/BrutalistButton.vue'
-import { useBlockchainStore } from '@/stores/blockchain'
-import { useStudentStore } from '@/stores/student'
-import { useCoordinatorStore } from '@/stores/coordinator'
+import BrutalistCard from "@/components/BrutalistCard.vue";
+import BrutalistButton from "@/components/BrutalistButton.vue";
+import { useBlockchainStore } from "@/stores/blockchain";
+import { useStudentStore } from "@/stores/student";
+import { useCoordinatorStore } from "@/stores/coordinator";
 
 export default {
-  name: 'HomePage',
+  name: "HomePage",
   components: {
     BrutalistCard,
     BrutalistButton,
@@ -135,13 +135,13 @@ export default {
   }),
   async mounted() {
     // Initialize the blockchain store when the component is mounted
-    await this.blockchainStore.connect()
-    await this.studentStore.connect()
-    await this.studentStore.fetchStudents()
+    await this.blockchainStore.connect();
+    await this.studentStore.connect();
+    await this.studentStore.fetchStudents();
 
-    await this.coordinatorStore.connect()
-    await this.coordinatorStore.fetchCourses()
-    await this.coordinatorStore.fetchEnrollments()
+    await this.coordinatorStore.connect();
+    await this.coordinatorStore.fetchCourses();
+    await this.coordinatorStore.fetchEnrollments();
   },
   methods: {
     // Add any methods needed for the component here
@@ -150,24 +150,24 @@ export default {
     // Add any computed properties needed for the component here
     allAccounts() {
       if (!this.blockchainStore.isConnected) {
-        return []
+        return [];
       }
-      return this.blockchainStore.getAccounts
+      return this.blockchainStore.getAccounts;
     },
     navigationLinks() {
       return [
         {
-          name: 'List of Students',
-          path: '/students/list',
-          icon: 'mdi-account-group',
+          name: "List of Students",
+          path: "/students/list",
+          icon: "mdi-account-group",
         },
         {
-          name: 'List of Courses',
-          path: '/coordinators/courses/list',
-          icon: 'mdi-book-open',
+          name: "List of Courses",
+          path: "/coordinators/courses/list",
+          icon: "mdi-book-open",
         },
-      ]
+      ];
     },
   },
-}
+};
 </script>

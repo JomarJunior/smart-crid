@@ -13,24 +13,24 @@
 
 <script>
 export default {
-  name: 'BrutalistButton',
+  name: "BrutalistButton",
   inheritAttrs: false,
   props: {
     text: {
       type: String,
-      default: 'Button',
+      default: "Button",
     },
     prependIcon: {
       type: String,
-      default: 'mdi-hand-pointing-right',
+      default: "mdi-hand-pointing-right",
     },
   },
-}
+};
 </script>
 
 <style scoped>
 .brutalist-button {
-  font-family: 'New Amsterdam', sans-serif !important;
+  font-family: "New Amsterdam", sans-serif !important;
   font-size: 1.5rem;
   text-transform: uppercase;
   box-shadow: 5px 5px rgb(var(--v-theme-primary));
